@@ -4,3 +4,5 @@ vet_backend/venv
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyo
+.pytest_cache/
