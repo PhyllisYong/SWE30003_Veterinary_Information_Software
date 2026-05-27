@@ -44,7 +44,7 @@ export default function Navbar() {
           <li><NavLink to="/guides">First Aid Guides</NavLink></li>
           <li><NavLink to="/videos">Videos</NavLink></li>
           <li><NavLink to="/quizzes">Quizzes</NavLink></li>
-          <li><NavLink to="/book">Book a Vet</NavLink></li>
+          <li><NavLink to="/vet-advice">Vet Advice</NavLink></li>
         </ul>
 
         <div className="navbar__actions">

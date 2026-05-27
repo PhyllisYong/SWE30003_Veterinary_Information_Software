@@ -8,9 +8,11 @@ import QuizPage from './pages/QuizPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
-
 import FirstAidGuides from './pages/FirstAidPage'
 import Video from './pages/VideoPage'
+import VetAdvicePage from './pages/VetAdvicePage'
+import ChatPage from './pages/ChatPage'
+import BookingPage from './pages/BookingPage'
 
 
 function App() {
@@ -26,6 +28,9 @@ function App() {
         <Route path="/guides" element={<FirstAidGuides />} />
         <Route path="/videos" element={<Video />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/vet-advice" element={<VetAdvicePage />} />
+        <Route path="/vet-advice/chat" element={<ChatPage />} />
+        <Route path="/vet-advice/booking" element={<BookingPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>

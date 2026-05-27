@@ -1,0 +1,200 @@
+.booking-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 4rem;
+}
+
+.booking-page h1 {
+  font-size: 1.85rem;
+  font-weight: 700;
+  margin-bottom: 1.75rem;
+}
+
+/* ── Sections ──────────────────────────────────────────────────────────────── */
+
+.booking-section {
+  margin-bottom: 2.75rem;
+}
+
+.booking-section h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* ── Status messages ───────────────────────────────────────────────────────── */
+
+.booking-msg {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.booking-msg--error   { color: #dc2626; }
+.booking-msg--success { color: #16a34a; }
+
+.booking-empty {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+/* ── Vet selection grid ────────────────────────────────────────────────────── */
+
+.vet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.vet-card {
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.vet-card:hover {
+  border-color: #93c5fd;
+}
+
+.vet-card--selected {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.vet-card__name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+}
+
+.vet-card__spec {
+  font-size: 0.82rem;
+  color: #6b7280;
+  margin-bottom: 0.3rem;
+}
+
+.vet-card__slots {
+  font-size: 0.8rem;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+/* ── Slot picker ───────────────────────────────────────────────────────────── */
+
+.slot-picker {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem 1.25rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.slot-picker h3 {
+  font-size: 0.97rem;
+  font-weight: 600;
+  margin: 0 0 0.9rem;
+}
+
+.slot-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.1rem;
+}
+
+.slot-btn {
+  padding: 0.38rem 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.84rem;
+  transition: border-color 0.14s, background 0.14s, color 0.14s;
+}
+
+.slot-btn:hover {
+  border-color: #3b82f6;
+}
+
+.slot-btn--active {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+
+.slot-picker__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ── Table ─────────────────────────────────────────────────────────────────── */
+
+.booking-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.booking-table th {
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  background: #f3f4f6;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.booking-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+}
+
+.booking-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Status badges ─────────────────────────────────────────────────────────── */
+
+.badge {
+  display: inline-block;
+  padding: 0.18rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.badge--yellow { background: #fef3c7; color: #92400e; }
+.badge--green  { background: #d1fae5; color: #065f46; }
+.badge--red    { background: #fee2e2; color: #991b1b; }
+.badge--gray   { background: #f3f4f6; color: #374151; }
+
+/* ── Shared button helpers ─────────────────────────────────────────────────── */
+
+.btn--sm {
+  padding: 0.28rem 0.65rem;
+  font-size: 0.82rem;
+}
+
+.btn--secondary {
+  background: #e5e7eb;
+  color: #374151;
+  border: none;
+  border-radius: 8px;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.btn--secondary:hover {
+  background: #d1d5db;
+}
