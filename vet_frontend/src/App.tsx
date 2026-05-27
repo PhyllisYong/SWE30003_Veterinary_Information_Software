@@ -9,6 +9,9 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 
 import FirstAidGuides from './pages/FirstAidPage'
+import Video from './pages/VideoPage'
+
+
 function App() {
   return (
     <BrowserRouter>
@@ -20,6 +23,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/guides" element={<FirstAidGuides />} />
+        <Route path="/videos" element={<Video />} />
       </Routes>
       <Footer />
     </BrowserRouter>
