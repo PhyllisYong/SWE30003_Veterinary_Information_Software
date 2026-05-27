@@ -51,6 +51,7 @@ export default function Navbar() {
           {userName ? (
             <>
               <span className="navbar__user">Hi, {userName.split(' ')[0]}</span>
+              <Link to="/profile" className="btn btn--ghost">Profile</Link>
               <button className="btn btn--ghost" onClick={handleLogout}>
                 Log out
               </button>

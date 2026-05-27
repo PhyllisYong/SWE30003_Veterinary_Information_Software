@@ -7,6 +7,7 @@ import QuizListPage from './pages/QuizListPage'
 import QuizPage from './pages/QuizPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import ProfilePage from './pages/ProfilePage'
 
 import FirstAidGuides from './pages/FirstAidPage'
 import Video from './pages/VideoPage'
@@ -24,6 +25,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/guides" element={<FirstAidGuides />} />
         <Route path="/videos" element={<Video />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
       <Footer />
     </BrowserRouter>
