@@ -1,4 +1,4 @@
 vet_backend/.env
 vet_backend/venv
-/alembic/__pycache__
-/app/__pycache__
+vet_backend/alembic/__pycache__
+vet_backend/app/__pycache__
