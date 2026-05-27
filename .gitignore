@@ -1,2 +1,4 @@
 vet_backend/.env
 vet_backend/venv
+
+/pycache__pycache__/
