@@ -57,11 +57,34 @@ def list_quizzes(db: Session = Depends(get_db)):
 @router.get("/{quiz_id}")
 def get_quiz(
     quiz_id: str,
-    currentUser: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    quiz = getQuiz(quiz_id, db)  # fixed: was missing db argument
-    return quiz
+    """Return a single quiz with all questions and answers. isCorrect is intentionally omitted."""
+    quiz = getQuiz(quiz_id, db)
+    return {
+        "id": quiz.contentID,
+        "title": quiz.title,
+        "description": quiz.description,
+        "petType": quiz.petType,
+        "emergencyCategory": quiz.emergencyCategory,
+        "durationSec": quiz.durationSec,
+        "totalScore": quiz.totalScore,
+        "questions": [
+            {
+                "id": q.questionID,
+                "questionText": q.questionText,
+                "answers": [
+                    {
+                        "id": a.answerID,
+                        "answerText": a.answerText,
+                        # isCorrect intentionally omitted — checked server-side on submit
+                    }
+                    for a in q.answers
+                ],
+            }
+            for q in quiz.questions
+        ],
+    }
 
 
 @router.post("/{quiz_id}/submit")

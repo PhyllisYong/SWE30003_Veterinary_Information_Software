@@ -1,0 +1,147 @@
+/* ── Page wrapper ────────────────────────────────────────────────────────── */
+.register-page {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-alt);
+  padding: 48px 24px;
+}
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+.register-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: var(--shadow-sm);
+}
+
+.register-card h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+}
+
+.register-card__sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+
+/* ── Form groups ─────────────────────────────────────────────────────────── */
+.rform-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.rform-group label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.rform-group input,
+.rform-group select {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14.5px;
+  font-family: inherit;
+  color: var(--text);
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.rform-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.rform-group input:focus,
+.rform-group select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+.rform-group input::placeholder {
+  color: var(--text-light);
+}
+
+.rform-optional {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+/* ── Role extras fade-in ─────────────────────────────────────────────────── */
+.rform-group + .rform-group {
+  animation: fadeSlide 0.18s ease;
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Error banner ────────────────────────────────────────────────────────── */
+.register-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: #b91c1c;
+  margin-bottom: 18px;
+}
+
+/* ── Submit button ───────────────────────────────────────────────────────── */
+.register-submit {
+  width: 100%;
+  justify-content: center;
+  padding: 12px;
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+.register-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Footer link ─────────────────────────────────────────────────────────── */
+.register-card__footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+.register-card__footer a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.register-card__footer a:hover {
+  text-decoration: underline;
+}

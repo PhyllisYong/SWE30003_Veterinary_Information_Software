@@ -1,8 +1,10 @@
 import os
+import hashlib
+import base64
 from datetime import datetime, timedelta
 from typing import Optional
+import bcrypt as _bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 SECRET_KEY = os.getenv("SECRET_KEY", "change-this-in-production-use-a-long-random-string")
@@ -10,17 +12,29 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
 # ── Password hashing ───────────────────────────────────────────────────────────
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# passlib 1.7.4 is incompatible with bcrypt 4.x / 5.x, so we call bcrypt directly.
+
+
+def _prehash(password: str) -> bytes:
+    """
+    SHA-256 pre-hash before bcrypt.
+
+    bcrypt hard-limits input to 72 bytes. Pre-hashing with SHA-256 produces a
+    fixed 32-byte digest (44 chars as base64), always well under that limit,
+    while preserving full entropy for passwords of any length.
+    """
+    digest = hashlib.sha256(password.encode("utf-8")).digest()
+    return base64.b64encode(digest)          # bytes, not str — bcrypt wants bytes
 
 
 def hashPassword(password: str) -> str:
-    """Hash a plain-text password using bcrypt."""
-    return pwd_context.hash(password)
+    """Hash a plain-text password using SHA-256 + bcrypt."""
+    return _bcrypt.hashpw(_prehash(password), _bcrypt.gensalt()).decode("utf-8")
 
 
 def verifyPassword(plain_password: str, hashed_password: str) -> bool:
-    """Verify a plain-text password against its bcrypt hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verify a plain-text password against its SHA-256 + bcrypt hash."""
+    return _bcrypt.checkpw(_prehash(plain_password), hashed_password.encode("utf-8"))
 
 
 # ── JWT tokens ─────────────────────────────────────────────────────────────────
