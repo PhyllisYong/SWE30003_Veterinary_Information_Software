@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.api.routes.auth import requireRole
+from app.models.user import User
 from app.models.first_aid_content import FirstAidContent
 from app.models.guide import Guide
 from app.models.video import Video
@@ -36,7 +38,11 @@ class UpdateStatusRequest(BaseModel):
 # ------------------------------------------------------------------
 
 @router.post("/content")
-def create_content(payload: SubmitContentRequest, db: Session = Depends(get_db)):
+def create_content(
+    payload: SubmitContentRequest,
+    current_user: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(get_db),
+):
     """Vet only — submit new guide or video."""
     try:
         if payload.content_type == "guide":
@@ -78,6 +84,7 @@ def create_content(payload: SubmitContentRequest, db: Session = Depends(get_db))
 def update_content(
     content_id: str,
     payload: SubmitContentRequest,
+    current_user: User = Depends(requireRole("veterinarian")),
     db: Session = Depends(get_db),
 ):
     """Vet only — edit existing content."""
@@ -104,13 +111,21 @@ def update_content(
 
 
 @router.post("/content/{content_id}/verify")
-def verify_content(content_id: str, db: Session = Depends(get_db)):
+def verify_content(
+    content_id: str,
+    current_user: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(get_db),
+):
     """Vet only — mark content as verified."""
     return _set_status(content_id, "verified", db)
 
 
 @router.post("/content/{content_id}/reject")
-def reject_content(content_id: str, db: Session = Depends(get_db)):
+def reject_content(
+    content_id: str,
+    current_user: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(get_db),
+):
     """Vet only — reject content."""
     return _set_status(content_id, "rejected", db)
 
@@ -119,6 +134,7 @@ def reject_content(content_id: str, db: Session = Depends(get_db)):
 def update_status(
     content_id: str,
     payload: UpdateStatusRequest,
+    current_user: User = Depends(requireRole("association_admin")),
     db: Session = Depends(get_db),
 ):
     """Admin only — set any valid publication status."""
@@ -126,13 +142,21 @@ def update_status(
 
 
 @router.post("/content/{content_id}/publish")
-def publish_content(content_id: str, db: Session = Depends(get_db)):
+def publish_content(
+    content_id: str,
+    current_user: User = Depends(requireRole("association_admin")),
+    db: Session = Depends(get_db),
+):
     """Admin only — publish content."""
     return _set_status(content_id, "published", db)
 
 
 @router.delete("/content/{content_id}")
-def delete_content(content_id: str, db: Session = Depends(get_db)):
+def delete_content(
+    content_id: str,
+    current_user: User = Depends(requireRole("association_admin")),
+    db: Session = Depends(get_db),
+):
     """Admin only — permanently delete content."""
     content = db.query(FirstAidContent).filter(FirstAidContent.contentID == content_id).first()
     if content is None:

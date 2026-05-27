@@ -9,7 +9,7 @@ from app.models.quiz import Quiz
 from app.models.quiz_result import QuizResult
 from app.models.question import Question
 
-from app.api.routes.auth import getCurrentUser
+from app.api.routes.auth import getCurrentUser, requireRole
 from app.models.user import User
 
 router = APIRouter(
@@ -19,6 +19,10 @@ router = APIRouter(
 
 class QuizSubmitRequest(BaseModel):
     answers: dict[str, str]
+
+
+class ExplanationRequest(BaseModel):
+    explanation: str
 
 # helper functions
 def getQuiz(
@@ -180,3 +184,35 @@ def get_result(
         )
 
     return result
+
+
+# Scenario 5 — Vet provides quiz explanation
+@router.put("/{quiz_id}/questions/{question_id}/explanation")
+def set_explanation(
+    quiz_id: str,
+    question_id: str,
+    body: ExplanationRequest,
+    current_user: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(get_db),
+):
+    quiz = getQuiz(quiz_id, db)
+
+    question = db.query(Question).filter(
+        Question.questionID == question_id,
+        Question.quizID == quiz.contentID,
+    ).first()
+
+    if question is None:
+        raise HTTPException(status_code=404, detail="Question not found in this quiz")
+
+    question.setExplanation(body.explanation)
+    db.commit()
+    db.refresh(question)
+
+    return {
+        "status": "ok",
+        "data": {
+            "questionID": question.questionID,
+            "explanation": question.getExplanation(),
+        },
+    }
