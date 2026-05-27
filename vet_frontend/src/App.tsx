@@ -1,15 +1,22 @@
 import './App.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import HomePage from './pages/HomePage'
+import QuizListPage from './pages/QuizListPage'
+import QuizPage from './pages/QuizPage'
 
 function App() {
   return (
-    <>
+    <BrowserRouter>
       <Navbar />
-      <HomePage />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/quizzes" element={<QuizListPage />} />
+        <Route path ="/quiz" element={<QuizPage />}/>
+      </Routes>
       <Footer />
-    </>
+    </BrowserRouter>
   )
 }
 

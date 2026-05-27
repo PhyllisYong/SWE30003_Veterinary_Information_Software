@@ -1,0 +1,190 @@
+/* ─── Page header ─────────────────────────────────────────────────── */
+.quiz-list-header {
+  background: linear-gradient(135deg, #f0fdfa 0%, #f8fafc 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 56px 0 48px;
+}
+
+.quiz-list-header h1 {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -1.2px;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.quiz-list-header p {
+  font-size: 16px;
+  color: var(--text-muted);
+  max-width: 520px;
+}
+
+/* ─── Filters ─────────────────────────────────────────────────────── */
+.quiz-list-filters {
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border);
+  background: #fff;
+  position: sticky;
+  top: 64px;   /* sits just below the sticky navbar */
+  z-index: 10;
+}
+
+.quiz-list-filters__inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-right: 4px;
+}
+
+.filter-pill {
+  padding: 6px 16px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.filter-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.filter-pill.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ─── Quiz grid ───────────────────────────────────────────────────── */
+.quiz-list-body {
+  padding: 48px 0 80px;
+  background: var(--bg-alt);
+  flex: 1;
+}
+
+.quiz-list-meta {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+.quiz-list-meta strong {
+  color: var(--text);
+}
+
+.quiz-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* ─── Quiz card ───────────────────────────────────────────────────── */
+.quiz-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  transition: box-shadow .2s, transform .2s;
+}
+.quiz-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.quiz-card__tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.tag--pet  { background: #dbeafe; color: #1e40af; }
+.tag--cat  { background: #fce7f3; color: #9d174d; }
+.tag--rabbit { background: #fef3c7; color: #92400e; }
+.tag--hamster { background: #ede9fe; color: #5b21b6; }
+.tag--guinea { background: #ecfdf5; color: #065f46; }
+.tag--category { background: var(--primary-mid); color: var(--primary-dark); }
+
+.quiz-card h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.quiz-card__desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.quiz-card__meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.quiz-card__meta-item {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.quiz-card__meta-item span {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.quiz-card__footer {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+
+/* ─── Empty state ─────────────────────────────────────────────────── */
+.quiz-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--text-muted);
+}
+.quiz-empty h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.quiz-empty p { font-size: 14px; }
+
+/* ─── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .quiz-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .quiz-list-header h1 { font-size: 28px; }
+  .quiz-grid { grid-template-columns: 1fr; }
+  .quiz-list-filters { position: static; }
+}
