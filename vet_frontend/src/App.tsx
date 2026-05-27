@@ -8,6 +8,7 @@ import QuizPage from './pages/QuizPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 
+import FirstAidGuides from './pages/FirstAidPage'
 function App() {
   return (
     <BrowserRouter>
@@ -18,6 +19,7 @@ function App() {
         <Route path="/quizzes/:id" element={<QuizPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/guides" element={<FirstAidGuides />} />
       </Routes>
       <Footer />
     </BrowserRouter>

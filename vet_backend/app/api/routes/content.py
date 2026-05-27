@@ -9,6 +9,7 @@ from app.models.user import User
 from app.models.first_aid_content import FirstAidContent
 from app.models.guide import Guide
 from app.models.video import Video
+from app.schemas.first_aid import GuideResponse, VideoResponse
 
 router = APIRouter(tags=["content"])
 
@@ -18,19 +19,19 @@ router = APIRouter(tags=["content"])
 # ------------------------------------------------------------------
 
 class SubmitContentRequest(BaseModel):
-    content_type: str           # "guide" | "video"
+    content_type: str
     title: str
     description: Optional[str] = None
     petType: str
     emergencyCategory: str
     authorVetID: str
-    steps: Optional[list] = None        # guide only
-    videoURL: Optional[str] = None      # video only
-    durationSec: Optional[int] = None   # video only
+    steps: Optional[list] = None
+    videoURL: Optional[str] = None
+    durationSec: Optional[int] = None
 
 
 class UpdateStatusRequest(BaseModel):
-    status: str  # "draft" | "pending_verification" | "verified" | "published" | "rejected"
+    status: str
 
 
 # ------------------------------------------------------------------
