@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -11,35 +10,10 @@ from app.models.user import User
 from app.models.pet_owner import PetOwner
 from app.models.veterinarian import Veterinarian
 from app.models.association_admin import AssociationAdministrator
+from app.schemas.auth import RegisterRequest, LoginRequest, AuthResponse
 
 router = APIRouter()
 bearer_scheme = HTTPBearer()
-
-
-# ── Pydantic schemas (inline for now) ─────────────────────────────────────────
-
-class RegisterRequest(BaseModel):
-    name: str
-    email: EmailStr
-    password: str
-    role: str                     # "pet_owner" | "veterinarian" | "association_admin"
-    contactNumber: str | None = None      # PetOwner only
-    licenseNumber: str | None = None      # Veterinarian only
-    specialisation: str | None = None     # Veterinarian only
-    workID: str | None = None             # AssociationAdministrator only
-
-
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class AuthResponse(BaseModel):
-    status: str
-    token: str
-    userID: str
-    name: str
-    role: str
 
 
 # ── Dependency: get current user from token ────────────────────────────────────
