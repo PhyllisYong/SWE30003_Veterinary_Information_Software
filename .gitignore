@@ -1,4 +1,5 @@
 vet_backend/.env
+vet_backend/app/scripts 
 vet_backend/venv
 
 # Python
