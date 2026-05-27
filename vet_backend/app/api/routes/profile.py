@@ -5,6 +5,8 @@ from app.core.database import get_db
 from app.api.routes.auth import getCurrentUser
 from app.models.user import User
 from app.models.pet_owner import PetOwner
+from app.models.veterinarian import Veterinarian
+from app.models.association_admin import AssociationAdministrator
 from app.models.pet import Pet
 from app.schemas.user import UpdateProfileRequest
 from app.schemas.pet import PetCreate, PetUpdate, PetResponse
@@ -28,6 +30,17 @@ def get_profile(
         owner = db.query(PetOwner).filter(PetOwner.userID == current_user.userID).first()
         result["contactNumber"] = owner.contactNumber if owner else None
 
+    elif current_user.role == "veterinarian":
+        vet = db.query(Veterinarian).filter(Veterinarian.userID == current_user.userID).first()
+        result["licenseNumber"] = vet.licenseNumber if vet else None
+        result["specialisation"] = vet.specialisation if vet else None
+
+    elif current_user.role == "association_admin":
+        admin = db.query(AssociationAdministrator).filter(
+            AssociationAdministrator.userID == current_user.userID
+        ).first()
+        result["workID"] = admin.workID if admin else None
+
     return {"status": "ok", "data": result}
 
 
@@ -47,6 +60,11 @@ def update_profile(
         owner = db.query(PetOwner).filter(PetOwner.userID == current_user.userID).first()
         if owner:
             owner.contactNumber = body.contactNumber
+
+    if body.specialisation is not None and current_user.role == "veterinarian":
+        vet = db.query(Veterinarian).filter(Veterinarian.userID == current_user.userID).first()
+        if vet:
+            vet.specialisation = body.specialisation
 
     db.commit()
     return {"status": "ok", "data": {"message": "Profile updated successfully"}}
