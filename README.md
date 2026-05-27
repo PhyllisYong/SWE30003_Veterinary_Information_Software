@@ -62,6 +62,8 @@ alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
+> Note: Get the NeonDB link from the Dashboard -> Connect
+
 ### Frontend
 
 ```bash
