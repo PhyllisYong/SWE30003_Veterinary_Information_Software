@@ -1,8 +1,15 @@
 vet_backend/.env
 vet_backend/venv
 
+# Python
 __pycache__/
 *.py[cod]
+*.pyo
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*$py.class
+
 *$py.class
 *.pyo
 .pytest_cache/
