@@ -98,10 +98,13 @@ export default function QuizPage() {
     if (!quiz) return
     setSubmitting(true)
     try {
+      const token = localStorage.getItem('token')
       const res = await fetch(`/api/quizzes/${id}/submit`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ answers: selected }),
       })
       const data = await res.json()

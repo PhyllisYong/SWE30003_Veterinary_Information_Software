@@ -68,6 +68,13 @@
   font-size: 14.5px;
 }
 
+.navbar__user {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  padding: 0 4px;
+}
+
 @media (max-width: 768px) {
   .navbar__links { display: none; }
 }

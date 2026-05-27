@@ -82,6 +82,7 @@ export default function RegisterPage() {
       localStorage.setItem('userID', body.data.userID)
       localStorage.setItem('userName', body.data.name)
       localStorage.setItem('userRole', body.data.role)
+      window.dispatchEvent(new Event('auth-change'))
 
       navigate('/', { replace: true })
     } catch {

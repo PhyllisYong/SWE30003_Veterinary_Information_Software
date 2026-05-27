@@ -36,6 +36,7 @@ export default function LoginPage() {
       localStorage.setItem('userID', body.data.userID)
       localStorage.setItem('userName', body.data.name)
       localStorage.setItem('userRole', body.data.role)
+      window.dispatchEvent(new Event('auth-change'))
 
       navigate(redirectTo, { replace: true })
     } catch {

@@ -1,7 +1,36 @@
-import { Link, NavLink } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import './Navbar.css'
 
+function readUser() {
+  return localStorage.getItem('userName')
+}
+
 export default function Navbar() {
+  const navigate = useNavigate()
+  const [userName, setUserName] = useState<string | null>(readUser)
+
+  // Re-read whenever LoginPage / RegisterPage fires 'auth-change',
+  // or when another tab logs in/out (native 'storage' event)
+  useEffect(() => {
+    function sync() { setUserName(readUser()) }
+    window.addEventListener('auth-change', sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener('auth-change', sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
+
+  function handleLogout() {
+    localStorage.removeItem('token')
+    localStorage.removeItem('userID')
+    localStorage.removeItem('userName')
+    localStorage.removeItem('userRole')
+    window.dispatchEvent(new Event('auth-change'))
+    navigate('/')
+  }
+
   return (
     <nav className="navbar">
       <div className="container navbar__inner">
@@ -19,8 +48,19 @@ export default function Navbar() {
         </ul>
 
         <div className="navbar__actions">
-          <Link to="/login" className="btn btn--ghost">Log in</Link>
-          <Link to="/register" className="btn btn--primary">Get Started</Link>
+          {userName ? (
+            <>
+              <span className="navbar__user">Hi, {userName.split(' ')[0]}</span>
+              <button className="btn btn--ghost" onClick={handleLogout}>
+                Log out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="btn btn--ghost">Log in</Link>
+              <Link to="/register" className="btn btn--primary">Get Started</Link>
+            </>
+          )}
         </div>
 
       </div>
