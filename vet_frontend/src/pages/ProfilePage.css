@@ -166,9 +166,10 @@
 /* ── Pet grid ───────────────────────────────────────────────────────────────── */
 .pet-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
   margin-top: 16px;
+  align-items: stretch;
 }
 
 /* ── Pet card ───────────────────────────────────────────────────────────────── */
@@ -176,10 +177,12 @@
   background: #fafafa;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  overflow: hidden;
+  min-height: 200px;
   transition: box-shadow 0.15s;
 }
 
@@ -193,12 +196,12 @@
 }
 
 .pet-card__icon {
-  font-size: 32px;
+  font-size: 40px;
   margin-bottom: 4px;
 }
 
 .pet-card__name {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: #0f172a;
   margin: 0;
@@ -216,8 +219,10 @@
 
 .pet-card__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: auto;
+  padding-top: 12px;
 }
 
 .pet-card__delete {
