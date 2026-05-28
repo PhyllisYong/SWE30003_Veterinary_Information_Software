@@ -91,14 +91,7 @@ export default function HomePage() {
               </a>
             </div> */}
 
-            <div className="hero__trust">
-              <div className="hero__trust-avatars">
-                {['🧑', '👩', '🧑‍⚕️', '👨'].map((e, i) => (
-                  <div key={i} className="hero__trust-avatar">{e}</div>
-                ))}
-              </div>
-              Trusted by 10,000+ pet owners
-            </div>
+            
           </div>
 
           {/* Emergency quick-access card */}
@@ -135,23 +128,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Stats strip ──────────────────────────────────────────── */}
-      <section className="stats">
-        <div className="container">
-          <div className="stats__grid">
-            {[
-              { n: '500+',   label: 'First-aid guides' },
-              { n: '50+',    label: 'Licensed veterinarians' },
-              { n: '10,000+', label: 'Pet owners helped' },
-            ].map(({ n, label }) => (
-              <div key={label} className="stats__item">
-                <div className="stats__item-number">{n}</div>
-                <div className="stats__item-label">{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              
 
       {/* ── Features ─────────────────────────────────────────────── */}
       <section className="features">

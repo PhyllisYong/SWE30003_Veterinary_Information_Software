@@ -15,7 +15,7 @@
   height: 64px;
 }
 
-/* Logo */
+/* ── Logo ──────────────────────────────────────────────────────────────── */
 .navbar__logo {
   display: flex;
   align-items: center;
@@ -27,7 +27,7 @@
 }
 .navbar__logo svg { flex-shrink: 0; }
 
-/* Nav links */
+/* ── Desktop nav links ─────────────────────────────────────────────────── */
 .navbar__links {
   display: flex;
   align-items: center;
@@ -49,7 +49,7 @@
   background: var(--primary-light);
 }
 
-/* Auth actions */
+/* ── Desktop auth actions ──────────────────────────────────────────────── */
 .navbar__actions {
   display: flex;
   align-items: center;
@@ -68,13 +68,116 @@
   font-size: 14.5px;
 }
 
-.navbar__user {
-  font-size: 14px;
+/* ── User / sign-out chips ─────────────────────────────────────────────── */
+.navbar__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 999px;       /* pill shape */
+  font-size: 13.5px;
   font-weight: 600;
-  color: var(--text);
-  padding: 0 4px;
+  font-family: inherit;
+  cursor: default;
+  border: none;
+  white-space: nowrap;
 }
 
+.navbar__chip--user {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.navbar__chip--logout {
+  background: #fee2e2;
+  color: #b91c1c;
+  cursor: pointer;
+  transition: background .15s;
+}
+.navbar__chip--logout:hover {
+  background: #fecaca;
+}
+
+/* ── Hamburger button — hidden on desktop ──────────────────────────────── */
+.navbar__hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.navbar__hamburger span {
+  display: block;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform .2s, opacity .2s;
+  transform-origin: center;
+}
+
+/* Animate to X when open */
+.navbar__hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.navbar__hamburger.open span:nth-child(2) { opacity: 0; }
+.navbar__hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── Mobile drawer ─────────────────────────────────────────────────────── */
+.navbar__drawer {
+  border-top: 1px solid var(--border);
+  background: #fff;
+  padding: 12px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.navbar__drawer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navbar__drawer-links a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color .15s, background .15s;
+}
+.navbar__drawer-links a:hover,
+.navbar__drawer-links a.active {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.navbar__drawer-auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.navbar__drawer-auth .btn--ghost,
+.navbar__drawer-auth .btn--primary {
+  flex: 1;
+  justify-content: center;
+  padding: 10px;
+  font-size: 14.5px;
+}
+
+/* ── Responsive breakpoint ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .navbar__links { display: none; }
+  .navbar__links  { display: none; }
+  .navbar__actions { display: none; }
+  .navbar__hamburger { display: flex; }
 }

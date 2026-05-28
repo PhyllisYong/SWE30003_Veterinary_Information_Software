@@ -9,9 +9,8 @@ function readUser() {
 export default function Navbar() {
   const navigate = useNavigate()
   const [userName, setUserName] = useState<string | null>(readUser)
+  const [menuOpen, setMenuOpen] = useState(false)
 
-  // Re-read whenever LoginPage / RegisterPage fires 'auth-change',
-  // or when another tab logs in/out (native 'storage' event)
   useEffect(() => {
     function sync() { setUserName(readUser()) }
     window.addEventListener('auth-change', sync)
@@ -22,14 +21,20 @@ export default function Navbar() {
     }
   }, [])
 
+  // Close mobile menu on route change
+  useEffect(() => { setMenuOpen(false) }, [])
+
   function handleLogout() {
     localStorage.removeItem('token')
     localStorage.removeItem('userID')
     localStorage.removeItem('userName')
     localStorage.removeItem('userRole')
     window.dispatchEvent(new Event('auth-change'))
+    setMenuOpen(false)
     navigate('/')
   }
+
+  const firstName = userName ? userName.split(' ')[0] : ''
 
   return (
     <nav className="navbar">
@@ -39,6 +44,7 @@ export default function Navbar() {
           PawCare
         </Link>
 
+        {/* Desktop nav links */}
         <ul className="navbar__links">
           <li><NavLink to="/" end>Home</NavLink></li>
           <li><NavLink to="/guides">First Aid Guides</NavLink></li>
@@ -47,12 +53,13 @@ export default function Navbar() {
           <li><NavLink to="/book">Book a Vet</NavLink></li>
         </ul>
 
+        {/* Desktop auth */}
         <div className="navbar__actions">
           {userName ? (
             <>
-              <span className="navbar__user">Hi, {userName.split(' ')[0]}</span>
-              <button className="btn btn--ghost" onClick={handleLogout}>
-                Log out
+              <span className="navbar__chip navbar__chip--user">{firstName}</span>
+              <button className="navbar__chip navbar__chip--logout" onClick={handleLogout}>
+                Sign out
               </button>
             </>
           ) : (
@@ -63,7 +70,49 @@ export default function Navbar() {
           )}
         </div>
 
+        {/* Hamburger — mobile only */}
+        <button
+          className={`navbar__hamburger${menuOpen ? ' open' : ''}`}
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label="Toggle menu"
+        >
+          <span /><span /><span />
+        </button>
+
       </div>
+
+      {/* Mobile drawer */}
+      {menuOpen && (
+        <div className="navbar__drawer">
+          <ul className="navbar__drawer-links">
+            <li><NavLink to="/" end onClick={() => setMenuOpen(false)}>Home</NavLink></li>
+            <li><NavLink to="/guides" onClick={() => setMenuOpen(false)}>First Aid Guides</NavLink></li>
+            <li><NavLink to="/videos" onClick={() => setMenuOpen(false)}>Videos</NavLink></li>
+            <li><NavLink to="/quizzes" onClick={() => setMenuOpen(false)}>Quizzes</NavLink></li>
+            <li><NavLink to="/book" onClick={() => setMenuOpen(false)}>Book a Vet</NavLink></li>
+          </ul>
+
+          <div className="navbar__drawer-auth">
+            {userName ? (
+              <>
+                <span className="navbar__chip navbar__chip--user">{firstName}</span>
+                <button className="navbar__chip navbar__chip--logout" onClick={handleLogout}>
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="btn btn--ghost" onClick={() => setMenuOpen(false)}>
+                  Log in
+                </Link>
+                <Link to="/register" className="btn btn--primary" onClick={() => setMenuOpen(false)}>
+                  Get Started
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   )
 }
