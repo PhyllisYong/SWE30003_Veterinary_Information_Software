@@ -53,27 +53,16 @@ function formatDuration(sec: number | null): string {
   return `${mins} min ${remainingSec}s`
 }
 
-// Convert various video URL formats to embed URL
+// Backend always stores YouTube embed URLs — pass through as-is.
 function getEmbedUrl(url: string): string {
-  if (!url) return ''
-  // YouTube
-  if (url.includes('youtube.com/watch') || url.includes('youtu.be/')) {
-    let videoId = ''
-    if (url.includes('youtu.be/')) {
-      videoId = url.split('youtu.be/')[1]?.split(/[?#]/)[0] || ''
-    } else {
-      const urlParams = new URLSearchParams(url.split('?')[1])
-      videoId = urlParams.get('v') || ''
-    }
-    if (videoId) return `https://www.youtube.com/embed/${videoId}`
-  }
-  // Vimeo
-  if (url.includes('vimeo.com/')) {
-    const vimeoId = url.split('vimeo.com/')[1]?.split(/[?#]/)[0] || ''
-    if (vimeoId) return `https://player.vimeo.com/video/${vimeoId}`
-  }
-  // If already an embed URL or other, return as is
-  return url
+  return url ?? ''
+}
+
+// Extract YouTube video ID from embed URL to build thumbnail without an API key.
+function getYouTubeThumbnail(embedUrl: string): string | null {
+  const match = embedUrl.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/)
+  if (!match) return null
+  return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`
 }
 
 // ── Modal Component (Video Player) ────────────────────────────────────
@@ -282,13 +271,18 @@ export default function VideoPage() {
                 ) : (
                   filteredVideos.map((video) => (
                     <div key={video.id} className="video-card">
-                      {/* Thumbnail placeholder: you can later add a thumbnail field */}
                       <div
                         className="video-card__thumbnail"
                         onClick={() => setSelectedVideo(video)}
-                        style={{
-                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        }}
+                        style={
+                          getYouTubeThumbnail(video.videoURL)
+                            ? {
+                                backgroundImage: `url(${getYouTubeThumbnail(video.videoURL)})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                              }
+                            : { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }
+                        }
                       >
                         <div className="play-icon">▶</div>
                       </div>

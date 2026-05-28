@@ -15,6 +15,7 @@ import ChatPage from './pages/ChatPage'
 import BookingPage from './pages/BookingPage'
 import VetQuizManagePage from './pages/VetQuizManagePage'
 import VetAvailabilityPage from './pages/VetAvailabilityPage'
+import VetVideoManagePage from './pages/VetVideoManagePage'
 
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
         <Route path="/vet-advice/booking" element={<BookingPage />} />
         <Route path="/vet/quiz-manage" element={<VetQuizManagePage />} />
         <Route path="/vet/availability" element={<VetAvailabilityPage />} />
+        <Route path="/vet/video-manage" element={<VetVideoManagePage />} />
       </Routes>
       <Footer />
     </BrowserRouter>

@@ -60,6 +60,7 @@ export default function Navbar() {
               <ul className="navbar__dropdown-menu">
                 <li><NavLink to="/vet/availability">My Availability</NavLink></li>
                 <li><NavLink to="/vet/quiz-manage">Quiz Explanations</NavLink></li>
+                <li><NavLink to="/vet/video-manage">Video Manager</NavLink></li>
               </ul>
             </li>
           )}
