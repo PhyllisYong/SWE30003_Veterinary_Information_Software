@@ -59,7 +59,7 @@ class SearchEngine:
     # ------------------------------------------------------------------
 
     def searchContent(
-        self, petType: Optional[str] = None, category: Optional[str] = None, contentType: Optional[str] = None,
+        self, petType: Optional[str] = None, category: Optional[str] = None, contentType: Optional[str] = None, author_vet_id: Optional[str] = None
     ) -> List[FirstAidContent]:
         """
         Main search entry point. Filters the repository by petType and/or
@@ -69,6 +69,7 @@ class SearchEngine:
             petType:  e.g. "cat", "dog", "rabbit", "hamster", "guinea_pig"
             category: e.g. "bleeding", "choking", "fracture"
             contentType: e.g. "guide", "video"
+            author_vet_id: e.g. "vet-123"
 
         Returns:
             List of matching FirstAidContent objects (Guide or Video instances).
@@ -90,6 +91,13 @@ class SearchEngine:
                 c
                 for c in results
                 if c.content_type.lower() == contentType.lower()
+            ]
+
+        if author_vet_id:
+            results = [
+                c
+                for c in results
+                if c.authorVetID == author_vet_id
             ]
 
         return results

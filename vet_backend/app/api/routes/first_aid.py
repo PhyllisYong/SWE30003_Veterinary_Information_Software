@@ -19,9 +19,10 @@ def search_content(
     petType: Optional[str] = Query(None),
     category: Optional[str] = Query(None),
     contentType: Optional[str] = Query(None),
+    author_vet_id: Optional[str] = Query(None),
     engine: SearchEngine = Depends(get_search_engine),
 ):
-    results = engine.searchContent(petType=petType, category=category, contentType=contentType)
+    results = engine.searchContent(petType=petType, category=category, contentType=contentType, author_vet_id=author_vet_id)
     return {"status": "ok", "data": [item.display() for item in results]}
 
 

@@ -27,7 +27,6 @@ class SubmitContentRequest(BaseModel):
     description: Optional[str] = None
     petType: str
     emergencyCategory: str
-    authorVetID: str
     steps: Optional[list] = None
     videoURL: Optional[str] = None
     durationSec: Optional[int] = None
@@ -73,7 +72,7 @@ def create_content(
                 description=payload.description,
                 petType=payload.petType,
                 emergencyCategory=payload.emergencyCategory,
-                authorVetID=payload.authorVetID,
+                authorVetID=current_user.userID,
                 publicationStatus="pending_verification",
                 steps=payload.steps or [],
                 stepCount=len(payload.steps or []),
@@ -86,7 +85,7 @@ def create_content(
                 description=payload.description,
                 petType=payload.petType,
                 emergencyCategory=payload.emergencyCategory,
-                authorVetID=payload.authorVetID,
+                authorVetID=current_user.userID,
                 publicationStatus="pending_verification",
                 videoURL=video_hosting.getEmbedUrl(payload.videoURL),
                 durationSec=payload.durationSec,
