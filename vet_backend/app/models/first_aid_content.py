@@ -31,6 +31,9 @@ class FirstAidContent(Base):
     authorVetID = Column(
         "author_vet_id", String, ForeignKey("users.user_id"), nullable=True
     )
+    assignedVetID = Column(
+        "assigned_vet_id", String, ForeignKey("users.user_id"), nullable=True
+    )
     content_type = Column(
         String, nullable=False
     )  # discriminator: "guide" | "video" | "quiz"
@@ -86,6 +89,7 @@ class FirstAidContent(Base):
             "emergencyCategory": self.emergencyCategory,
             "publicationStatus": self.publicationStatus,
             "authorVetID": self.authorVetID,
+            "assignedVetID": self.assignedVetID,
             "content_type": self.content_type,
         }
 

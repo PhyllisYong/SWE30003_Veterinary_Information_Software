@@ -24,5 +24,29 @@ class Quiz(FirstAidContent):
         "polymorphic_identity": "quiz",
     }
 
+    def display(self) -> dict:
+        data = self.getMetadata()
+        data.update({
+            "totalScore": self.totalScore,
+            "durationSec": self.durationSec,
+            "questionCount": len(self.questions) if self.questions else 0,
+            "questions": [
+                {
+                    "questionID": q.questionID,
+                    "questionText": q.questionText,
+                    "answers": [
+                        {
+                            "answerID": a.answerID,
+                            "answerText": a.answerText,
+                            "isCorrect": a.isCorrect,
+                        }
+                        for a in q.answers
+                    ],
+                }
+                for q in (self.questions or [])
+            ],
+        })
+        return data
+
     def getQuestions(self) -> list:
         return self.questions

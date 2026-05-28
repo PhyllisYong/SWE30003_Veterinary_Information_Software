@@ -67,9 +67,14 @@ export default function Navbar() {
                 <li><NavLink to="/vet/availability">My Availability</NavLink></li>
                 <li><NavLink to="/vet/quiz-manage">Quiz Explanations</NavLink></li>
                 <li><NavLink to="/vet/video-manage">Video Manager</NavLink></li>
+                <li><NavLink to="/vet/content-management">Content Management</NavLink></li>
               </ul>
             </li>
+           
           )}
+          {
+            (userRole === 'association_admin' )&& (
+             <li><NavLink to="/admin/content-management">Content Management</NavLink></li>)          }
         </ul>
 
         {/* Desktop auth */}

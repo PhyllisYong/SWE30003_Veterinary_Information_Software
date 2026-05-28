@@ -17,7 +17,8 @@ import VetQuizManagePage from './pages/VetQuizManagePage'
 import VetAvailabilityPage from './pages/VetAvailabilityPage'
 import VetVideoManagePage from './pages/VetVideoManagePage'
 
-import ContentManagement from './pages/ContentManagementPage'
+import VetContentManagement from './pages/VetContentPage'
+import AdminContentManagement from './pages/AdminContentPage'
 
 function App() {
   return (
@@ -38,7 +39,8 @@ function App() {
         <Route path="/vet/quiz-manage" element={<VetQuizManagePage />} />
         <Route path="/vet/availability" element={<VetAvailabilityPage />} />
         <Route path="/vet/video-manage" element={<VetVideoManagePage />} />
-        <Route path="/content-management" element={<ContentManagement />} />
+        <Route path="/vet/content-management" element={<VetContentManagement />} />
+        <Route path="/admin/content-management" element={<AdminContentManagement />} />
       </Routes>
       <Footer />
     </BrowserRouter>
