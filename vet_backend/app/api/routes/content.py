@@ -14,6 +14,15 @@ from app.models.question import Question
 from app.models.answer import Answer
 from app.services.video_hosting import video_hosting
 
+from app.schemas.content import (
+    SubmitContentRequest,
+    UpdateStatusRequest,
+    ReviewRequest,
+    AssignReviewerRequest,
+    SetDraftRequest,
+    AmendRequest,
+)
+
 router = APIRouter(tags=["content"])
 
 
@@ -33,32 +42,6 @@ def list_users_by_role(
         "status": "ok",
         "data": [{"userID": u.userID, "name": u.name, "email": u.email} for u in users],
     }
-
-
-# ------------------------------------------------------------------
-# Schemas
-# ------------------------------------------------------------------
-
-class SubmitContentRequest(BaseModel):
-    content_type: str
-    title: str
-    description: Optional[str] = None
-    petType: str
-    emergencyCategory: str
-    steps: Optional[list] = None
-    videoURL: Optional[str] = None
-    durationSec: Optional[int] = None
-    questions: Optional[list] = None  # [{questionText, answers: [{answerText, isCorrect}]}]
-
-class UpdateStatusRequest(BaseModel):
-    status: str
-
-class ReviewRequest(BaseModel):
-    status: str   # "verified" | "rejected"
-    comment: Optional[str] = None
-
-class AssignReviewerRequest(BaseModel):
-    assignedVetID: str
 
 
 # ------------------------------------------------------------------

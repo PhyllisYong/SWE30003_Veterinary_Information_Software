@@ -85,10 +85,6 @@ export default function AdminContentPage() {
   const handleSetDraft = async (contentID: string) => {
     const reviewerID = assignMap[contentID]
     if (!reviewerID) return showToast('Select a reviewer vet before setting as draft.', 'error')
-    const item = items.find(i => i.contentID === contentID)
-    if (item?.authorVetID === reviewerID)
-      return showToast('Cannot assign the author as reviewer.', 'error')
-
     const res = await fetch(`/api/content/${contentID}/set-draft`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -210,7 +206,7 @@ export default function AdminContentPage() {
                         )}
                       </div>
 
-                      {['draft', 'pending_verification', 'rejected'].includes(item.publicationStatus) && (
+                      {item.publicationStatus === 'draft' && (
                         <div className="cm-assign-row" style={{ marginTop: 12 }}>
                           <select
                             value={assignMap[item.contentID] ?? item.assignedVetID ?? ''}
@@ -221,10 +217,9 @@ export default function AdminContentPage() {
                                 ? `Reassign (current: ${vetName(item.assignedVetID)})` 
                                 : 'Assign reviewer…'}
                             </option>
-                            {vets
-                              .filter(v => v.userID !== item.authorVetID)
-                              .map(v => <option key={v.userID} value={v.userID}>{v.name}</option>)
-                            }
+                            {vets.map(v => (
+                              <option key={v.userID} value={v.userID}>{v.name}</option>
+                            ))}
                           </select>
                           <button className="cm-action-btn" onClick={() => handleSetDraft(item.contentID)}>
                             Confirm &amp; Assign

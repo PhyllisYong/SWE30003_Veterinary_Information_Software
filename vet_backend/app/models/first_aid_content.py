@@ -34,6 +34,7 @@ class FirstAidContent(Base):
     assignedVetID = Column(
         "assigned_vet_id", String, ForeignKey("users.user_id"), nullable=True
     )
+    reviewComment = Column("review_comment", String, nullable=True)
     content_type = Column(
         String, nullable=False
     )  # discriminator: "guide" | "video" | "quiz"
@@ -90,6 +91,7 @@ class FirstAidContent(Base):
             "publicationStatus": self.publicationStatus,
             "authorVetID": self.authorVetID,
             "assignedVetID": self.assignedVetID,
+            "reviewComment": self.reviewComment,
             "content_type": self.content_type,
         }
 
