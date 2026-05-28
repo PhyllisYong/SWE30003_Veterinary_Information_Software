@@ -14,6 +14,7 @@ export default function Navbar() {
   const navigate = useNavigate()
   const [userName, setUserName] = useState<string | null>(readUser)
   const [userRole, setUserRole] = useState<string | null>(readRole)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     function sync() {
@@ -75,10 +76,10 @@ export default function Navbar() {
         <div className="navbar__actions">
           {userName ? (
             <>
-              <span className="navbar__user">Hi, {userName.split(' ')[0]}</span>
-              <Link to="/profile" className="btn btn--ghost">Profile</Link>
-              <button className="btn btn--ghost" onClick={handleLogout}>
-                Log out
+              
+              <Link to="/profile" className="btn btn--ghost">{firstName}</Link>
+              <button className="navbar__chip navbar__chip--logout" onClick={handleLogout}>
+                Sign out
               </button>
             </>
           ) : (
