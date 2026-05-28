@@ -72,13 +72,8 @@ interface VideoModalProps {
 }
 
 function VideoModal({ video, onClose }: VideoModalProps) {
-  if (!video) return null
-
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) onClose()
-  }
-
   useEffect(() => {
+    if (!video) return
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
     }
@@ -88,7 +83,13 @@ function VideoModal({ video, onClose }: VideoModalProps) {
       document.removeEventListener('keydown', handleEscape)
       document.body.style.overflow = ''
     }
-  }, [onClose])
+  }, [video, onClose])
+
+  if (!video) return null
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) onClose()
+  }
 
   const embedUrl = getEmbedUrl(video.videoURL)
 

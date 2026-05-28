@@ -107,7 +107,7 @@ def check_answer(
 def submit_quiz(
     quiz_id: str,
     request: SubmitAnswerRequest,
-    currentUser: User = Depends(getCurrentUser),
+    currentUser: User = Depends(requireRole("pet_owner")),
     db: Session = Depends(get_db),
 ):
 
@@ -158,12 +158,15 @@ def submit_quiz(
     db.commit()
     db.refresh(result)
 
+    # Compute passed here — avoids lazy-loading result.quiz after commit
+    passed = bool(quiz.totalScore and score >= quiz.totalScore * 0.6)
+
     # Return response
     return {
         "status": "success",
         "quizID": quiz.contentID,
         "score": score,
-        "passed": result.getPassed(),
+        "passed": passed,
         "resultID": result.resultID,
         "feedback": feedback,
     }

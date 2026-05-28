@@ -27,7 +27,7 @@ USERS = [
     {
         "model": PetOwner,
         "kwargs": {
-            "name": "Test PetOwner",
+            "name": "PetOwner Test",
             "email": "test_petowner@test.com",
             "role": "pet_owner",
             "contactNumber": "0400000001",
@@ -36,7 +36,7 @@ USERS = [
     {
         "model": Veterinarian,
         "kwargs": {
-            "name": "Test Vet",
+            "name": "Vet Test",
             "email": "test_vet@test.com",
             "role": "veterinarian",
             "licenseNumber": "VET-TEST-001",
@@ -47,7 +47,7 @@ USERS = [
     {
         "model": AssociationAdministrator,
         "kwargs": {
-            "name": "Test Admin",
+            "name": "Admin Test",
             "email": "test_admin@test.com",
             "role": "association_admin",
             "workID": "ADMIN-TEST-001",

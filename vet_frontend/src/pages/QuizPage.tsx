@@ -178,17 +178,23 @@ export default function QuizPage() {
         },
         body: JSON.stringify({ answers: selected }),
       })
-      const data = await res.json()
       if (res.status === 401) {
         navigate(`/login?redirect=/quizzes/${id}`, { replace: true })
         return
       }
-      if (!res.ok) throw new Error(data.detail ?? 'Submission failed')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let data: any
+      try {
+        data = await res.json()
+      } catch {
+        throw new Error(`Server error (${res.status}) — please try again`)
+      }
+      if (!res.ok) throw new Error((data.detail as string) ?? 'Submission failed')
 
       const submitResult: SubmitResult = {
-        score: data.score,
-        passed: data.passed,
-        feedback: data.feedback ?? [],
+        score: data.score as number,
+        passed: data.passed as boolean,
+        feedback: (data.feedback ?? []) as FeedbackItem[],
       }
       setResult(submitResult)
 
