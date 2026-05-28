@@ -1,4 +1,5 @@
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect } from 'react'
+import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './ProfilePage.css'
 
@@ -269,6 +270,35 @@ export default function ProfilePage() {
       setPets((prev) => prev.filter((p) => p.petID !== petID))
     } catch {
       // silently ignore
+    }
+  }
+
+  async function handleDeleteAccount() {
+    const confirmed = window.confirm(
+      'Delete your account permanently? This removes your profile, pets, bookings, chats, and quiz results.'
+    )
+    if (!confirmed) return
+
+    setProfileError(null)
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const body = await res.json().catch(() => null)
+      if (!res.ok) {
+        setProfileError(body?.detail ?? 'Failed to delete account.')
+        return
+      }
+
+      localStorage.removeItem('token')
+      localStorage.removeItem('userName')
+      localStorage.removeItem('userRole')
+      localStorage.removeItem('userID')
+      window.dispatchEvent(new Event('auth-change'))
+      navigate('/', { replace: true })
+    } catch {
+      setProfileError('Could not reach the server.')
     }
   }
 
@@ -637,6 +667,20 @@ export default function ProfilePage() {
                   )}
                 </div>
               )}
+
+              <div className="profile-card profile-card--danger">
+                <h2 className="profile-card__title">Account Deletion</h2>
+                <p className="profile-danger-text">
+                  Permanently delete this account and related personal data.
+                </p>
+                <button
+                  type="button"
+                  className="btn btn--ghost profile-delete-account"
+                  onClick={handleDeleteAccount}
+                >
+                  Delete Account
+                </button>
+              </div>
             </>
           )}
 

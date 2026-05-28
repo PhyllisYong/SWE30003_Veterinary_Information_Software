@@ -14,15 +14,23 @@ class Booking(Base):
     # "pending" | "accepted" | "cancelled" | "completed"
     petOwnerID = Column("pet_owner_id", String, ForeignKey("pet_owners.user_id"), nullable=False)
     vetID = Column("vet_id", String, ForeignKey("veterinarians.user_id"), nullable=False)
+    petID = Column("pet_id", String, ForeignKey("pets.pet_id"), nullable=True)
 
     pet_owner = relationship("PetOwner", back_populates="bookings")
     veterinarian = relationship("Veterinarian", back_populates="bookings")
+    pet = relationship("Pet")
 
     def getStatus(self) -> str:
         return self.bookingStatus
 
     def updateStatus(self, s: str) -> None:
         self.bookingStatus = s
+
+    def acceptBookingSlot(self) -> None:
+        self.updateStatus("accepted")
+
+    def cancelBooking(self) -> None:
+        self.updateStatus("cancelled")
 
     def getTimeslot(self) -> str:
         return self.timeslot

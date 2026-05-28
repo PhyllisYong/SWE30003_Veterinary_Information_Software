@@ -8,6 +8,8 @@ from app.core.database import get_db
 from app.models.quiz import Quiz
 from app.models.quiz_result import QuizResult
 from app.models.question import Question
+from app.models.guide import Guide
+from app.models.video import Video
 
 from app.api.routes.auth import getCurrentUser, requireRole
 from app.models.user import User
@@ -24,6 +26,14 @@ class QuizSubmitRequest(BaseModel):
 class ExplanationRequest(BaseModel):
     explanation: str
 
+
+class QuestionTextRequest(BaseModel):
+    questionText: str
+
+
+class AnswerTextRequest(BaseModel):
+    answerText: str
+
 # helper functions
 def getQuiz(
     quiz_id: str,
@@ -39,6 +49,20 @@ def getQuiz(
         )
 
     return quiz
+
+
+def _recommend_content(quiz: Quiz, db: Session) -> list[dict]:
+    guides = db.query(Guide).filter(
+        Guide.publicationStatus == "published",
+        Guide.petType == quiz.petType,
+        Guide.emergencyCategory == quiz.emergencyCategory,
+    ).limit(2).all()
+    videos = db.query(Video).filter(
+        Video.publicationStatus == "published",
+        Video.petType == quiz.petType,
+        Video.emergencyCategory == quiz.emergencyCategory,
+    ).limit(2).all()
+    return quiz.recommendFirstAidContent([*guides, *videos])
 
 @router.get("")
 def list_quizzes(db: Session = Depends(get_db)):
@@ -103,36 +127,7 @@ def submit_quiz(
     # Find quiz
     quiz = getQuiz(quiz_id, db)
 
-    # Get all questions
-    questions = quiz.getQuestions()
-
-    score = 0
-    feedback = []
-
-    # Loop through questions
-    for q in questions:
-
-        # Get submitted answer ID for this question
-        submitted_answer_id = request.answers.get(q.questionID)
-
-        # Find the correct answer ID for this question
-        correct_answer_id = next(
-            (a.answerID for a in q.answers if a.isCorrect), None
-        )
-
-        # Skip scoring if user did not answer, but still include in feedback
-        is_correct = False
-        if submitted_answer_id is not None:
-            is_correct = q.checkAnswer(submitted_answer_id)
-            if is_correct:
-                score += 1
-
-        feedback.append({
-            "questionID": q.questionID,
-            "correctAnswerID": correct_answer_id,
-            "submittedAnswerID": submitted_answer_id,
-            "isCorrect": is_correct,
-        })
+    score, feedback = quiz.calculateScore(request.answers)
 
     # Create quiz result
     result = QuizResult(
@@ -147,14 +142,17 @@ def submit_quiz(
     db.commit()
     db.refresh(result)
 
+    passed = quiz.evaluatePassingThreshold(score)
+
     # Return response
     return {
         "status": "success",
         "quizID": quiz.contentID,
         "score": score,
-        "passed": result.getPassed(),
+        "passed": passed,
         "resultID": result.resultID,
         "feedback": feedback,
+        "recommendedContent": [] if passed else _recommend_content(quiz, db),
     }
 
 @router.get("/results/all")
@@ -225,5 +223,73 @@ def set_explanation(
         "data": {
             "questionID": question.questionID,
             "explanation": question.getExplanation(),
+        },
+    }
+
+
+@router.put("/{quiz_id}/questions/{question_id}/text")
+def update_question_text(
+    quiz_id: str,
+    question_id: str,
+    body: QuestionTextRequest,
+    current_user: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(get_db),
+):
+    quiz = getQuiz(quiz_id, db)
+    question = db.query(Question).filter(
+        Question.questionID == question_id,
+        Question.quizID == quiz.contentID,
+    ).first()
+
+    if question is None:
+        raise HTTPException(status_code=404, detail="Question not found in this quiz")
+    if not body.questionText.strip():
+        raise HTTPException(status_code=422, detail="Question text cannot be empty")
+
+    question.updateQuestionText(body.questionText.strip())
+    db.commit()
+    db.refresh(question)
+
+    return {
+        "status": "ok",
+        "data": {
+            "questionID": question.questionID,
+            "questionText": question.questionText,
+        },
+    }
+
+
+@router.put("/{quiz_id}/questions/{question_id}/answers/{answer_id}/text")
+def update_answer_text(
+    quiz_id: str,
+    question_id: str,
+    answer_id: str,
+    body: AnswerTextRequest,
+    current_user: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(get_db),
+):
+    quiz = getQuiz(quiz_id, db)
+    question = db.query(Question).filter(
+        Question.questionID == question_id,
+        Question.quizID == quiz.contentID,
+    ).first()
+
+    if question is None:
+        raise HTTPException(status_code=404, detail="Question not found in this quiz")
+    if not body.answerText.strip():
+        raise HTTPException(status_code=422, detail="Answer text cannot be empty")
+
+    try:
+        question.updateAnswerText(answer_id, body.answerText.strip())
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Answer not found in this question")
+    db.commit()
+    db.refresh(question)
+
+    return {
+        "status": "ok",
+        "data": {
+            "answerID": answer_id,
+            "answerText": body.answerText.strip(),
         },
     }

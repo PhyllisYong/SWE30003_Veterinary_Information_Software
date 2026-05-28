@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.api.routes.auth import getCurrentUser
+from app.core.security import validateToken
 from app.models.user import User
 from app.models.chat import VeterinaryAdviceChat
-from app.models.message import Message
 from app.models.veterinarian import Veterinarian
 from app.schemas.chat import (
     StartChatRequest,
@@ -108,6 +108,20 @@ def get_chat(
 # WS /api/chats/{chatID}/ws — subscribe as observer
 @router.websocket("/{chatID}/ws")
 async def chat_websocket(chatID: str, websocket: WebSocket, db: Session = Depends(get_db)):
+    token = websocket.query_params.get("token")
+    payload = validateToken(token) if token else None
+    if payload is None:
+        await websocket.close(code=1008)
+        return
+
+    user = db.query(User).filter(User.userID == payload["sub"]).first()
+    chat = db.query(VeterinaryAdviceChat).filter(
+        VeterinaryAdviceChat.chatID == chatID
+    ).first()
+    if user is None or chat is None or user.userID not in (chat.petOwnerID, chat.vetID):
+        await websocket.close(code=1008)
+        return
+
     await websocket.accept()
     obs = WebSocketObserver(websocket)
     _active_observers.setdefault(chatID, []).append(obs)
@@ -131,11 +145,10 @@ async def send_message(
     chat = _get_chat_or_404(chatID, db)
     _assert_participant(chat, current_user)
 
-    msg = Message(
+    msg = chat.createMessage(
         senderID=current_user.userID,
         content=body.content,
         timestamp=_now(),
-        chatID=chatID,
     )
     db.add(msg)
     db.commit()
@@ -169,7 +182,7 @@ def edit_message(
     if msg.senderID != current_user.userID:
         raise HTTPException(status_code=403, detail="Cannot edit another user's message")
 
-    msg.content = body.content
+    chat.editMessage(msg, body.content)
     db.commit()
     db.refresh(msg)
     return {"status": "ok", "data": MessageResponse.model_validate(msg)}
@@ -195,6 +208,6 @@ def delete_message(
     if msg.senderID != current_user.userID:
         raise HTTPException(status_code=403, detail="Cannot delete another user's message")
 
-    db.delete(msg)
+    chat.deleteMessage(msg)
     db.commit()
     return {"status": "ok", "data": {"message": "Message deleted"}}

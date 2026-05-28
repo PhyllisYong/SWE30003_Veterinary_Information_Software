@@ -31,3 +31,19 @@ class Pet(Base):
 
     def getID(self) -> str:
         return self.petID
+
+    def updatePetDetails(
+        self,
+        petName: str | None = None,
+        petType: str | None = None,
+        age: int | None = None,
+        gender: str | None = None,
+    ) -> None:
+        if petName:
+            self.petName = petName
+        if petType:
+            self.petType = petType
+        if age is not None:
+            self.age = age
+        if gender:
+            self.gender = gender

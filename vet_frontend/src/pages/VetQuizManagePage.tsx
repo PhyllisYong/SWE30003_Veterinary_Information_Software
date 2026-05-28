@@ -52,6 +52,8 @@ export default function VetQuizManagePage() {
 
   const [quizzes, setQuizzes]         = useState<QuizSummary[]>([])
   const [activeQuiz, setActiveQuiz]   = useState<QuizDetail | null>(null)
+  const [questionTexts, setQuestionTexts] = useState<Record<string, string>>({})
+  const [answerTexts, setAnswerTexts] = useState<Record<string, string>>({})
   const [explanations, setExplanations] = useState<Record<string, string>>({})
   const [saving, setSaving]           = useState<Record<string, boolean>>({})
   const [saved, setSaved]             = useState<Record<string, boolean>>({})
@@ -78,9 +80,17 @@ export default function VetQuizManagePage() {
       const res        = await apiFetch(`/api/quizzes/${quizID}`)
       const data: QuizDetail = await res.json()
       setActiveQuiz(data)
-      const init: Record<string, string> = {}
-      data.questions.forEach(q => { init[q.id] = q.explanation ?? '' })
-      setExplanations(init)
+      const initExp: Record<string, string> = {}
+      const initQuestions: Record<string, string> = {}
+      const initAnswers: Record<string, string> = {}
+      data.questions.forEach(q => {
+        initExp[q.id] = q.explanation ?? ''
+        initQuestions[q.id] = q.questionText
+        q.answers.forEach(a => { initAnswers[a.id] = a.answerText })
+      })
+      setExplanations(initExp)
+      setQuestionTexts(initQuestions)
+      setAnswerTexts(initAnswers)
       setSaved({})
     } catch {
       setPageError('Failed to load quiz.')
@@ -110,6 +120,56 @@ export default function VetQuizManagePage() {
       setPageError('Could not reach server.')
     } finally {
       setSaving(prev => ({ ...prev, [questionID]: false }))
+    }
+  }
+
+  const saveQuestionText = async (questionID: string) => {
+    if (!activeQuiz) return
+    setSaving(prev => ({ ...prev, [`question-${questionID}`]: true }))
+    try {
+      const res = await apiFetch(
+        `/api/quizzes/${activeQuiz.id}/questions/${questionID}/text`,
+        {
+          method: 'PUT',
+          body: JSON.stringify({ questionText: questionTexts[questionID] ?? '' }),
+        }
+      )
+      if (res.ok) {
+        setSaved(prev => ({ ...prev, [`question-${questionID}`]: true }))
+        setTimeout(() => setSaved(prev => ({ ...prev, [`question-${questionID}`]: false })), 2000)
+      } else {
+        const body = await res.json()
+        setPageError(body.detail ?? 'Save failed.')
+      }
+    } catch {
+      setPageError('Could not reach server.')
+    } finally {
+      setSaving(prev => ({ ...prev, [`question-${questionID}`]: false }))
+    }
+  }
+
+  const saveAnswerText = async (questionID: string, answerID: string) => {
+    if (!activeQuiz) return
+    setSaving(prev => ({ ...prev, [`answer-${answerID}`]: true }))
+    try {
+      const res = await apiFetch(
+        `/api/quizzes/${activeQuiz.id}/questions/${questionID}/answers/${answerID}/text`,
+        {
+          method: 'PUT',
+          body: JSON.stringify({ answerText: answerTexts[answerID] ?? '' }),
+        }
+      )
+      if (res.ok) {
+        setSaved(prev => ({ ...prev, [`answer-${answerID}`]: true }))
+        setTimeout(() => setSaved(prev => ({ ...prev, [`answer-${answerID}`]: false })), 2000)
+      } else {
+        const body = await res.json()
+        setPageError(body.detail ?? 'Save failed.')
+      }
+    } catch {
+      setPageError('Could not reach server.')
+    } finally {
+      setSaving(prev => ({ ...prev, [`answer-${answerID}`]: false }))
     }
   }
 
@@ -160,14 +220,50 @@ export default function VetQuizManagePage() {
               <div className="vqm-questions">
                 {activeQuiz.questions.map((q, idx) => (
                   <div key={q.id} className="vqm-question">
-                    <p className="vqm-question__text">
-                      <strong>Q{idx + 1}.</strong> {q.questionText}
-                    </p>
-                    <ul className="vqm-answers">
+                    <label className="vqm-label" htmlFor={`question-${q.id}`}>
+                      Question {idx + 1}
+                    </label>
+                    <div className="vqm-inline-editor">
+                      <textarea
+                        id={`question-${q.id}`}
+                        className="vqm-textarea"
+                        rows={2}
+                        value={questionTexts[q.id] ?? ''}
+                        onChange={e =>
+                          setQuestionTexts(prev => ({ ...prev, [q.id]: e.target.value }))
+                        }
+                      />
+                      <button
+                        className="btn btn--outline btn--sm"
+                        disabled={saving[`question-${q.id}`]}
+                        onClick={() => saveQuestionText(q.id)}
+                      >
+                        {saving[`question-${q.id}`] ? 'Saving...' : 'Save question'}
+                      </button>
+                    </div>
+                    {saved[`question-${q.id}`] && <span className="vqm-saved">Saved</span>}
+
+                    <div className="vqm-answers">
                       {q.answers.map(a => (
-                        <li key={a.id}>{a.answerText}</li>
+                        <div key={a.id} className="vqm-answer-row">
+                          <input
+                            type="text"
+                            value={answerTexts[a.id] ?? ''}
+                            onChange={e =>
+                              setAnswerTexts(prev => ({ ...prev, [a.id]: e.target.value }))
+                            }
+                          />
+                          <button
+                            className="btn btn--outline btn--sm"
+                            disabled={saving[`answer-${a.id}`]}
+                            onClick={() => saveAnswerText(q.id, a.id)}
+                          >
+                            {saving[`answer-${a.id}`] ? 'Saving...' : 'Save'}
+                          </button>
+                          {saved[`answer-${a.id}`] && <span className="vqm-saved">Saved</span>}
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                     <label className="vqm-label" htmlFor={`exp-${q.id}`}>
                       Explanation
                     </label>

@@ -64,3 +64,8 @@ class Video(FirstAidContent):
     def getDuration(self) -> int:
         """Return the video duration in seconds."""
         return self.durationSec
+
+    def requestVideoStream(self) -> str | None:
+        from app.services.video_hosting import video_hosting
+
+        return video_hosting.displayVideo(self.videoURL)

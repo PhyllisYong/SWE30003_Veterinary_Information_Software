@@ -34,6 +34,10 @@ class VideoHostingFacade:
             return None
         return f"https://www.youtube.com/embed/{video_id}"
 
+    def displayVideo(self, url: str) -> Optional[str]:
+        """Design-named facade method for resolving a playable video stream URL."""
+        return self.getEmbedUrl(url)
+
     def getThumbnailUrl(self, url: str, quality: str = "hqdefault") -> Optional[str]:
         """
         Return a YouTube thumbnail URL without an API call.

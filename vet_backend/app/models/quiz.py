@@ -50,3 +50,48 @@ class Quiz(FirstAidContent):
 
     def getQuestions(self) -> list:
         return self.questions
+
+    def startQuiz(self) -> list:
+        return self.getQuestions()
+
+    def evaluateAnswer(self, question, answerID: str | None) -> bool:
+        if answerID is None:
+            return False
+        return question.checkAnswer(answerID)
+
+    def calculateScore(self, submitted_answers: dict[str, str]) -> tuple[int, list[dict]]:
+        score = 0
+        feedback = []
+        for question in self.startQuiz():
+            submitted_answer_id = submitted_answers.get(question.questionID)
+            correct_answer_id = next(
+                (
+                    answer.answerID
+                    for answer in question.provideAnswerOptions()
+                    if answer.isCorrectAnswer()
+                ),
+                None,
+            )
+            is_correct = self.evaluateAnswer(question, submitted_answer_id)
+            if is_correct:
+                score += 1
+            feedback.append({
+                "questionID": question.questionID,
+                "correctAnswerID": correct_answer_id,
+                "submittedAnswerID": submitted_answer_id,
+                "isCorrect": is_correct,
+            })
+        return score, feedback
+
+    def evaluatePassingThreshold(self, score: int) -> bool:
+        max_score = self.totalScore or len(self.questions or [])
+        return max_score > 0 and (score / max_score) >= 0.6
+
+    def recommendFirstAidContent(self, content_items: list) -> list[dict]:
+        return [
+            item.display()
+            for item in content_items
+            if item.publicationStatus == "published"
+            and item.petType == self.petType
+            and item.emergencyCategory == self.emergencyCategory
+        ]

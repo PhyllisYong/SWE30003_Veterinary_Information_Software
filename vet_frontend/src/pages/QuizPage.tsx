@@ -37,6 +37,16 @@ interface SubmitResult {
   score: number
   passed: boolean
   feedback: FeedbackItem[]
+  recommendedContent?: RecommendedContent[]
+}
+
+interface RecommendedContent {
+  contentID: string
+  title: string
+  description?: string | null
+  petType: string
+  emergencyCategory: string
+  content_type: 'guide' | 'video' | 'quiz'
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────
@@ -140,7 +150,12 @@ export default function QuizPage() {
       // already told us total score. We'll reveal via a second lightweight
       // approach: mark selected answers based on score delta isn't possible
       // without per-question feedback. So we request the server send it back.
-      setResult({ score: data.score, passed: data.passed, feedback: data.feedback ?? [] })
+      setResult({
+        score: data.score,
+        passed: data.passed,
+        feedback: data.feedback ?? [],
+        recommendedContent: data.recommendedContent ?? [],
+      })
 
       // Build revealed map: correctAnswerID → 'correct', wrong selected → 'incorrect'
       const revealMap: Record<string, string> = {}
@@ -297,6 +312,22 @@ export default function QuizPage() {
                   <span className={`quiz-result-card__badge ${result.passed ? 'passed' : 'failed'}`}>
                     {result.passed ? 'Passed' : 'Not passed'}
                   </span>
+                </div>
+              )}
+
+              {result && !result.passed && (result.recommendedContent?.length ?? 0) > 0 && (
+                <div className="quiz-recommend-card">
+                  <h3>Recommended review</h3>
+                  {result.recommendedContent?.map(item => (
+                    <Link
+                      key={item.contentID}
+                      to={item.content_type === 'video' ? '/videos' : '/guides'}
+                      className="quiz-recommend-item"
+                    >
+                      <span>{item.content_type === 'video' ? 'Video' : 'Guide'}</span>
+                      <strong>{item.title}</strong>
+                    </Link>
+                  ))}
                 </div>
               )}
 

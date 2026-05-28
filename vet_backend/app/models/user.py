@@ -23,3 +23,15 @@ class User(Base):
 
     def getID(self) -> str:
         return self.userID
+
+    def getName(self) -> str:
+        return self.name
+
+    def getEmail(self) -> str:
+        return self.email
+
+    def updateProfile(self, name: str | None = None, email: str | None = None) -> None:
+        if name:
+            self.name = name
+        if email:
+            self.email = email
