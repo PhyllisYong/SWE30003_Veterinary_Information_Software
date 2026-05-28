@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.api.routes.auth import getCurrentUser
 from app.models.user import User
 from app.models.booking import Booking
+from app.models.pet import Pet
 from app.models.veterinarian import Veterinarian
 from app.schemas.booking import BookingCreate, BookingResponse, VetSlotResponse
 
@@ -14,6 +15,28 @@ router = APIRouter(tags=["Booking"])
 
 def _now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _booking_payload(booking: Booking) -> BookingResponse:
+    return BookingResponse(
+        bookingID=booking.bookingID,
+        createdAt=booking.createdAt,
+        timeslot=booking.timeslot,
+        bookingStatus=booking.bookingStatus,
+        petOwnerID=booking.petOwnerID,
+        vetID=booking.vetID,
+        petID=booking.petID,
+        petName=booking.pet.petName if booking.pet else None,
+        petType=booking.pet.petType if booking.pet else None,
+    )
+
+
+def _restore_slot(vet: Veterinarian, timeslot: str) -> None:
+    slots = list(vet.availableSlots or [])
+    if timeslot not in slots:
+        slots.append(timeslot)
+        slots.sort()
+        vet.availableSlots = slots
 
 
 # GET /api/vets — list vets with available slots (for booking UI)
@@ -67,17 +90,40 @@ def make_booking(
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinarian not found")
 
+    if body.timeslot not in (vet.availableSlots or []):
+        raise HTTPException(status_code=409, detail="This timeslot is no longer available")
+
+    existing = db.query(Booking).filter(
+        Booking.vetID == body.vetID,
+        Booking.timeslot == body.timeslot,
+        Booking.bookingStatus.in_(["pending", "accepted"]),
+    ).first()
+    if existing:
+        raise HTTPException(status_code=409, detail="This timeslot has already been booked")
+
+    pet_id = None
+    if body.petID:
+        pet = db.query(Pet).filter(
+            Pet.petID == body.petID,
+            Pet.ownerID == current_user.userID,
+        ).first()
+        if not pet:
+            raise HTTPException(status_code=404, detail="Pet not found")
+        pet_id = pet.petID
+
     booking = Booking(
         createdAt=_now(),
         timeslot=body.timeslot,
         bookingStatus="pending",
         petOwnerID=current_user.userID,
         vetID=body.vetID,
+        petID=pet_id,
     )
+    vet.availableSlots = [slot for slot in (vet.availableSlots or []) if slot != body.timeslot]
     db.add(booking)
     db.commit()
     db.refresh(booking)
-    return {"status": "ok", "data": BookingResponse.model_validate(booking)}
+    return {"status": "ok", "data": _booking_payload(booking)}
 
 
 # GET /api/bookings — list own bookings
@@ -93,7 +139,7 @@ def list_bookings(
     else:
         raise HTTPException(status_code=403, detail="Only pet owners and vets can view bookings")
 
-    return {"status": "ok", "data": [BookingResponse.model_validate(b) for b in bookings]}
+    return {"status": "ok", "data": [_booking_payload(b) for b in bookings]}
 
 
 # PUT /api/bookings/{bookingID}/accept — acceptBooking() [Vet]
@@ -115,10 +161,10 @@ def accept_booking(
     if booking.bookingStatus != "pending":
         raise HTTPException(status_code=409, detail=f"Booking is already {booking.bookingStatus}")
 
-    booking.updateStatus("accepted")
+    booking.acceptBookingSlot()
     db.commit()
     db.refresh(booking)
-    return {"status": "ok", "data": BookingResponse.model_validate(booking)}
+    return {"status": "ok", "data": _booking_payload(booking)}
 
 
 # PUT /api/bookings/{bookingID}/cancel — cancel by owner or vet
@@ -138,7 +184,12 @@ def cancel_booking(
     if booking.bookingStatus == "completed":
         raise HTTPException(status_code=409, detail="Cannot cancel a completed booking")
 
-    booking.updateStatus("cancelled")
+    previous_status = booking.bookingStatus
+    booking.cancelBooking()
+    if previous_status in ("pending", "accepted"):
+        vet = db.query(Veterinarian).filter(Veterinarian.userID == booking.vetID).first()
+        if vet:
+            _restore_slot(vet, booking.timeslot)
     db.commit()
     db.refresh(booking)
-    return {"status": "ok", "data": BookingResponse.model_validate(booking)}
+    return {"status": "ok", "data": _booking_payload(booking)}

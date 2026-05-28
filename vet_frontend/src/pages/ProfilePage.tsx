@@ -1,4 +1,5 @@
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect } from 'react'
+import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './ProfilePage.css'
 
@@ -272,6 +273,35 @@ export default function ProfilePage() {
     }
   }
 
+  async function handleDeleteAccount() {
+    const confirmed = window.confirm(
+      'Delete your account permanently? This removes your profile, pets, bookings, chats, and quiz results.'
+    )
+    if (!confirmed) return
+
+    setProfileError(null)
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const body = await res.json().catch(() => null)
+      if (!res.ok) {
+        setProfileError(body?.detail ?? 'Failed to delete account.')
+        return
+      }
+
+      localStorage.removeItem('token')
+      localStorage.removeItem('userName')
+      localStorage.removeItem('userRole')
+      localStorage.removeItem('userID')
+      window.dispatchEvent(new Event('auth-change'))
+      navigate('/', { replace: true })
+    } catch {
+      setProfileError('Could not reach the server.')
+    }
+  }
+
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <>
@@ -510,6 +540,81 @@ export default function ProfilePage() {
                     </form>
                   )}
 
+                  {/* Edit pet form (above grid, full-width) */}
+                  {editingPetID && (
+                    <form
+                      className="pet-inline-form"
+                      onSubmit={(e) => handleEditPet(e, editingPetID)}
+                      noValidate
+                    >
+                      <h3 className="pet-inline-form__title">Edit Pet</h3>
+                      {editPetError && (
+                        <div className="profile-banner profile-banner--error">{editPetError}</div>
+                      )}
+                      <div className="pform-row">
+                        <div className="pform-group">
+                          <label>Pet name</label>
+                          <input
+                            type="text"
+                            value={editPetName}
+                            onChange={(e) => setEditPetName(e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="pform-group">
+                          <label>Type</label>
+                          <select
+                            value={editPetType}
+                            onChange={(e) => setEditPetType(e.target.value)}
+                          >
+                            {PET_TYPES.map((t) => (
+                              <option key={t} value={t}>{capitalise(t)}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="pform-group">
+                          <label>Age <span className="pform-optional">(yrs)</span></label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="40"
+                            value={editPetAge}
+                            onChange={(e) => setEditPetAge(e.target.value)}
+                            placeholder="—"
+                          />
+                        </div>
+                        <div className="pform-group">
+                          <label>Gender</label>
+                          <select
+                            value={editPetGender}
+                            onChange={(e) => setEditPetGender(e.target.value)}
+                          >
+                            <option value="">—</option>
+                            {GENDERS.map((g) => (
+                              <option key={g} value={g}>{capitalise(g)}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="pet-inline-form__actions">
+                        <button
+                          type="submit"
+                          className="btn btn--primary"
+                          disabled={editPetSaving || !editPetName.trim()}
+                        >
+                          {editPetSaving ? 'Saving…' : 'Save'}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          onClick={() => setEditingPetID(null)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  )}
+
                   {/* Pets grid */}
                   {pets.length === 0 && !showAddForm ? (
                     <div className="profile-empty">
@@ -517,121 +622,65 @@ export default function ProfilePage() {
                     </div>
                   ) : (
                     <div className="pet-grid">
-                      {pets.map((pet) =>
-                        editingPetID === pet.petID ? (
-                          /* ── Inline edit form ── */
-                          <form
-                            key={pet.petID}
-                            className="pet-card pet-card--editing"
-                            onSubmit={(e) => handleEditPet(e, pet.petID)}
-                            noValidate
-                          >
-                            <h3 className="pet-inline-form__title">Edit Pet</h3>
-                            {editPetError && (
-                              <div className="profile-banner profile-banner--error">{editPetError}</div>
-                            )}
-                            <div className="pform-group">
-                              <label>Pet name</label>
-                              <input
-                                type="text"
-                                value={editPetName}
-                                onChange={(e) => setEditPetName(e.target.value)}
-                                required
-                              />
-                            </div>
-                            <div className="pform-group">
-                              <label>Type</label>
-                              <select
-                                value={editPetType}
-                                onChange={(e) => setEditPetType(e.target.value)}
-                              >
-                                {PET_TYPES.map((t) => (
-                                  <option key={t} value={t}>{capitalise(t)}</option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="pform-group">
-                              <label>Age <span className="pform-optional">(yrs)</span></label>
-                              <input
-                                type="number"
-                                min="0"
-                                max="40"
-                                value={editPetAge}
-                                onChange={(e) => setEditPetAge(e.target.value)}
-                                placeholder="—"
-                              />
-                            </div>
-                            <div className="pform-group">
-                              <label>Gender</label>
-                              <select
-                                value={editPetGender}
-                                onChange={(e) => setEditPetGender(e.target.value)}
-                              >
-                                <option value="">—</option>
-                                {GENDERS.map((g) => (
-                                  <option key={g} value={g}>{capitalise(g)}</option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="pet-inline-form__actions">
-                              <button
-                                type="submit"
-                                className="btn btn--primary"
-                                disabled={editPetSaving || !editPetName.trim()}
-                              >
-                                {editPetSaving ? 'Saving…' : 'Save'}
-                              </button>
-                              <button
-                                type="button"
-                                className="btn btn--ghost"
-                                onClick={() => setEditingPetID(null)}
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </form>
-                        ) : (
-                          /* ── Pet display card ── */
-                          <div key={pet.petID} className="pet-card">
-                            <div className="pet-card__icon">
-                              {pet.petType === 'dog' ? '🐕' :
-                               pet.petType === 'cat' ? '🐈' :
-                               pet.petType === 'rabbit' ? '🐇' :
-                               pet.petType === 'hamster' ? '🐹' : '🐾'}
-                            </div>
-                            <h3 className="pet-card__name">{pet.petName}</h3>
-                            <p className="pet-card__detail">{capitalise(pet.petType)}</p>
-                            {(pet.age != null || pet.gender) && (
-                              <p className="pet-card__detail pet-card__detail--muted">
-                                {[
-                                  pet.age != null ? `${pet.age} yr${pet.age !== 1 ? 's' : ''}` : null,
-                                  pet.gender ? capitalise(pet.gender) : null,
-                                ]
-                                  .filter(Boolean)
-                                  .join(' · ')}
-                              </p>
-                            )}
-                            <div className="pet-card__actions">
-                              <button
-                                className="btn btn--outline btn--sm"
-                                onClick={() => startEditPet(pet)}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                className="btn btn--ghost btn--sm pet-card__delete"
-                                onClick={() => handleDeletePet(pet.petID, pet.petName)}
-                              >
-                                Delete
-                              </button>
-                            </div>
+                      {pets.map((pet) => (
+                        <div
+                          key={pet.petID}
+                          className={`pet-card${editingPetID === pet.petID ? ' pet-card--editing' : ''}`}
+                        >
+                          <div className="pet-card__icon">
+                            {pet.petType === 'dog' ? '🐕' :
+                             pet.petType === 'cat' ? '🐈' :
+                             pet.petType === 'rabbit' ? '🐇' :
+                             pet.petType === 'hamster' ? '🐹' : '🐾'}
                           </div>
-                        )
-                      )}
+                          <h3 className="pet-card__name">{pet.petName}</h3>
+                          <p className="pet-card__detail">{capitalise(pet.petType)}</p>
+                          {(pet.age != null || pet.gender) && (
+                            <p className="pet-card__detail pet-card__detail--muted">
+                              {[
+                                pet.age != null ? `${pet.age} yr${pet.age !== 1 ? 's' : ''}` : null,
+                                pet.gender ? capitalise(pet.gender) : null,
+                              ]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </p>
+                          )}
+                          <div className="pet-card__actions">
+                            <button
+                              className="btn btn--outline btn--sm"
+                              onClick={() => startEditPet(pet)}
+                              disabled={!!editingPetID && editingPetID !== pet.petID}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="btn btn--ghost btn--sm pet-card__delete"
+                              onClick={() => handleDeletePet(pet.petID, pet.petName)}
+                              disabled={!!editingPetID}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
               )}
+
+              <div className="profile-card profile-card--danger">
+                <h2 className="profile-card__title">Account Deletion</h2>
+                <p className="profile-danger-text">
+                  Permanently delete this account and related personal data.
+                </p>
+                <button
+                  type="button"
+                  className="btn btn--ghost profile-delete-account"
+                  onClick={handleDeleteAccount}
+                >
+                  Delete Account
+                </button>
+              </div>
             </>
           )}
 

@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, FormEvent } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './ChatPage.css'
 
@@ -99,7 +100,8 @@ export default function ChatPage() {
     if (!activeChatID) return
     loadActiveChat(activeChatID)
 
-    const wsUrl = `ws://localhost:8000/api/chats/${activeChatID}/ws`
+    const token = localStorage.getItem('token') ?? ''
+    const wsUrl = `ws://localhost:8000/api/chats/${activeChatID}/ws?token=${encodeURIComponent(token)}`
     const ws = new WebSocket(wsUrl)
 
     ws.onmessage = (e) => {

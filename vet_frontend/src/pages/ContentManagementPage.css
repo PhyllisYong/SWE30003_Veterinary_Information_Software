@@ -1,0 +1,421 @@
+/* ─── Page header ─────────────────────────────────────────────────── */
+.cm-header {
+  background: linear-gradient(135deg, #fafaf9 0%, #f8fafc 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 56px 0 48px;
+}
+.cm-header h1 {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -1.2px;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+.cm-header p {
+  font-size: 16px;
+  color: var(--text-muted);
+  max-width: 520px;
+}
+
+/* ─── Layout ──────────────────────────────────────────────────────── */
+.cm-body {
+  padding: 48px 0 80px;
+  background: var(--bg-alt);
+  flex: 1;
+}
+
+.cm-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* ─── Section title ───────────────────────────────────────────────── */
+.cm-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 20px;
+}
+
+/* ─── Submit form card ────────────────────────────────────────────── */
+.cm-form-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+}
+
+.cm-form-card h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 24px;
+}
+
+.cm-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.cm-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.cm-form__group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cm-form__group input,
+.cm-form__group select,
+.cm-form__group textarea {
+  padding: 9px 13px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  font-size: 14px;
+  color: var(--text);
+  background: #fff;
+  outline: none;
+  transition: border-color .15s;
+  font-family: inherit;
+}
+.cm-form__group input:focus,
+.cm-form__group select:focus,
+.cm-form__group textarea:focus {
+  border-color: var(--primary);
+}
+.cm-form__group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ─── Steps editor ────────────────────────────────────────────────── */
+.cm-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.cm-step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cm-step-number {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 22px;
+}
+
+.cm-step-item input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  font-size: 13.5px;
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+  font-family: inherit;
+}
+.cm-step-item input:focus { border-color: var(--primary); }
+
+.cm-step-remove {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  opacity: .7;
+  transition: opacity .15s;
+}
+.cm-step-remove:hover { opacity: 1; }
+
+.cm-add-step {
+  background: none;
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  color: var(--primary);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 8px 14px;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color .15s, background .15s;
+}
+.cm-add-step:hover { border-color: var(--primary); background: var(--primary-mid); }
+
+/* ─── Form actions ────────────────────────────────────────────────── */
+.cm-form__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.cm-toast {
+  margin-top: 16px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.cm-toast--success { background: #dcfce7; color: #166534; }
+.cm-toast--error   { background: #fee2e2; color: #991b1b; }
+
+/* ─── Content list (right panel) ─────────────────────────────────── */
+.cm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cm-list-item {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  transition: box-shadow .15s;
+}
+.cm-list-item:hover { box-shadow: var(--shadow-md); }
+
+.cm-list-item__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.cm-list-item__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.cm-list-item__tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.tag { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 600; text-transform: capitalize; }
+.tag--pet      { background: #dbeafe; color: #1e40af; }
+.tag--cat      { background: #fce7f3; color: #9d174d; }
+.tag--rabbit   { background: #fef3c7; color: #92400e; }
+.tag--hamster  { background: #ede9fe; color: #5b21b6; }
+.tag--guinea   { background: #ecfdf5; color: #065f46; }
+.tag--category { background: var(--primary-mid); color: var(--primary-dark); }
+.tag--guide    { background: #dcfce7; color: #166534; }
+.tag--video    { background: #dbeafe; color: #1e3a8a; }
+
+/* Status badge */
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.status-badge--submitted           { background: #e0f2fe; color: #0369a1; }
+.status-badge--draft               { background: #f1f5f9; color: #64748b; }
+.status-badge--pending_verification{ background: #fef9c3; color: #854d0e; }
+.status-badge--verified            { background: #dbeafe; color: #1e40af; }
+.status-badge--published           { background: #dcfce7; color: #166534; }
+.status-badge--rejected            { background: #fee2e2; color: #991b1b; }
+
+/* Actions row */
+.cm-list-item__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.cm-action-btn {
+  padding: 5px 14px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  color: var(--text);
+}
+.cm-action-btn:hover { border-color: var(--primary); color: var(--primary); }
+.cm-action-btn--danger { color: #ef4444; }
+.cm-action-btn--danger:hover { border-color: #ef4444; color: #ef4444; }
+.cm-action-btn--success { color: #16a34a; }
+.cm-action-btn--success:hover { border-color: #16a34a; color: #16a34a; }
+
+/* ─── Tabs ────────────────────────────────────────────────────────── */
+.cm-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0;
+}
+
+.cm-tab {
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color .15s, border-color .15s;
+}
+.cm-tab:hover { color: var(--primary); }
+.cm-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* ─── Empty state ─────────────────────────────────────────────────── */
+.cm-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.cm-empty p { font-size: 14px; }
+
+/* ─── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .cm-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .cm-header h1 { font-size: 28px; }
+  .cm-form__row { grid-template-columns: 1fr; }
+}
+
+/* ─── Review section extras ───────────────────────────────────────── */
+.cm-right-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.cm-review-divider {
+  border: none;
+  border-top: 2px dashed var(--border);
+  margin: 32px 0 28px;
+}
+
+.cm-review-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  margin-top: -12px;
+  line-height: 1.5;
+}
+
+.cm-review-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 100px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.cm-list-item--review {
+  border-left: 3px solid #f59e0b;
+}
+
+/* ─── Admin page extras ───────────────────────────────────────────── */
+.cm-admin-filters {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.cm-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.cm-admin-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.cm-admin-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.cm-admin-meta strong { color: var(--text); }
+
+.cm-assign-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.cm-assign-row select {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+}
+.cm-assign-row select:focus { border-color: var(--primary); }
+
+/* Amend feedback banner on vet's submission */
+.cm-amend-feedback {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #fef9c3;
+  border-left: 3px solid #f59e0b;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #78350f;
+  line-height: 1.5;
+}
+.cm-amend-label {
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+@media (max-width: 900px) {
+  .cm-admin-grid { grid-template-columns: 1fr; }
+}

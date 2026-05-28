@@ -34,5 +34,22 @@ class VeterinaryAdviceChat(Base, ChatSubject):
     def viewChatHistory(self) -> list:
         return self.messages
 
+    def createMessage(self, senderID: str, content: str, timestamp: str):
+        from app.models.message import Message
+
+        return Message(
+            senderID=senderID,
+            content=content,
+            timestamp=timestamp,
+            chatID=self.chatID,
+        )
+
+    def editMessage(self, message, content: str) -> None:
+        message.content = content
+
+    def deleteMessage(self, message) -> None:
+        if message in self.messages:
+            self.messages.remove(message)
+
     def getID(self) -> str:
         return self.chatID

@@ -40,6 +40,32 @@
   font-size: 0.9rem;
 }
 
+.booking-muted {
+  color: #9ca3af;
+}
+
+.booking-field {
+  display: grid;
+  gap: 0.35rem;
+  max-width: 320px;
+  margin-bottom: 1rem;
+}
+
+.booking-field label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.booking-field select {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}
+
 /* ── Vet selection grid ────────────────────────────────────────────────────── */
 
 .vet-grid {

@@ -7,9 +7,15 @@ from app.models.user import User
 from app.models.pet_owner import PetOwner
 from app.models.veterinarian import Veterinarian
 from app.models.association_admin import AssociationAdministrator
+from app.models.booking import Booking
+from app.models.chat import VeterinaryAdviceChat
+from app.models.first_aid_content import FirstAidContent
+from app.models.message import Message
 from app.models.pet import Pet
+from app.models.quiz_result import QuizResult
 from app.schemas.user import UpdateProfileRequest
 from app.schemas.pet import PetCreate, PetUpdate, PetResponse
+from app.services.authentication import authentication
 
 router = APIRouter(tags=["Profile & Pets"])
 
@@ -51,10 +57,7 @@ def update_profile(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db)
 ):
-    if body.name:
-        current_user.name = body.name
-    if body.email:
-        current_user.email = body.email
+    current_user.updateProfile(name=body.name, email=body.email)
 
     if body.contactNumber and current_user.role == "pet_owner":
         owner = db.query(PetOwner).filter(PetOwner.userID == current_user.userID).first()
@@ -68,6 +71,65 @@ def update_profile(
 
     db.commit()
     return {"status": "ok", "data": {"message": "Profile updated successfully"}}
+
+
+# DELETE /api/profile
+@router.delete("/profile")
+def delete_profile(
+    current_user: User = Depends(getCurrentUser),
+    db: Session = Depends(get_db)
+):
+    user_id = current_user.userID
+
+    db.query(FirstAidContent).filter(
+        FirstAidContent.authorVetID == user_id
+    ).update({FirstAidContent.authorVetID: None}, synchronize_session=False)
+    db.query(FirstAidContent).filter(
+        FirstAidContent.assignedVetID == user_id
+    ).update({FirstAidContent.assignedVetID: None}, synchronize_session=False)
+
+    if current_user.role == "pet_owner":
+        chat_ids = [
+            c.chatID for c in db.query(VeterinaryAdviceChat.chatID).filter(
+                VeterinaryAdviceChat.petOwnerID == user_id
+            ).all()
+        ]
+        if chat_ids:
+            db.query(Message).filter(Message.chatID.in_(chat_ids)).delete(
+                synchronize_session=False
+            )
+        db.query(QuizResult).filter(QuizResult.petOwnerID == user_id).delete(
+            synchronize_session=False
+        )
+        db.query(VeterinaryAdviceChat).filter(
+            VeterinaryAdviceChat.petOwnerID == user_id
+        ).delete(synchronize_session=False)
+        db.query(Booking).filter(Booking.petOwnerID == user_id).delete(
+            synchronize_session=False
+        )
+        db.query(Pet).filter(Pet.ownerID == user_id).delete(synchronize_session=False)
+
+    if current_user.role == "veterinarian":
+        chat_ids = [
+            c.chatID for c in db.query(VeterinaryAdviceChat.chatID).filter(
+                VeterinaryAdviceChat.vetID == user_id
+            ).all()
+        ]
+        if chat_ids:
+            db.query(Message).filter(Message.chatID.in_(chat_ids)).delete(
+                synchronize_session=False
+            )
+        db.query(VeterinaryAdviceChat).filter(
+            VeterinaryAdviceChat.vetID == user_id
+        ).delete(synchronize_session=False)
+        db.query(Booking).filter(Booking.vetID == user_id).delete(
+            synchronize_session=False
+        )
+
+    authentication.invalidateSession(user_id)
+    db.delete(current_user)
+    db.commit()
+    return {"status": "ok", "data": {"message": "Account deleted successfully"}}
 
 
 # GET /api/pets
@@ -122,10 +184,12 @@ def update_pet(
     if not pet:
         raise HTTPException(status_code=404, detail="Pet not found")
 
-    if body.petName: pet.petName = body.petName
-    if body.petType: pet.petType = body.petType
-    if body.age:     pet.age = body.age
-    if body.gender:  pet.gender = body.gender
+    pet.updatePetDetails(
+        petName=body.petName,
+        petType=body.petType,
+        age=body.age,
+        gender=body.gender,
+    )
 
     db.commit()
     db.refresh(pet)
@@ -147,6 +211,10 @@ def delete_pet(
     if not pet:
         raise HTTPException(status_code=404, detail="Pet not found")
 
+    db.query(Booking).filter(Booking.petID == pet.petID).update(
+        {Booking.petID: None},
+        synchronize_session=False,
+    )
     db.delete(pet)
     db.commit()
     return {"status": "ok", "data": {"message": "Pet deleted successfully"}}

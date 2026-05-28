@@ -24,10 +24,13 @@ class Question(Base):
     def getAnswers(self) -> list:
         return self.answers
 
+    def provideAnswerOptions(self) -> list:
+        return self.getAnswers()
+
     def checkAnswer(self, answerID: str) -> bool:
         for answer in self.answers:
             if answer.answerID == answerID:
-                return answer.isCorrect
+                return answer.isCorrectAnswer()
         return False
 
     def getText(self) -> str:
@@ -35,6 +38,16 @@ class Question(Base):
 
     def setExplanation(self, txt: str) -> None:
         self.explanation = txt
+
+    def updateQuestionText(self, txt: str) -> None:
+        self.questionText = txt
+
+    def updateAnswerText(self, answerID: str, txt: str) -> None:
+        for answer in self.answers:
+            if answer.answerID == answerID:
+                answer.setText(txt)
+                return
+        raise ValueError("Answer not found in this question")
 
     def getExplanation(self) -> str:
         return self.explanation

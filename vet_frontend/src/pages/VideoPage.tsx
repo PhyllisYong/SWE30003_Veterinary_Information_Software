@@ -13,7 +13,18 @@ interface Video {
 }
 
 // ── Constants & Helpers ───────────────────────────────────────────────
-const PET_FILTERS = ['all', 'dog', 'cat', 'rabbit', 'hamster', 'guinea pig']
+const PET_FILTERS = ['all', 'dog', 'cat', 'rabbit', 'hamster', 'guinea_pig']
+
+function normalizePetType(petType: string): string {
+  return petType.replace(/\s+/g, '_').toLowerCase()
+}
+
+function petLabel(petType: string): string {
+  return normalizePetType(petType)
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
 
 function petTagClass(petType: string): string {
   const map: Record<string, string> = {
@@ -21,9 +32,9 @@ function petTagClass(petType: string): string {
     cat: 'tag tag--cat',
     rabbit: 'tag tag--rabbit',
     hamster: 'tag tag--hamster',
-    'guinea pig': 'tag tag--guinea',
+    guinea_pig: 'tag tag--guinea',
   }
-  return map[petType] ?? 'tag tag--pet'
+  return map[normalizePetType(petType)] ?? 'tag tag--pet'
 }
 
 function capitalise(s: string): string {
@@ -53,16 +64,26 @@ function formatDuration(sec: number | null): string {
   return `${mins} min ${remainingSec}s`
 }
 
-// Backend always stores YouTube embed URLs — pass through as-is.
-function getEmbedUrl(url: string): string {
-  return url ?? ''
+function getYouTubeVideoId(url: string): string | null {
+  return (
+    url.match(/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/)?.[1] ??
+    url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/)?.[1] ??
+    url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/)?.[1] ??
+    url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/)?.[1] ??
+    null
+  )
 }
 
-// Extract YouTube video ID from embed URL to build thumbnail without an API key.
-function getYouTubeThumbnail(embedUrl: string): string | null {
-  const match = embedUrl.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/)
-  if (!match) return null
-  return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`
+function getEmbedUrl(url: string): string {
+  const videoId = getYouTubeVideoId(url)
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : url
+}
+
+// Extract YouTube video ID to build thumbnail without an API key.
+function getYouTubeThumbnail(url: string): string | null {
+  const videoId = getYouTubeVideoId(url)
+  if (!videoId) return null
+  return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
 }
 
 // ── Modal Component (Video Player) ────────────────────────────────────
@@ -101,7 +122,7 @@ function VideoModal({ video, onClose }: VideoModalProps) {
             <h2>{video.title}</h2>
             <div className="modal-tags">
               <span className={petTagClass(video.petType)}>
-                {capitalise(video.petType)}
+                {petLabel(video.petType)}
               </span>
               <span className="tag tag--category">
                 {formatCategory(video.emergencyCategory)}
@@ -182,7 +203,7 @@ export default function VideoPage() {
 
   // Filtering by pet type and search term
   const filteredVideos = videos.filter((video) => {
-    const matchesPet = activeFilter === 'all' || video.petType === activeFilter
+    const matchesPet = activeFilter === 'all' || normalizePetType(video.petType) === activeFilter
     if (!matchesPet) return false
 
     if (!searchTerm.trim()) return true
@@ -218,7 +239,7 @@ export default function VideoPage() {
                 className={`filter-pill${activeFilter === f ? ' active' : ''}`}
                 onClick={() => setActiveFilter(f)}
               >
-                {f === 'all' ? 'All pets' : capitalise(f)}
+                {f === 'all' ? 'All pets' : petLabel(f)}
               </button>
             ))}
           </div>
@@ -258,7 +279,7 @@ export default function VideoPage() {
                 Showing <strong>{filteredVideos.length}</strong>{' '}
                 {filteredVideos.length === 1 ? 'video' : 'videos'}
                 {activeFilter !== 'all' && (
-                  <> for <strong>{capitalise(activeFilter)}</strong></>
+                  <> for <strong>{petLabel(activeFilter)}</strong></>
                 )}
                 {searchTerm && <> matching "<strong>{searchTerm}</strong>"</>}
               </p>
@@ -291,7 +312,7 @@ export default function VideoPage() {
                       <div className="video-card__content">
                         <div className="video-card__tags">
                           <span className={petTagClass(video.petType)}>
-                            {capitalise(video.petType)}
+                            {petLabel(video.petType)}
                           </span>
                           <span className="tag tag--category">
                             {formatCategory(video.emergencyCategory)}

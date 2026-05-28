@@ -22,3 +22,6 @@ class Answer(Base):
 
     def setText(self, txt: str) -> None:
         self.answerText = txt
+
+    def isCorrectAnswer(self) -> bool:
+        return self.isCorrect

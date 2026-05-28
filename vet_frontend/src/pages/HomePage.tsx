@@ -57,6 +57,8 @@ const STEPS = [
   },
 ]
 
+void STEPS
+
 export default function HomePage() {
   return (
     <main>

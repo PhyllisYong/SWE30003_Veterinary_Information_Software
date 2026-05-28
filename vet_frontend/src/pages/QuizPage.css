@@ -420,69 +420,39 @@
   color: #991b1b;
 }
 
-.explanation-accordion--review {
-  margin-top: 10px;
-  border-radius: var(--radius-sm);
-}
-
-/* ─── Related content (shown on fail) ────────────────────────────── */
-.quiz-related {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.quiz-related__intro {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin: -4px 0 0;
-}
-
-.quiz-related-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.quiz-related-card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.quiz-recommend-card {
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-  text-decoration: none;
-  transition: border-color .15s, box-shadow .15s;
-}
-.quiz-related-card:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-lg);
+  padding: 18px;
 }
 
-.quiz-related-card__type {
+.quiz-recommend-card h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+.quiz-recommend-item {
+  display: grid;
+  gap: 3px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+
+.quiz-recommend-item span {
   font-size: 11px;
   font-weight: 700;
+  color: var(--primary);
   text-transform: uppercase;
   letter-spacing: .06em;
-  color: var(--primary);
 }
 
-.quiz-related-card__title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.quiz-related-card__desc {
+.quiz-recommend-item strong {
   font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-.quiz-results-back {
-  margin-top: 8px;
+  color: var(--text);
+  line-height: 1.35;
 }
 
 /* ─── Empty / error states ────────────────────────────────────────── */

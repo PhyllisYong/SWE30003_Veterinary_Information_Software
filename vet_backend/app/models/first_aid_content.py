@@ -27,10 +27,14 @@ class FirstAidContent(Base):
     publicationStatus = Column(
         "publication_status", String, nullable=False, default="draft"
     )
-    # "draft" | "pending_verification" | "verified" | "published" | "rejected"
+    # "draft" | "submitted" | "pending_verification" | "verified" | "published" | "rejected"
     authorVetID = Column(
         "author_vet_id", String, ForeignKey("users.user_id"), nullable=True
     )
+    assignedVetID = Column(
+        "assigned_vet_id", String, ForeignKey("users.user_id"), nullable=True
+    )
+    reviewComment = Column("review_comment", String, nullable=True)
     content_type = Column(
         String, nullable=False
     )  # discriminator: "guide" | "video" | "quiz"
@@ -60,13 +64,14 @@ class FirstAidContent(Base):
     def updateStatus(self, status: str) -> None:
         """
         Update the publication status of this content item.
-        Valid values: "draft" | "pending_verification" | "verified"
-                      | "published" | "rejected"
+        Valid values: "draft" | "submitted" | "pending_verification"
+                      | "verified" | "published" | "rejected"
         The caller (domain method) is responsible for persisting via
         DatabaseManager after calling this.
         """
         valid_statuses = {
             "draft",
+            "submitted",
             "pending_verification",
             "verified",
             "published",
@@ -86,6 +91,8 @@ class FirstAidContent(Base):
             "emergencyCategory": self.emergencyCategory,
             "publicationStatus": self.publicationStatus,
             "authorVetID": self.authorVetID,
+            "assignedVetID": self.assignedVetID,
+            "reviewComment": self.reviewComment,
             "content_type": self.content_type,
         }
 

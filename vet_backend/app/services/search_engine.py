@@ -84,6 +84,7 @@ class SearchEngine:
         petType: Optional[str] = None,
         category: Optional[str] = None,
         contentType: Optional[str] = None,
+         author_vet_id: Optional[str] = None,
         otherDesc: Optional[str] = None,
     ) -> List[FirstAidContent]:
         """
@@ -96,6 +97,7 @@ class SearchEngine:
             petType:     e.g. "cat", "dog", "rabbit", "hamster", "guinea_pig"
             category:    exact match e.g. "bleeding", "choking", "fracture"
             contentType: e.g. "guide", "video"
+            author_vet_id: e.g. "vet-123"
             otherDesc:   free-text description used when category is unknown
 
         Returns:
@@ -143,6 +145,13 @@ class SearchEngine:
             results = [
                 c for c in results
                 if c.content_type.lower() == contentType.lower()
+            ]
+
+        if author_vet_id:
+            results = [
+                c
+                for c in results
+                if c.authorVetID == author_vet_id
             ]
 
         return results

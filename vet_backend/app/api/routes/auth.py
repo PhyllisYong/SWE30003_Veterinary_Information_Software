@@ -5,12 +5,12 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.security import hashPassword, verifyPassword, generateToken, validateToken
 from app.models.user import User
 from app.models.pet_owner import PetOwner
 from app.models.veterinarian import Veterinarian
 from app.models.association_admin import AssociationAdministrator
 from app.schemas.auth import RegisterRequest, LoginRequest, AuthResponse
+from app.services.authentication import authentication
 
 router = APIRouter()
 bearer_scheme = HTTPBearer()
@@ -23,7 +23,7 @@ def getCurrentUser(
     db: Session = Depends(get_db),
 ) -> User:
     """FastAPI dependency — extract and validate the Bearer token, return User."""
-    payload = validateToken(credentials.credentials)
+    payload = authentication.validate_token(credentials.credentials)
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -66,7 +66,7 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
         )
 
     userID = str(uuid.uuid4())
-    hashed_pw = hashPassword(body.password)
+    hashed_pw = authentication.hash_password(body.password)
 
     if body.role == "pet_owner":
         user = PetOwner(
@@ -119,7 +119,7 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    token = generateToken(userID, body.role)
+    token = authentication.login(userID, body.role)
     return {
         "status": "ok",
         "data": {
@@ -139,13 +139,13 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
     login() — Authenticate user by email + password, return JWT token.
     """
     user = db.query(User).filter(User.email == body.email).first()
-    if user is None or not verifyPassword(body.password, user.password):
+    if user is None or not authentication.verify_password(body.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
         )
 
-    token = generateToken(user.userID, user.role)
+    token = authentication.login(user.userID, user.role)
     return {
         "status": "ok",
         "data": {
@@ -168,8 +168,24 @@ def getMe(current_user: User = Depends(getCurrentUser)):
         "status": "ok",
         "data": {
             "userID": current_user.userID,
-            "name": current_user.name,
-            "email": current_user.email,
-            "role": current_user.role,
+            "name": current_user.getName(),
+            "email": current_user.getEmail(),
+            "role": current_user.getRole(),
         },
     }
+
+
+@router.post("/auth/logout", tags=["auth"])
+def logout(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    current_user: User = Depends(getCurrentUser),
+):
+    """
+    logout() — End the current session.
+
+    JWTs are stateless in this implementation, so logout is acknowledged and
+    the frontend clears the token.
+    """
+    authentication.logout(credentials.credentials)
+    authentication.invalidateSession(current_user.userID)
+    return {"status": "ok", "data": {"message": "Logged out successfully"}}

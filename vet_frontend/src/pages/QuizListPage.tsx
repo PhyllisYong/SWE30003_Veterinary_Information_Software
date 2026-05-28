@@ -14,7 +14,18 @@ interface Quiz {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────
-const PET_FILTERS = ['all', 'dog', 'cat', 'rabbit', 'hamster', 'guinea pig']
+const PET_FILTERS = ['all', 'dog', 'cat', 'rabbit', 'hamster', 'guinea_pig']
+
+function normalizePetType(petType: string): string {
+  return petType.replace(/\s+/g, '_').toLowerCase()
+}
+
+function petLabel(petType: string): string {
+  return normalizePetType(petType)
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
 
 function petTagClass(petType: string): string {
   const map: Record<string, string> = {
@@ -22,9 +33,9 @@ function petTagClass(petType: string): string {
     cat: 'tag tag--cat',
     rabbit: 'tag tag--rabbit',
     hamster: 'tag tag--hamster',
-    'guinea pig': 'tag tag--guinea',
+    guinea_pig: 'tag tag--guinea',
   }
-  return map[petType] ?? 'tag tag--pet'
+  return map[normalizePetType(petType)] ?? 'tag tag--pet'
 }
 
 function formatDuration(sec: number | null): string {
@@ -63,7 +74,7 @@ export default function QuizListPage() {
   const filtered =
     activeFilter === 'all'
       ? quizzes
-      : quizzes.filter((q) => q.petType === activeFilter)
+      : quizzes.filter((q) => normalizePetType(q.petType) === activeFilter)
 
   return (
     <>
@@ -88,7 +99,7 @@ export default function QuizListPage() {
               className={`filter-pill${activeFilter === f ? ' active' : ''}`}
               onClick={() => setActiveFilter(f)}
             >
-              {f === 'all' ? 'All pets' : capitalise(f)}
+              {f === 'all' ? 'All pets' : petLabel(f)}
             </button>
           ))}
         </div>
@@ -120,7 +131,7 @@ export default function QuizListPage() {
                 Showing <strong>{filtered.length}</strong>{' '}
                 {filtered.length === 1 ? 'quiz' : 'quizzes'}
                 {activeFilter !== 'all' && (
-                  <> for <strong>{activeFilter}</strong></>
+                  <> for <strong>{petLabel(activeFilter)}</strong></>
                 )}
               </p>
 
@@ -135,7 +146,7 @@ export default function QuizListPage() {
                     <div key={quiz.id} className="quiz-card">
                       <div className="quiz-card__tags">
                         <span className={petTagClass(quiz.petType)}>
-                          {capitalise(quiz.petType)}
+                          {petLabel(quiz.petType)}
                         </span>
                         <span className="tag tag--category">
                           {capitalise(quiz.emergencyCategory)}
