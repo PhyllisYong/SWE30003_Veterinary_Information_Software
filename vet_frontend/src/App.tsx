@@ -7,6 +7,16 @@ import QuizListPage from './pages/QuizListPage'
 import QuizPage from './pages/QuizPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import ProfilePage from './pages/ProfilePage'
+import FirstAidGuides from './pages/FirstAidPage'
+import Video from './pages/VideoPage'
+import VetAdvicePage from './pages/VetAdvicePage'
+import ChatPage from './pages/ChatPage'
+import BookingPage from './pages/BookingPage'
+import VetQuizManagePage from './pages/VetQuizManagePage'
+import VetAvailabilityPage from './pages/VetAvailabilityPage'
+import VetVideoManagePage from './pages/VetVideoManagePage'
+
 
 function App() {
   return (
@@ -18,6 +28,15 @@ function App() {
         <Route path="/quizzes/:id" element={<QuizPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/guides" element={<FirstAidGuides />} />
+        <Route path="/videos" element={<Video />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/vet-advice" element={<VetAdvicePage />} />
+        <Route path="/vet-advice/chat" element={<ChatPage />} />
+        <Route path="/vet-advice/booking" element={<BookingPage />} />
+        <Route path="/vet/quiz-manage" element={<VetQuizManagePage />} />
+        <Route path="/vet/availability" element={<VetAvailabilityPage />} />
+        <Route path="/vet/video-manage" element={<VetVideoManagePage />} />
       </Routes>
       <Footer />
     </BrowserRouter>

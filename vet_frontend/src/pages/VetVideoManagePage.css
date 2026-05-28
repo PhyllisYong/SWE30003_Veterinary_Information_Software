@@ -1,0 +1,246 @@
+.vvm-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 4rem;
+}
+
+.vvm-page h1 {
+  font-size: 1.85rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.vvm-subtitle {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.vvm-error {
+  color: #dc2626;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.vvm-success {
+  color: #16a34a;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+/* ── Layout ────────────────────────────────────────────────────────────────── */
+
+.vvm-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────────────────────── */
+
+.vvm-sidebar {
+  width: 270px;
+  flex-shrink: 0;
+}
+
+.vvm-add-btn {
+  width: 100%;
+  margin-bottom: 0.85rem;
+}
+
+.vvm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.vvm-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background 0.14s;
+}
+
+.vvm-item:last-child {
+  border-bottom: none;
+}
+
+.vvm-item:hover {
+  background: #eff6ff;
+}
+
+.vvm-item--active {
+  background: #dbeafe;
+  border-left: 3px solid #3b82f6;
+}
+
+.vvm-item__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.vvm-item__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: #6b7280;
+  text-transform: capitalize;
+}
+
+.vvm-empty {
+  padding: 1rem;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+/* ── Status badges ─────────────────────────────────────────────────────────── */
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.badge--published    { background: #dcfce7; color: #15803d; }
+.badge--verified     { background: #dbeafe; color: #1d4ed8; }
+.badge--pending      { background: #fef3c7; color: #b45309; }
+.badge--rejected     { background: #fee2e2; color: #b91c1c; }
+.badge--draft        { background: #f3f4f6; color: #6b7280; }
+
+/* ── Main ──────────────────────────────────────────────────────────────────── */
+
+.vvm-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.vvm-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  color: #9ca3af;
+  gap: 0.75rem;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+}
+
+.vvm-placeholder span {
+  font-size: 2.5rem;
+}
+
+/* ── Form ──────────────────────────────────────────────────────────────────── */
+
+.vvm-form {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.75rem 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.vvm-form h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.vvm-status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+
+.vvm-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-top: 0.9rem;
+  margin-bottom: 0.35rem;
+}
+
+.vvm-required {
+  color: #dc2626;
+}
+
+.vvm-input,
+.vvm-textarea,
+.vvm-select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+
+.vvm-input:focus,
+.vvm-textarea:focus,
+.vvm-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.vvm-textarea {
+  resize: vertical;
+}
+
+.vvm-input--short {
+  max-width: 160px;
+}
+
+.vvm-hint {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-top: 0.3rem;
+}
+
+.vvm-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.9rem;
+}
+
+.vvm-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.vvm-col .vvm-label {
+  margin-top: 0;
+}
+
+.vvm-form__footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}

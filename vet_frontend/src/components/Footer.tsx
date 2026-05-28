@@ -33,9 +33,11 @@ export default function Footer() {
           </div>
 
           <div className="footer__col">
-            <h4>Services</h4>
+            <h4>Vet Services</h4>
             <ul>
-              <li><a href="/chat">Vet Chat</a></li>
+              <li><a href="/vet-advice">Vet Advice</a></li>
+              <li><a href="/vet-advice/chat">Chat with a Vet</a></li>
+              <li><a href="/vet-advice/booking">Book Appointment</a></li>
             </ul>
           </div>
 

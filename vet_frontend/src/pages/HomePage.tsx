@@ -25,9 +25,9 @@ const FEATURES = [
   {
     emoji: '💬',
     bg: '#dcfce7',
-    title: 'Chat with a Vet',
-    desc: 'Get advice from a licensed veterinarian - a quick chat or a consultation.',
-    href: '/chat',
+    title: 'Vet Consultation',
+    desc: 'Chat with a licensed vet online or book an in-person appointment — all in one place.',
+    href: '/vet-advice',
   }
 ]
 
@@ -53,7 +53,7 @@ const STEPS = [
   {
     n: '3',
     title: 'Get help when it counts',
-    desc: 'Chat with a vet instantly or book a consultation — all from one place.',
+    desc: 'Chat with a vet instantly or book an in-person consultation — all from one place.',
   },
 ]
 
@@ -172,6 +172,27 @@ export default function HomePage() {
                 <span>{label}</span>
               </a>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Vet consultation banner ───────────────────────────────── */}
+      <section className="vet-cta">
+        <div className="container vet-cta__inner">
+          <div className="vet-cta__text">
+            <h2>Need a vet right now?</h2>
+            <p>
+              Start an online chat with a licensed veterinarian or book an
+              in-person appointment — no waiting room required.
+            </p>
+          </div>
+          <div className="vet-cta__actions">
+            <a href="/vet-advice/chat" className="btn btn--primary btn--lg">
+              💬 Chat with a Vet
+            </a>
+            <a href="/vet-advice/booking" className="btn btn--outline btn--lg">
+              📅 Book Appointment
+            </a>
           </div>
         </div>
       </section>

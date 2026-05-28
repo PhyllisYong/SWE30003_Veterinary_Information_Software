@@ -2,6 +2,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from app.models.first_aid_content import FirstAidContent
+from sqlalchemy.orm import with_polymorphic
 from app.models.guide import Guide
 from app.models.video import Video
 
@@ -29,14 +30,18 @@ class SearchEngine:
     # Repository management
     # ------------------------------------------------------------------
 
+    
+
     def loadRepository(self) -> None:
         """
         Load all published FirstAidContent rows from the database into the
-        in-memory cache. Only published content is surfaced to end users.
+        in-memory cache, including all concrete subclasses (Guide, Video, etc.).
         Called once at startup; call refreshCache() to reload after changes.
         """
+        # Load the polymorphic hierarchy so that each row becomes its concrete subclass
+        polymorphic = with_polymorphic(FirstAidContent, '*')
         self._contentRepository = (
-            self._db.query(FirstAidContent)
+            self._db.query(polymorphic)
             .filter(FirstAidContent.publicationStatus == "published")
             .all()
         )
@@ -54,7 +59,7 @@ class SearchEngine:
     # ------------------------------------------------------------------
 
     def searchContent(
-        self, petType: Optional[str] = None, category: Optional[str] = None
+        self, petType: Optional[str] = None, category: Optional[str] = None, contentType: Optional[str] = None,
     ) -> List[FirstAidContent]:
         """
         Main search entry point. Filters the repository by petType and/or
@@ -63,6 +68,7 @@ class SearchEngine:
         Args:
             petType:  e.g. "cat", "dog", "rabbit", "hamster", "guinea_pig"
             category: e.g. "bleeding", "choking", "fracture"
+            contentType: e.g. "guide", "video"
 
         Returns:
             List of matching FirstAidContent objects (Guide or Video instances).
@@ -77,6 +83,13 @@ class SearchEngine:
                 c
                 for c in results
                 if c.emergencyCategory.lower() == category.lower()
+            ]
+
+        if contentType:
+            results = [
+                c
+                for c in results
+                if c.content_type.lower() == contentType.lower()
             ]
 
         return results

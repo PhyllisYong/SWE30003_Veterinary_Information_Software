@@ -14,4 +14,5 @@ class UserResponse(BaseModel):
 class UpdateProfileRequest(BaseModel):
     name: Optional[str] = None
     email: Optional[EmailStr] = None
-    contactNumber: Optional[str] = None
+    contactNumber: Optional[str] = None   # pet_owner only
+    specialisation: Optional[str] = None  # veterinarian only

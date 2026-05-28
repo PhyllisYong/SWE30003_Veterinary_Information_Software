@@ -30,6 +30,7 @@ class VideoResponse(ContentBase):
 class ContentSearchRequest(BaseModel):
     petType: Optional[str] = None
     category: Optional[str] = None
+    contentType: Optional[str] = None
 
 
 class ContentSearchResponse(BaseModel):

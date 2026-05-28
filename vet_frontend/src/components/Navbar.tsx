@@ -6,13 +6,20 @@ function readUser() {
   return localStorage.getItem('userName')
 }
 
+function readRole() {
+  return localStorage.getItem('userRole')
+}
+
 export default function Navbar() {
   const navigate = useNavigate()
   const [userName, setUserName] = useState<string | null>(readUser)
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [userRole, setUserRole] = useState<string | null>(readRole)
 
   useEffect(() => {
-    function sync() { setUserName(readUser()) }
+    function sync() {
+      setUserName(readUser())
+      setUserRole(readRole())
+    }
     window.addEventListener('auth-change', sync)
     window.addEventListener('storage', sync)
     return () => {
@@ -29,6 +36,7 @@ export default function Navbar() {
     localStorage.removeItem('userID')
     localStorage.removeItem('userName')
     localStorage.removeItem('userRole')
+    setUserRole(null)
     window.dispatchEvent(new Event('auth-change'))
     setMenuOpen(false)
     navigate('/')
@@ -50,16 +58,27 @@ export default function Navbar() {
           <li><NavLink to="/guides">First Aid Guides</NavLink></li>
           <li><NavLink to="/videos">Videos</NavLink></li>
           <li><NavLink to="/quizzes">Quizzes</NavLink></li>
-          <li><NavLink to="/book">Book a Vet</NavLink></li>
+          <li><NavLink to="/vet-advice">Vet Advice</NavLink></li>
+          {userRole === 'veterinarian' && (
+            <li className="navbar__dropdown">
+              <span className="navbar__dropdown-trigger">Vet Tools ▾</span>
+              <ul className="navbar__dropdown-menu">
+                <li><NavLink to="/vet/availability">My Availability</NavLink></li>
+                <li><NavLink to="/vet/quiz-manage">Quiz Explanations</NavLink></li>
+                <li><NavLink to="/vet/video-manage">Video Manager</NavLink></li>
+              </ul>
+            </li>
+          )}
         </ul>
 
         {/* Desktop auth */}
         <div className="navbar__actions">
           {userName ? (
             <>
-              <span className="navbar__chip navbar__chip--user">{firstName}</span>
-              <button className="navbar__chip navbar__chip--logout" onClick={handleLogout}>
-                Sign out
+              <span className="navbar__user">Hi, {userName.split(' ')[0]}</span>
+              <Link to="/profile" className="btn btn--ghost">Profile</Link>
+              <button className="btn btn--ghost" onClick={handleLogout}>
+                Log out
               </button>
             </>
           ) : (

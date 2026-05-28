@@ -138,44 +138,70 @@
   gap: 12px;
 }
 
-.navbar__drawer-links {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+/* ── Vet Tools dropdown ────────────────────────────────────────────────────── */
+
+.navbar__dropdown {
+  position: relative;
+  list-style: none;
 }
 
-.navbar__drawer-links a {
-  display: block;
-  padding: 10px 12px;
+.navbar__dropdown-trigger {
+  padding: 6px 12px;
   border-radius: var(--radius-sm);
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 14.5px;
   color: var(--text-muted);
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
   transition: color .15s, background .15s;
+  white-space: nowrap;
 }
-.navbar__drawer-links a:hover,
-.navbar__drawer-links a.active {
+
+.navbar__dropdown:hover .navbar__dropdown-trigger {
   color: var(--primary);
   background: var(--primary-light);
 }
 
-.navbar__drawer-auth {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
+.navbar__dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.09);
+  padding: 4px 0;
+  list-style: none;
+  z-index: 200;
 }
 
-.navbar__drawer-auth .btn--ghost,
-.navbar__drawer-auth .btn--primary {
-  flex: 1;
-  justify-content: center;
-  padding: 10px;
-  font-size: 14.5px;
+.navbar__dropdown:hover .navbar__dropdown-menu {
+  display: block;
 }
 
-/* ── Responsive breakpoint ─────────────────────────────────────────────── */
+.navbar__dropdown-menu li {
+  list-style: none;
+}
+
+.navbar__dropdown-menu a {
+  display: block;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+  border-radius: 0;
+  white-space: nowrap;
+  transition: color .13s, background .13s;
+}
+
+.navbar__dropdown-menu a:hover,
+.navbar__dropdown-menu a.active {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
 @media (max-width: 768px) {
   .navbar__links  { display: none; }
   .navbar__actions { display: none; }

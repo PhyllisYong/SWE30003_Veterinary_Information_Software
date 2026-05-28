@@ -9,6 +9,8 @@ from app.models.user import User
 from app.models.first_aid_content import FirstAidContent
 from app.models.guide import Guide
 from app.models.video import Video
+from app.schemas.first_aid import GuideResponse, VideoResponse
+from app.services.video_hosting import video_hosting
 
 router = APIRouter(tags=["content"])
 
@@ -17,20 +19,40 @@ router = APIRouter(tags=["content"])
 # Schemas
 # ------------------------------------------------------------------
 
+
+
 class SubmitContentRequest(BaseModel):
-    content_type: str           # "guide" | "video"
+    content_type: str
     title: str
     description: Optional[str] = None
     petType: str
     emergencyCategory: str
     authorVetID: str
-    steps: Optional[list] = None        # guide only
-    videoURL: Optional[str] = None      # video only
-    durationSec: Optional[int] = None   # video only
+    steps: Optional[list] = None
+    videoURL: Optional[str] = None
+    durationSec: Optional[int] = None
 
 
 class UpdateStatusRequest(BaseModel):
-    status: str  # "draft" | "pending_verification" | "verified" | "published" | "rejected"
+    status: str
+
+
+# ------------------------------------------------------------------
+# Vet — list own content (all statuses)
+# ------------------------------------------------------------------
+
+@router.get("/content/mine")
+def get_my_content(
+    current_user: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(get_db),
+):
+    """Vet only — return all content authored by this vet, regardless of status."""
+    items = (
+        db.query(FirstAidContent)
+        .filter(FirstAidContent.authorVetID == current_user.userID)
+        .all()
+    )
+    return {"status": "ok", "data": [item.display() for item in items]}
 
 
 # ------------------------------------------------------------------
@@ -57,6 +79,8 @@ def create_content(
                 stepCount=len(payload.steps or []),
             )
         elif payload.content_type == "video":
+            if not payload.videoURL or not video_hosting.isValidYouTubeUrl(payload.videoURL):
+                return {"status": "error", "message": "videoURL must be a valid YouTube URL."}
             content = Video(
                 title=payload.title,
                 description=payload.description,
@@ -64,7 +88,7 @@ def create_content(
                 emergencyCategory=payload.emergencyCategory,
                 authorVetID=payload.authorVetID,
                 publicationStatus="pending_verification",
-                videoURL=payload.videoURL,
+                videoURL=video_hosting.getEmbedUrl(payload.videoURL),
                 durationSec=payload.durationSec,
             )
         else:
@@ -100,7 +124,9 @@ def update_content(
             content.steps = payload.steps
             content.stepCount = len(payload.steps)
         if isinstance(content, Video):
-            content.videoURL = payload.videoURL
+            if not payload.videoURL or not video_hosting.isValidYouTubeUrl(payload.videoURL):
+                return {"status": "error", "message": "videoURL must be a valid YouTube URL."}
+            content.videoURL = video_hosting.getEmbedUrl(payload.videoURL)
             content.durationSec = payload.durationSec
         db.commit()
         db.refresh(content)

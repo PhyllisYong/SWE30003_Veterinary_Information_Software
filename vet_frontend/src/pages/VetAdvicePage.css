@@ -1,0 +1,69 @@
+.vet-advice-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+.vet-advice-hero {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.vet-advice-hero h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.vet-advice-hero p {
+  color: #6b7280;
+  font-size: 1.05rem;
+}
+
+.vet-advice-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 580px) {
+  .vet-advice-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vet-advice-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  padding: 2.25rem 1.5rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.vet-advice-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+}
+
+.vet-advice-card__icon {
+  font-size: 2.8rem;
+}
+
+.vet-advice-card h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.vet-advice-card p {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.5;
+}
