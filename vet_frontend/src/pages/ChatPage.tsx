@@ -65,7 +65,7 @@ export default function ChatPage() {
   const [starting, setStarting]       = useState(false)
   const [modalError, setModalError]   = useState<string | null>(null)
 
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   // ── Auth guard ───────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -116,7 +116,8 @@ export default function ChatPage() {
 
   // ── Scroll to bottom on new messages ────────────────────────────────────────
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = messagesContainerRef.current
+    if (el) el.scrollTop = el.scrollHeight
   }, [activeChat?.messages?.length])
 
   // ── Open new-chat modal ───────────────────────────────────────────────────────
@@ -218,7 +219,7 @@ export default function ChatPage() {
           </div>
         ) : (
           <>
-            <div className="chat-messages">
+            <div className="chat-messages" ref={messagesContainerRef}>
               {(activeChat?.messages ?? []).map(m => (
                 <div
                   key={m.messageID}
@@ -230,7 +231,6 @@ export default function ChatPage() {
                   </span>
                 </div>
               ))}
-              <div ref={messagesEndRef} />
             </div>
 
             <form className="chat-input" onSubmit={sendMessage}>
