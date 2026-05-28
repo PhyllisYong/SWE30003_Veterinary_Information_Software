@@ -1,5 +1,23 @@
+from difflib import SequenceMatcher
 from typing import List, Optional
 from sqlalchemy.orm import Session
+
+
+def _fuzzy_score(query_tokens: list, text: str) -> float:
+    """Score text against query tokens. Each token that fuzzy-matches a word in
+    text (ratio >= 0.72) contributes its ratio to the total score."""
+    text_words = [w.lower() for w in text.split() if len(w) > 2]
+    if not text_words or not query_tokens:
+        return 0.0
+    score = 0.0
+    for qt in query_tokens:
+        best = max(
+            (SequenceMatcher(None, qt, tw).ratio() for tw in text_words),
+            default=0.0,
+        )
+        if best >= 0.72:
+            score += best
+    return score
 
 from app.models.first_aid_content import FirstAidContent
 from sqlalchemy.orm import with_polymorphic
@@ -59,16 +77,23 @@ class SearchEngine:
     # ------------------------------------------------------------------
 
     def searchContent(
-        self, petType: Optional[str] = None, category: Optional[str] = None, contentType: Optional[str] = None,
+        self,
+        petType: Optional[str] = None,
+        category: Optional[str] = None,
+        contentType: Optional[str] = None,
+        otherDesc: Optional[str] = None,
     ) -> List[FirstAidContent]:
         """
-        Main search entry point. Filters the repository by petType and/or
-        emergencyCategory. Either or both may be None (returns all if both omitted).
+        Main search entry point — implements both alt paths from the sequence diagram:
+          - accessFirstAidContent(petType, emergency): exact category match
+          - accessFirstAidContent(petType, otherDesc): keyword search across
+            title, emergencyCategory, and description when the user is unsure
 
         Args:
-            petType:  e.g. "cat", "dog", "rabbit", "hamster", "guinea_pig"
-            category: e.g. "bleeding", "choking", "fracture"
+            petType:     e.g. "cat", "dog", "rabbit", "hamster", "guinea_pig"
+            category:    exact match e.g. "bleeding", "choking", "fracture"
             contentType: e.g. "guide", "video"
+            otherDesc:   free-text description used when category is unknown
 
         Returns:
             List of matching FirstAidContent objects (Guide or Video instances).
@@ -80,15 +105,27 @@ class SearchEngine:
 
         if category:
             results = [
-                c
-                for c in results
+                c for c in results
                 if c.emergencyCategory.lower() == category.lower()
             ]
+        elif otherDesc:
+            query_tokens = [w.lower() for w in otherDesc.split() if len(w) > 2]
+            if query_tokens:
+                scored = []
+                for c in results:
+                    score = max(
+                        _fuzzy_score(query_tokens, c.title or ""),
+                        _fuzzy_score(query_tokens, c.emergencyCategory or ""),
+                        _fuzzy_score(query_tokens, c.description or ""),
+                    )
+                    if score > 0:
+                        scored.append((score, c))
+                scored.sort(key=lambda x: x[0], reverse=True)
+                results = [c for _, c in scored]
 
         if contentType:
             results = [
-                c
-                for c in results
+                c for c in results
                 if c.content_type.lower() == contentType.lower()
             ]
 

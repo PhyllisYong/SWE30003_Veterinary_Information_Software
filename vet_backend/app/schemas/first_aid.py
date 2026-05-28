@@ -36,3 +36,4 @@ class ContentSearchRequest(BaseModel):
 class ContentSearchResponse(BaseModel):
     status: str
     data: list[dict]
+    message: Optional[str] = None
