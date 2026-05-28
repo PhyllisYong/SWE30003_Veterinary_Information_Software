@@ -48,6 +48,21 @@ function petTagClass(petType: string) {
   return map[petType] ?? 'tag tag--pet'
 }
 
+function getYouTubeVideoId(url: string): string | null {
+  return (
+    url.match(/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/)?.[1] ??
+    url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/)?.[1] ??
+    url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/)?.[1] ??
+    url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/)?.[1] ??
+    null
+  )
+}
+
+function getEmbedUrl(url: string): string {
+  const videoId = getYouTubeVideoId(url)
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : url
+}
+
 const EMPTY_QUIZ_QUESTION = (): QuizQuestion => ({
   questionText: '',
   answers: [
@@ -493,7 +508,7 @@ export default function VetContentPage() {
                                 Video{item.durationSec ? ` · ${Math.floor(item.durationSec / 60)}m ${item.durationSec % 60}s` : ''}
                               </p>
                               <iframe
-                                src={item.videoURL}
+                                src={getEmbedUrl(item.videoURL)}
                                 style={{ width: '100%', aspectRatio: '16/9', border: 'none', borderRadius: 8 }}
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowFullScreen

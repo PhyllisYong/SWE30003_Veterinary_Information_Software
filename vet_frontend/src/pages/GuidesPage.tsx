@@ -162,7 +162,7 @@ function GuideModal({
             ) : video ? (
               <div className="guide-modal__video-wrap">
                 <iframe
-                  src={video.videoURL!}
+                  src={getEmbedUrl(video.videoURL!)}
                   title={video.title}
                   allowFullScreen
                   className="guide-modal__iframe"
@@ -222,6 +222,21 @@ function GuideCards({
 }
 
 // ── Page component ─────────────────────────────────────────────────────────────
+function getYouTubeVideoId(url: string): string | null {
+  return (
+    url.match(/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/)?.[1] ??
+    url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/)?.[1] ??
+    url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/)?.[1] ??
+    url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/)?.[1] ??
+    null
+  )
+}
+
+function getEmbedUrl(url: string): string {
+  const videoId = getYouTubeVideoId(url)
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : url
+}
+
 export default function GuidesPage() {
   const [mode, setMode] = useState<'browse' | 'emergency'>('browse')
   const [selectedGuide, setSelectedGuide] = useState<GuideResult | null>(null)

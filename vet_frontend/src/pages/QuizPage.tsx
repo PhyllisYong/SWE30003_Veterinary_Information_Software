@@ -44,6 +44,15 @@ function capitalise(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
+function petLabel(petType: string): string {
+  return petType
+    .replace(/\s+/g, '_')
+    .toLowerCase()
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
 function answerClass(
   answerId: string,
   questionId: string,
@@ -183,7 +192,7 @@ export default function QuizPage() {
           </Link>
 
           <div className="quiz-header__tags">
-            <span className="tag tag--pet">{capitalise(quiz.petType)}</span>
+            <span className="tag tag--pet">{petLabel(quiz.petType)}</span>
             <span className="tag tag--category">
               {capitalise(quiz.emergencyCategory)}
             </span>
