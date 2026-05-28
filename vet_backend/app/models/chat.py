@@ -2,9 +2,10 @@ import uuid
 from sqlalchemy import Column, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from app.core.database import Base
+from app.patterns.observer import ChatSubject
 
 
-class VeterinaryAdviceChat(Base):
+class VeterinaryAdviceChat(Base, ChatSubject):
     __tablename__ = "vet_advice_chats"
 
     chatID = Column("chat_id", String, primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -23,6 +24,12 @@ class VeterinaryAdviceChat(Base):
     )
     pet_owner = relationship("PetOwner", back_populates="chats")
     veterinarian = relationship("Veterinarian", back_populates="chats")
+
+    def __init__(self, **kwargs):
+        Base.__init__(self)
+        ChatSubject.__init__(self)
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
     def viewChatHistory(self) -> list:
         return self.messages

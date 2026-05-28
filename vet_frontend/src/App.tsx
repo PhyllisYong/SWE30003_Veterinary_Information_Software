@@ -8,7 +8,7 @@ import QuizPage from './pages/QuizPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
-import FirstAidGuides from './pages/FirstAidPage'
+import GuidesPage from './pages/GuidesPage'
 import Video from './pages/VideoPage'
 import VetAdvicePage from './pages/VetAdvicePage'
 import ChatPage from './pages/ChatPage'
@@ -29,7 +29,7 @@ function App() {
         <Route path="/quizzes/:id" element={<QuizPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/guides" element={<FirstAidGuides />} />
+        <Route path="/guides" element={<GuidesPage />} />
         <Route path="/videos" element={<Video />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/vet-advice" element={<VetAdvicePage />} />

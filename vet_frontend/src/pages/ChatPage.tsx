@@ -65,7 +65,7 @@ export default function ChatPage() {
   const [starting, setStarting]       = useState(false)
   const [modalError, setModalError]   = useState<string | null>(null)
 
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   // ── Auth guard ───────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -85,7 +85,7 @@ export default function ChatPage() {
 
   useEffect(() => { loadChats() }, [])
 
-  // ── Load active chat + poll every 5 s ────────────────────────────────────────
+  // ── Load active chat ─────────────────────────────────────────────────────────
   const loadActiveChat = async (id: string) => {
     try {
       const res  = await apiFetch(`/api/chats/${id}`)
@@ -94,16 +94,30 @@ export default function ChatPage() {
     } catch { /* ignore */ }
   }
 
+  // ── Subscribe via WebSocket (Observer pattern) ────────────────────────────────
   useEffect(() => {
     if (!activeChatID) return
     loadActiveChat(activeChatID)
-    const timer = setInterval(() => loadActiveChat(activeChatID), 5000)
-    return () => clearInterval(timer)
+
+    const wsUrl = `ws://localhost:8000/api/chats/${activeChatID}/ws`
+    const ws = new WebSocket(wsUrl)
+
+    ws.onmessage = (e) => {
+      const { event, data } = JSON.parse(e.data) as { event: string; data: MessageItem }
+      if (event === 'message_sent') {
+        setActiveChat(prev =>
+          prev ? { ...prev, messages: [...(prev.messages ?? []), data] } : prev
+        )
+      }
+    }
+
+    return () => ws.close()
   }, [activeChatID])
 
   // ── Scroll to bottom on new messages ────────────────────────────────────────
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = messagesContainerRef.current
+    if (el) el.scrollTop = el.scrollHeight
   }, [activeChat?.messages?.length])
 
   // ── Open new-chat modal ───────────────────────────────────────────────────────
@@ -205,7 +219,7 @@ export default function ChatPage() {
           </div>
         ) : (
           <>
-            <div className="chat-messages">
+            <div className="chat-messages" ref={messagesContainerRef}>
               {(activeChat?.messages ?? []).map(m => (
                 <div
                   key={m.messageID}
@@ -217,7 +231,6 @@ export default function ChatPage() {
                   </span>
                 </div>
               ))}
-              <div ref={messagesEndRef} />
             </div>
 
             <form className="chat-input" onSubmit={sendMessage}>

@@ -20,9 +20,18 @@ def search_content(
     category: Optional[str] = Query(None),
     contentType: Optional[str] = Query(None),
     author_vet_id: Optional[str] = Query(None),
+    otherDesc: Optional[str] = Query(None),
     engine: SearchEngine = Depends(get_search_engine),
 ):
-    results = engine.searchContent(petType=petType, category=category, contentType=contentType, author_vet_id=author_vet_id)
+    results = engine.searchContent(
+        petType=petType, category=category, contentType=contentType, otherDesc=otherDesc
+    )
+    if not results:
+        return {
+            "status": "warning",
+            "data": [],
+            "message": "No guides found. Please use the Veterinary Advice Chat for personalised help.",
+        }
     return {"status": "ok", "data": [item.display() for item in results]}
 
 
