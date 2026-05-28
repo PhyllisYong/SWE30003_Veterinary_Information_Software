@@ -12,6 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from app.core.database import SessionLocal
 from app.models.guide import Guide
 from app.models.video import Video
+from app.services.video_hosting import video_hosting
 
 
 def make_guide(title, description, pet_type, emergency_category, steps):
@@ -35,7 +36,7 @@ def make_video(title, description, pet_type, emergency_category, video_url, dura
         emergencyCategory=emergency_category,
         publicationStatus="published",
         authorVetID=None,
-        videoURL=video_url,
+        videoURL=video_hosting.getEmbedUrl(video_url) or video_url,
         durationSec=duration_sec,
     )
 
@@ -400,7 +401,7 @@ def seed():
                 "Video guide showing how to control bleeding in cats.",
                 "cat",
                 "bleeding",
-                "https://example.com/videos/cat-bleeding.mp4",
+                "https://www.youtube.com/watch?v=0guZPnggWpA",
                 210,
             ),
             make_video(
@@ -408,7 +409,7 @@ def seed():
                 "Video guide showing what to do when a cat is choking.",
                 "cat",
                 "choking",
-                "https://example.com/videos/cat-choking.mp4",
+                "https://www.youtube.com/watch?v=C5k-_akWpfc",
                 200,
             ),
             make_video(
@@ -416,7 +417,7 @@ def seed():
                 "Video guide explaining immediate response for suspected poisoning in cats.",
                 "cat",
                 "poisoning",
-                "https://example.com/videos/cat-poisoning.mp4",
+                "https://www.youtube.com/watch?v=-_BxdEBDTJE",
                 220,
             ),
             make_video(
@@ -424,7 +425,7 @@ def seed():
                 "Video guide showing safe first-aid steps for cat burns or scalds.",
                 "cat",
                 "burn",
-                "https://example.com/videos/cat-burn.mp4",
+                "https://www.youtube.com/watch?v=0guZPnggWpA",
                 190,
             ),
             make_video(
@@ -432,7 +433,7 @@ def seed():
                 "Video guide showing how to keep a cat safe during and after a seizure.",
                 "cat",
                 "seizure",
-                "https://example.com/videos/cat-seizure.mp4",
+                "https://www.youtube.com/watch?v=-_BxdEBDTJE",
                 230,
             ),
 
@@ -444,7 +445,7 @@ def seed():
                 "Video guide showing first response steps for choking in dogs.",
                 "dog",
                 "choking",
-                "https://example.com/videos/dog-choking.mp4",
+                "https://www.youtube.com/watch?v=gT_vNktCbyw",
                 200,
             ),
             make_video(
@@ -452,7 +453,7 @@ def seed():
                 "Video guide showing how to cool a dog safely during heatstroke.",
                 "dog",
                 "heatstroke",
-                "https://example.com/videos/dog-heatstroke.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 210,
             ),
             make_video(
@@ -460,7 +461,7 @@ def seed():
                 "Video guide showing how to control bleeding in dogs.",
                 "dog",
                 "bleeding",
-                "https://example.com/videos/dog-bleeding.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 220,
             ),
             make_video(
@@ -468,7 +469,7 @@ def seed():
                 "Video guide explaining what to do if a dog may have eaten poison.",
                 "dog",
                 "poisoning",
-                "https://example.com/videos/dog-poisoning.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 230,
             ),
             make_video(
@@ -476,7 +477,7 @@ def seed():
                 "Video guide showing simple first-aid steps for injured dog paws.",
                 "dog",
                 "paw-injury",
-                "https://example.com/videos/dog-paw-injury.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 180,
             ),
 
@@ -488,7 +489,7 @@ def seed():
                 "Video guide showing how to respond to rabbit heatstroke.",
                 "rabbit",
                 "heatstroke",
-                "https://example.com/videos/rabbit-heatstroke.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 210,
             ),
             make_video(
@@ -496,7 +497,7 @@ def seed():
                 "Video guide explaining what to do when a rabbit stops eating.",
                 "rabbit",
                 "not-eating",
-                "https://example.com/videos/rabbit-not-eating.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 220,
             ),
             make_video(
@@ -504,7 +505,7 @@ def seed():
                 "Video guide showing how to control bleeding in rabbits.",
                 "rabbit",
                 "bleeding",
-                "https://example.com/videos/rabbit-bleeding.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 200,
             ),
             make_video(
@@ -512,7 +513,7 @@ def seed():
                 "Video guide showing how to handle a rabbit broken nail emergency.",
                 "rabbit",
                 "broken-nail",
-                "https://example.com/videos/rabbit-broken-nail.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 180,
             ),
             make_video(
@@ -520,7 +521,7 @@ def seed():
                 "Video guide explaining emergency response for rabbit breathing difficulty.",
                 "rabbit",
                 "breathing",
-                "https://example.com/videos/rabbit-breathing.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 230,
             ),
 
@@ -532,7 +533,7 @@ def seed():
                 "Video guide showing what to do if a hamster falls or is injured.",
                 "hamster",
                 "fall-injury",
-                "https://example.com/videos/hamster-fall-injury.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 170,
             ),
             make_video(
@@ -540,7 +541,7 @@ def seed():
                 "Video guide showing how to control minor bleeding in hamsters.",
                 "hamster",
                 "bleeding",
-                "https://example.com/videos/hamster-bleeding.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 180,
             ),
             make_video(
@@ -548,7 +549,7 @@ def seed():
                 "Video guide explaining immediate response for hamster overheating.",
                 "hamster",
                 "heatstroke",
-                "https://example.com/videos/hamster-heatstroke.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 190,
             ),
             make_video(
@@ -556,7 +557,7 @@ def seed():
                 "Video guide explaining warning signs and urgent response for wet tail.",
                 "hamster",
                 "wet-tail",
-                "https://example.com/videos/hamster-wet-tail.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 210,
             ),
             make_video(
@@ -564,7 +565,7 @@ def seed():
                 "Video guide explaining emergency response for hamster breathing difficulty.",
                 "hamster",
                 "breathing",
-                "https://example.com/videos/hamster-breathing.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 200,
             ),
 
@@ -576,7 +577,7 @@ def seed():
                 "Video guide explaining what to do when a guinea pig stops eating.",
                 "guinea pig",
                 "not-eating",
-                "https://example.com/videos/guinea-pig-not-eating.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 220,
             ),
             make_video(
@@ -584,7 +585,7 @@ def seed():
                 "Video guide showing how to respond to guinea pig heatstroke.",
                 "guinea pig",
                 "heatstroke",
-                "https://example.com/videos/guinea-pig-heatstroke.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 210,
             ),
             make_video(
@@ -592,7 +593,7 @@ def seed():
                 "Video guide showing how to control bleeding in guinea pigs.",
                 "guinea pig",
                 "bleeding",
-                "https://example.com/videos/guinea-pig-bleeding.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 200,
             ),
             make_video(
@@ -600,7 +601,7 @@ def seed():
                 "Video guide explaining emergency response for guinea pig breathing difficulty.",
                 "guinea pig",
                 "breathing",
-                "https://example.com/videos/guinea-pig-breathing.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 230,
             ),
             make_video(
@@ -608,7 +609,7 @@ def seed():
                 "Video guide showing simple first-aid steps for a broken guinea pig nail.",
                 "guinea pig",
                 "broken-nail",
-                "https://example.com/videos/guinea-pig-broken-nail.mp4",
+                "https://www.youtube.com/watch?v=Yxtbvo2rFEA",
                 180,
             ),
         ]

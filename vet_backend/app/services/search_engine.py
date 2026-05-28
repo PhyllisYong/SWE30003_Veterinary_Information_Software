@@ -58,11 +58,14 @@ class SearchEngine:
         """
         # Load the polymorphic hierarchy so that each row becomes its concrete subclass
         polymorphic = with_polymorphic(FirstAidContent, '*')
-        self._contentRepository = (
-            self._db.query(polymorphic)
-            .filter(FirstAidContent.publicationStatus == "published")
-            .all()
-        )
+        self._contentRepository = [
+            item for item in (
+                self._db.query(polymorphic)
+                .filter(FirstAidContent.publicationStatus == "published")
+                .all()
+            )
+            if item.content_type in ("guide", "video")
+        ]
 
     def refreshCache(self) -> None:
         """
@@ -104,10 +107,23 @@ class SearchEngine:
             results = [c for c in results if c.petType.lower() == petType.lower()]
 
         if category:
-            results = [
-                c for c in results
-                if c.emergencyCategory.lower() == category.lower()
-            ]
+            query_tokens = [w.lower() for w in category.split() if len(w) > 2]
+            if query_tokens:
+                scored = []
+                for c in results:
+                    score = max(
+                        _fuzzy_score(query_tokens, c.emergencyCategory or ""),
+                        _fuzzy_score(query_tokens, c.title or ""),
+                    )
+                    if score > 0:
+                        scored.append((score, c))
+                scored.sort(key=lambda x: x[0], reverse=True)
+                results = [c for _, c in scored]
+            else:
+                results = [
+                    c for c in results
+                    if c.emergencyCategory.lower() == category.lower()
+                ]
         elif otherDesc:
             query_tokens = [w.lower() for w in otherDesc.split() if len(w) > 2]
             if query_tokens:

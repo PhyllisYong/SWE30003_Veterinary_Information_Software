@@ -45,6 +45,11 @@ class SubmitAnswerRequest(BaseModel):
     answers: dict[str, str]   # questionID → answerID
 
 
+class CheckAnswerRequest(BaseModel):
+    questionID: str
+    answerID: str
+
+
 class QuizResultResponse(BaseModel):
     resultID: str
     petOwnerID: str

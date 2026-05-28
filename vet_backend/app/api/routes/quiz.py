@@ -1,28 +1,21 @@
+import random
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.models.quiz import Quiz
 from app.models.quiz_result import QuizResult
 from app.models.question import Question
-
 from app.api.routes.auth import getCurrentUser, requireRole
 from app.models.user import User
+from app.schemas.quiz import SubmitAnswerRequest, CheckAnswerRequest, ExplanationRequest
 
 router = APIRouter(
     prefix="/quizzes",
     tags=["Quizzes"]
 )
-
-class QuizSubmitRequest(BaseModel):
-    answers: dict[str, str]
-
-
-class ExplanationRequest(BaseModel):
-    explanation: str
 
 # helper functions
 def getQuiz(
@@ -63,8 +56,10 @@ def get_quiz(
     quiz_id: str,
     db: Session = Depends(get_db),
 ):
-    """Return a single quiz with all questions and answers. isCorrect is intentionally omitted."""
+    """Return a single quiz with randomised question order. isCorrect is intentionally omitted."""
     quiz = getQuiz(quiz_id, db)
+    questions = list(quiz.questions)
+    random.shuffle(questions)
     return {
         "id": quiz.contentID,
         "title": quiz.title,
@@ -84,18 +79,34 @@ def get_quiz(
                         "answerText": a.answerText,
                         # isCorrect intentionally omitted — checked server-side on submit
                     }
-                    for a in q.answers
+                    for a in random.sample(q.answers, len(q.answers))
                 ],
             }
-            for q in quiz.questions
+            for q in questions
         ],
     }
+
+
+@router.post("/{quiz_id}/check")
+def check_answer(
+    quiz_id: str,
+    request: CheckAnswerRequest,
+    db: Session = Depends(get_db),
+):
+    """Check a single answer without persisting a result — used for per-question feedback."""
+    quiz = getQuiz(quiz_id, db)
+    question = next((q for q in quiz.questions if q.questionID == request.questionID), None)
+    if question is None:
+        raise HTTPException(status_code=404, detail="Question not found in this quiz")
+    is_correct = question.checkAnswer(request.answerID)
+    correct_answer_id = next((a.answerID for a in question.answers if a.isCorrect), None)
+    return {"isCorrect": is_correct, "correctAnswerID": correct_answer_id}
 
 
 @router.post("/{quiz_id}/submit")
 def submit_quiz(
     quiz_id: str,
-    request: QuizSubmitRequest,
+    request: SubmitAnswerRequest,
     currentUser: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
