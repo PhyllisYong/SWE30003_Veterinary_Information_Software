@@ -85,7 +85,7 @@ export default function ChatPage() {
 
   useEffect(() => { loadChats() }, [])
 
-  // ── Load active chat + poll every 5 s ────────────────────────────────────────
+  // ── Load active chat ─────────────────────────────────────────────────────────
   const loadActiveChat = async (id: string) => {
     try {
       const res  = await apiFetch(`/api/chats/${id}`)
@@ -94,11 +94,24 @@ export default function ChatPage() {
     } catch { /* ignore */ }
   }
 
+  // ── Subscribe via WebSocket (Observer pattern) ────────────────────────────────
   useEffect(() => {
     if (!activeChatID) return
     loadActiveChat(activeChatID)
-    const timer = setInterval(() => loadActiveChat(activeChatID), 5000)
-    return () => clearInterval(timer)
+
+    const wsUrl = `ws://localhost:8000/api/chats/${activeChatID}/ws`
+    const ws = new WebSocket(wsUrl)
+
+    ws.onmessage = (e) => {
+      const { event, data } = JSON.parse(e.data) as { event: string; data: MessageItem }
+      if (event === 'message_sent') {
+        setActiveChat(prev =>
+          prev ? { ...prev, messages: [...(prev.messages ?? []), data] } : prev
+        )
+      }
+    }
+
+    return () => ws.close()
   }, [activeChatID])
 
   // ── Scroll to bottom on new messages ────────────────────────────────────────

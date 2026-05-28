@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -15,8 +15,12 @@ from app.schemas.chat import (
     ChatResponse,
     MessageResponse,
 )
+from app.patterns.observer import WebSocketObserver
 
 router = APIRouter(prefix="/api/chats", tags=["Chat"])
+
+# chatID → list of active WebSocketObserver instances
+_active_observers: dict[str, list[WebSocketObserver]] = {}
 
 
 def _now() -> str:
@@ -101,9 +105,24 @@ def get_chat(
     }
 
 
+# WS /api/chats/{chatID}/ws — subscribe as observer
+@router.websocket("/{chatID}/ws")
+async def chat_websocket(chatID: str, websocket: WebSocket, db: Session = Depends(get_db)):
+    await websocket.accept()
+    obs = WebSocketObserver(websocket)
+    _active_observers.setdefault(chatID, []).append(obs)
+    try:
+        while True:
+            await websocket.receive_text()  # keep-alive; client sends nothing
+    except WebSocketDisconnect:
+        observers = _active_observers.get(chatID, [])
+        if obs in observers:
+            observers.remove(obs)
+
+
 # POST /api/chats/{chatID}/messages — sendMessage()
 @router.post("/{chatID}/messages")
-def send_message(
+async def send_message(
     chatID: str,
     body: SendMessageRequest,
     current_user: User = Depends(getCurrentUser),
@@ -121,7 +140,12 @@ def send_message(
     db.add(msg)
     db.commit()
     db.refresh(msg)
-    return {"status": "ok", "data": MessageResponse.model_validate(msg)}
+
+    payload = MessageResponse.model_validate(msg).model_dump()
+    for obs in list(_active_observers.get(chatID, [])):
+        await obs.update("message_sent", payload)
+
+    return {"status": "ok", "data": payload}
 
 
 # PUT /api/chats/{chatID}/messages/{messageID} — editMessage()
