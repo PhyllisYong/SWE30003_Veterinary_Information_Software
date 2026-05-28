@@ -77,6 +77,7 @@ def get_quiz(
             {
                 "id": q.questionID,
                 "questionText": q.questionText,
+                "explanation": q.explanation,
                 "answers": [
                     {
                         "id": a.answerID,
@@ -106,6 +107,7 @@ def submit_quiz(
     questions = quiz.getQuestions()
 
     score = 0
+    feedback = []
 
     # Loop through questions
     for q in questions:
@@ -113,13 +115,24 @@ def submit_quiz(
         # Get submitted answer ID for this question
         submitted_answer_id = request.answers.get(q.questionID)
 
-        # Skip if user did not answer this question
-        if submitted_answer_id is None:
-            continue
+        # Find the correct answer ID for this question
+        correct_answer_id = next(
+            (a.answerID for a in q.answers if a.isCorrect), None
+        )
 
-        # Check answer correctness
-        if q.checkAnswer(submitted_answer_id):
-            score += 1
+        # Skip scoring if user did not answer, but still include in feedback
+        is_correct = False
+        if submitted_answer_id is not None:
+            is_correct = q.checkAnswer(submitted_answer_id)
+            if is_correct:
+                score += 1
+
+        feedback.append({
+            "questionID": q.questionID,
+            "correctAnswerID": correct_answer_id,
+            "submittedAnswerID": submitted_answer_id,
+            "isCorrect": is_correct,
+        })
 
     # Create quiz result
     result = QuizResult(
@@ -132,9 +145,6 @@ def submit_quiz(
     # Save to database
     db.add(result)
     db.commit()
-
-    # Optional:
-    # refresh reloads DB-generated fields into object
     db.refresh(result)
 
     # Return response
@@ -144,6 +154,7 @@ def submit_quiz(
         "score": score,
         "passed": result.getPassed(),
         "resultID": result.resultID,
+        "feedback": feedback,
     }
 
 @router.get("/results/all")

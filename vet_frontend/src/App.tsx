@@ -13,6 +13,8 @@ import Video from './pages/VideoPage'
 import VetAdvicePage from './pages/VetAdvicePage'
 import ChatPage from './pages/ChatPage'
 import BookingPage from './pages/BookingPage'
+import VetQuizManagePage from './pages/VetQuizManagePage'
+import VetAvailabilityPage from './pages/VetAvailabilityPage'
 
 
 function App() {
@@ -31,6 +33,8 @@ function App() {
         <Route path="/vet-advice" element={<VetAdvicePage />} />
         <Route path="/vet-advice/chat" element={<ChatPage />} />
         <Route path="/vet-advice/booking" element={<BookingPage />} />
+        <Route path="/vet/quiz-manage" element={<VetQuizManagePage />} />
+        <Route path="/vet/availability" element={<VetAvailabilityPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>

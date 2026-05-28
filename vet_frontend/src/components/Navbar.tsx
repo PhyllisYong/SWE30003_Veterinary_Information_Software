@@ -6,14 +6,22 @@ function readUser() {
   return localStorage.getItem('userName')
 }
 
+function readRole() {
+  return localStorage.getItem('userRole')
+}
+
 export default function Navbar() {
   const navigate = useNavigate()
   const [userName, setUserName] = useState<string | null>(readUser)
+  const [userRole, setUserRole] = useState<string | null>(readRole)
 
   // Re-read whenever LoginPage / RegisterPage fires 'auth-change',
   // or when another tab logs in/out (native 'storage' event)
   useEffect(() => {
-    function sync() { setUserName(readUser()) }
+    function sync() {
+      setUserName(readUser())
+      setUserRole(readRole())
+    }
     window.addEventListener('auth-change', sync)
     window.addEventListener('storage', sync)
     return () => {
@@ -27,6 +35,7 @@ export default function Navbar() {
     localStorage.removeItem('userID')
     localStorage.removeItem('userName')
     localStorage.removeItem('userRole')
+    setUserRole(null)
     window.dispatchEvent(new Event('auth-change'))
     navigate('/')
   }
@@ -45,6 +54,15 @@ export default function Navbar() {
           <li><NavLink to="/videos">Videos</NavLink></li>
           <li><NavLink to="/quizzes">Quizzes</NavLink></li>
           <li><NavLink to="/vet-advice">Vet Advice</NavLink></li>
+          {userRole === 'veterinarian' && (
+            <li className="navbar__dropdown">
+              <span className="navbar__dropdown-trigger">Vet Tools ▾</span>
+              <ul className="navbar__dropdown-menu">
+                <li><NavLink to="/vet/availability">My Availability</NavLink></li>
+                <li><NavLink to="/vet/quiz-manage">Quiz Explanations</NavLink></li>
+              </ul>
+            </li>
+          )}
         </ul>
 
         <div className="navbar__actions">

@@ -75,6 +75,70 @@
   padding: 0 4px;
 }
 
+/* ── Vet Tools dropdown ────────────────────────────────────────────────────── */
+
+.navbar__dropdown {
+  position: relative;
+  list-style: none;
+}
+
+.navbar__dropdown-trigger {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14.5px;
+  color: var(--text-muted);
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: color .15s, background .15s;
+  white-space: nowrap;
+}
+
+.navbar__dropdown:hover .navbar__dropdown-trigger {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.navbar__dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.09);
+  padding: 4px 0;
+  list-style: none;
+  z-index: 200;
+}
+
+.navbar__dropdown:hover .navbar__dropdown-menu {
+  display: block;
+}
+
+.navbar__dropdown-menu li {
+  list-style: none;
+}
+
+.navbar__dropdown-menu a {
+  display: block;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+  border-radius: 0;
+  white-space: nowrap;
+  transition: color .13s, background .13s;
+}
+
+.navbar__dropdown-menu a:hover,
+.navbar__dropdown-menu a.active {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
 @media (max-width: 768px) {
   .navbar__links { display: none; }
 }

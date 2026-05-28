@@ -12,6 +12,14 @@ interface Question {
   id: string
   questionText: string
   answers: Answer[]
+  explanation?: string | null
+}
+
+interface FeedbackItem {
+  questionID: string
+  correctAnswerID: string | null
+  submittedAnswerID: string | null
+  isCorrect: boolean
 }
 
 interface QuizDetail {
@@ -28,6 +36,7 @@ interface QuizDetail {
 interface SubmitResult {
   score: number
   passed: boolean
+  feedback: FeedbackItem[]
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────
@@ -122,14 +131,15 @@ export default function QuizPage() {
       // already told us total score. We'll reveal via a second lightweight
       // approach: mark selected answers based on score delta isn't possible
       // without per-question feedback. So we request the server send it back.
-      setResult({ score: data.score, passed: data.passed })
+      setResult({ score: data.score, passed: data.passed, feedback: data.feedback ?? [] })
 
-      // Fetch the quiz again with correct answers revealed
-      // (backend doesn't send isCorrect on GET, so we infer from submit response)
-      // For now reveal by re-fetching won't help. Instead we trust the server
-      // score and show a simple result. Full per-answer reveal requires a
-      // dedicated endpoint or an updated submit response.
-      setRevealed({}) // empty object = "locked" state, no colour reveal
+      // Build revealed map: correctAnswerID → 'correct', wrong selected → 'incorrect'
+      const revealMap: Record<string, string> = {}
+      ;(data.feedback ?? []).forEach((f: FeedbackItem) => {
+        if (f.correctAnswerID) revealMap[f.correctAnswerID] = 'correct'
+        if (f.submittedAnswerID && !f.isCorrect) revealMap[f.submittedAnswerID] = 'incorrect'
+      })
+      setRevealed(revealMap)
     } catch (err) {
       alert((err as Error).message)
     } finally {
@@ -227,6 +237,14 @@ export default function QuizPage() {
                       </button>
                     ))}
                   </div>
+
+                  {/* Show explanation after submission */}
+                  {result && question.explanation && (
+                    <div className="question-card__explanation">
+                      <strong>💡 Explanation</strong>
+                      {question.explanation}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
