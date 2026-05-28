@@ -49,7 +49,20 @@ interface RecommendedContent {
   content_type: 'guide' | 'video' | 'quiz'
 }
 
+type RelatedItem = RecommendedContent
+
+interface QuestionCheck {
+  isCorrect: boolean
+  correctAnswerID: string | null
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────
+function formatTime(sec: number): string {
+  const m = Math.floor(sec / 60)
+  const s = sec % 60
+  return `${m}:${s.toString().padStart(2, '0')}`
+}
+
 function capitalise(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
@@ -77,9 +90,9 @@ function answerClass(
   }
 
   const verdict = revealed[answerId]
-  if (verdict === 'correct' && isSelected) return `${base} correct`
-  if (verdict === 'incorrect' && isSelected) return `${base} incorrect`
-  if (verdict === 'correct' && !isSelected) return `${base} missed`
+  if (verdict === 'correct' && isSelected) return `${base} reveal-correct`
+  if (verdict === 'incorrect' && isSelected) return `${base} reveal-wrong`
+  if (verdict === 'correct' && !isSelected) return `${base} reveal-correct`
   return base
 }
 
@@ -211,14 +224,6 @@ export default function QuizPage() {
       }
       if (!res.ok) throw new Error((data.detail as string) ?? 'Submission failed')
 
-      // Build a revealed map from the questions + selected answers
-      // The server returns the score but not per-answer correctness,
-      // so we re-derive it client-side using the explanation field as a hint.
-      // For now we mark the selected answers based on whether each question
-      // contributed to the score by re-fetching isn't needed — the server
-      // already told us total score. We'll reveal via a second lightweight
-      // approach: mark selected answers based on score delta isn't possible
-      // without per-question feedback. So we request the server send it back.
       setResult({
         score: data.score,
         passed: data.passed,
@@ -226,13 +231,19 @@ export default function QuizPage() {
         recommendedContent: data.recommendedContent ?? [],
       })
 
-      // Build revealed map: correctAnswerID → 'correct', wrong selected → 'incorrect'
-      const revealMap: Record<string, string> = {}
-      ;(data.feedback ?? []).forEach((f: FeedbackItem) => {
-        if (f.correctAnswerID) revealMap[f.correctAnswerID] = 'correct'
-        if (f.submittedAnswerID && !f.isCorrect) revealMap[f.submittedAnswerID] = 'incorrect'
-      })
-      setRevealed(revealMap)
+      if (!data.passed) {
+        const params = new URLSearchParams({
+          contentType: 'guide',
+          petType: quiz.petType,
+          category: quiz.emergencyCategory,
+        })
+        fetch(`/api/first-aid/search?${params}`)
+          .then(r => r.json())
+          .then(body => setRelatedContent((body.data ?? []).slice(0, 3)))
+          .catch(() => {})
+      }
+
+      setPhase('results')
     } catch (err) {
       alert((err as Error).message)
       setPhase('quiz')
@@ -260,6 +271,8 @@ export default function QuizPage() {
 
   const totalQuestions = quiz.questions.length
   const isLastQuestion = currentIndex === totalQuestions - 1
+  const answeredCount = Object.keys(selected).length
+  const progressPct = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0
 
   // ── Results screen ─────────────────────────────────────────────────
   if (phase === 'results' && result) {
@@ -347,7 +360,7 @@ export default function QuizPage() {
                   {relatedContent.map(item => (
                     <Link
                       key={item.contentID}
-                      to="/first-aid"
+                      to={`/guides?open=${item.contentID}`}
                       className="quiz-related-card"
                     >
                       <span className="quiz-related-card__type">
@@ -383,12 +396,8 @@ export default function QuizPage() {
         <div className="container">
           <Link to="/quizzes" className="quiz-header__back">&larr; Back to quizzes</Link>
           <div className="quiz-header__tags">
-            <span className="tag tag--pet">{capitalise(quiz.petType)}</span>
-            <span className="tag tag--category">{capitalise(quiz.emergencyCategory)}</span>
             <span className="tag tag--pet">{petLabel(quiz.petType)}</span>
-            <span className="tag tag--category">
-              {capitalise(quiz.emergencyCategory)}
-            </span>
+            <span className="tag tag--category">{capitalise(quiz.emergencyCategory)}</span>
           </div>
           <h1>{quiz.title}</h1>
           <div className="quiz-header__meta">
@@ -434,107 +443,78 @@ export default function QuizPage() {
             </div>
             <p className="question-card__text">{currentQuestion.questionText}</p>
 
-                  <div className="answer-options">
-                    {question.answers.map((answer) => (
-                      <button
-                        key={answer.id}
-                        className={answerClass(answer.id, question.id, selected, revealed)}
-                        onClick={() => selectAnswer(question.id, answer.id)}
-                        disabled={!!revealed}
-                      >
-                        <span className="answer-option__indicator">
-                          {selected[question.id] === answer.id && !revealed && '•'}
-                        </span>
-                        {answer.answerText}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Show explanation after submission */}
-                  {result && question.explanation && (
-                    <div className="question-card__explanation">
-                      <strong>💡 Explanation</strong>
-                      {question.explanation}
-                    </div>
+            <div className="answer-options">
+              {currentQuestion.answers.map((answer) => (
+                <button
+                  key={answer.id}
+                  className={answerClass(answer.id, currentQuestion.id, selected,
+                    check
+                      ? {
+                          ...(check.correctAnswerID ? { [check.correctAnswerID]: 'correct' } : {}),
+                          ...(selectedForCurrent && !check.isCorrect ? { [selectedForCurrent]: 'incorrect' } : {}),
+                        }
+                      : null
                   )}
-                </div>
+                  onClick={() => handleSelectAnswer(answer.id)}
+                  disabled={isCurrentSubmitted}
+                >
+                  <span className="answer-option__indicator">
+                    {selected[currentQuestion.id] === answer.id && !isCurrentSubmitted && '•'}
+                  </span>
+                  {answer.answerText}
+                </button>
               ))}
             </div>
 
-            {/* Sidebar */}
-            <aside className="quiz-sidebar">
-
-              {/* Progress */}
-              <div className="quiz-progress-card">
-                <h3>Your progress</h3>
-                <div className="progress-bar-track">
-                  <div
-                    className="progress-bar-fill"
-                    style={{ width: `${progressPct}%` }}
-                  />
-                </div>
-                <p className="progress-label">
-                  {answeredCount} of {totalQuestions} answered
-                </p>
-
-                <div className="quiz-dot-grid">
-                  {quiz.questions.map((q, i) => (
-                    <div
-                      key={q.id}
-                      className={`quiz-dot${selected[q.id] ? ' answered' : ''}`}
-                      title={`Question ${i + 1}`}
-                    >
-                      {i + 1}
-                    </div>
-                  ))}
-                </div>
+            {/* Show explanation after submission */}
+            {isCurrentSubmitted && currentQuestion.explanation && (
+              <div className="question-card__explanation">
+                <strong>💡 Explanation</strong>
+                {currentQuestion.explanation}
               </div>
+            )}
 
-              {/* Result card (shown after submit) */}
-              {result && (
-                <div className="quiz-result-card">
-                  <div className="quiz-result-card__score">{result.score}</div>
-                  <div className="quiz-result-card__total">
-                    out of {quiz.totalScore ?? totalQuestions}
-                  </div>
-                  <span className={`quiz-result-card__badge ${result.passed ? 'passed' : 'failed'}`}>
-                    {result.passed ? 'Passed' : 'Not passed'}
-                  </span>
-                </div>
-              )}
-
-              {result && !result.passed && (result.recommendedContent?.length ?? 0) > 0 && (
-                <div className="quiz-recommend-card">
-                  <h3>Recommended review</h3>
-                  {result.recommendedContent?.map(item => (
-                    <Link
-                      key={item.contentID}
-                      to={item.content_type === 'video' ? '/videos' : '/guides'}
-                      className="quiz-recommend-item"
-                    >
-                      <span>{item.content_type === 'video' ? 'Video' : 'Guide'}</span>
-                      <strong>{item.title}</strong>
-                    </Link>
-                  ))}
-                </div>
-              )}
-
-              {/* Submit */}
-              {!result && (
-                <button
-                  className="btn btn--primary"
-                  onClick={handleNext}
-                  disabled={phase === 'submitting'}
-                >
-                  {phase === 'submitting'
-                    ? 'Submitting...'
-                    : isLastQuestion
-                      ? 'Finish Quiz'
-                      : 'Next Question →'}
-                </button>
-              )}
+            <div className="question-card__actions">
+              <button
+                className="btn btn--primary"
+                onClick={handleNext}
+                disabled={phase === 'submitting'}
+              >
+                {phase === 'submitting'
+                  ? 'Submitting...'
+                  : isLastQuestion
+                    ? 'Finish Quiz'
+                    : 'Next Question →'}
+              </button>
             </div>
           </div>
+
+          {/* Progress sidebar */}
+          <aside className="quiz-sidebar">
+            <div className="quiz-progress-card">
+              <h3>Your progress</h3>
+              <div className="progress-bar-track">
+                <div
+                  className="progress-bar-fill"
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+              <p className="progress-label">
+                <strong>{answeredCount}</strong> of <strong>{totalQuestions}</strong> answered
+              </p>
+              <div className="quiz-dot-grid">
+                {quiz.questions.map((q, i) => (
+                  <div
+                    key={q.id}
+                    className={`quiz-dot${selected[q.id] ? ' answered' : ''}`}
+                    title={`Question ${i + 1}`}
+                  >
+                    {i + 1}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </aside>
 
         </div>
       </div>

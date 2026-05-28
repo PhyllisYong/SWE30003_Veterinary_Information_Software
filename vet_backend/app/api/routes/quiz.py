@@ -2,6 +2,7 @@ import random
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -22,10 +23,6 @@ router = APIRouter(
 
 class QuizSubmitRequest(BaseModel):
     answers: dict[str, str]
-
-
-class ExplanationRequest(BaseModel):
-    explanation: str
 
 
 class QuestionTextRequest(BaseModel):

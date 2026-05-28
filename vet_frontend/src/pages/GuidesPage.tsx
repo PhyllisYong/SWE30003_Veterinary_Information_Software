@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import './GuidesPage.css'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -238,6 +238,7 @@ function getEmbedUrl(url: string): string {
 }
 
 export default function GuidesPage() {
+  const [searchParams] = useSearchParams()
   const [mode, setMode] = useState<'browse' | 'emergency'>('browse')
   const [selectedGuide, setSelectedGuide] = useState<GuideResult | null>(null)
 
@@ -262,7 +263,15 @@ export default function GuidesPage() {
   useEffect(() => {
     fetch('/api/first-aid/search?contentType=guide')
       .then(r => r.json())
-      .then((body: SearchResponse) => setAllGuides(body.data as unknown as GuideResult[]))
+      .then((body: SearchResponse) => {
+        const guides = body.data as unknown as GuideResult[]
+        setAllGuides(guides)
+        const openId = searchParams.get('open')
+        if (openId) {
+          const target = guides.find(g => g.contentID === openId)
+          if (target) setSelectedGuide(target)
+        }
+      })
       .catch(() => setAllGuides([]))
       .finally(() => setBrowseLoading(false))
   }, [])
