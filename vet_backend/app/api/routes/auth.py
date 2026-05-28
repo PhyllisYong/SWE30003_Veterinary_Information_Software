@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -6,9 +5,6 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.models.user import User
-from app.models.pet_owner import PetOwner
-from app.models.veterinarian import Veterinarian
-from app.models.association_admin import AssociationAdministrator
 from app.schemas.auth import RegisterRequest, LoginRequest, AuthResponse
 from app.services.authentication import authentication
 
@@ -65,12 +61,10 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
             detail="Email already registered",
         )
 
-    userID = str(uuid.uuid4())
     hashed_pw = authentication.hash_password(body.password)
 
     if body.role == "pet_owner":
-        user = PetOwner(
-            userID=userID,
+        user = User.createUser(
             name=body.name,
             email=body.email,
             password=hashed_pw,
@@ -84,8 +78,7 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="licenseNumber is required for veterinarian registration",
             )
-        user = Veterinarian(
-            userID=userID,
+        user = User.createUser(
             name=body.name,
             email=body.email,
             password=hashed_pw,
@@ -100,8 +93,7 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="workID is required for association admin registration",
             )
-        user = AssociationAdministrator(
-            userID=userID,
+        user = User.createUser(
             name=body.name,
             email=body.email,
             password=hashed_pw,
@@ -119,12 +111,12 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    token = authentication.login(userID, body.role)
+    token = authentication.issueSession(user.userID, body.role)
     return {
         "status": "ok",
         "data": {
             "token": token,
-            "userID": userID,
+            "userID": user.userID,
             "name": body.name,
             "role": body.role,
         },

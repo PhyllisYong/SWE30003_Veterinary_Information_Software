@@ -34,6 +34,21 @@ class VeterinaryAdviceChat(Base, ChatSubject):
     def viewChatHistory(self) -> list:
         return self.messages
 
+    @classmethod
+    def startChat(
+        cls,
+        createdAt: str,
+        isUrgent: bool,
+        petOwnerID: str,
+        vetID: str,
+    ) -> "VeterinaryAdviceChat":
+        return cls(
+            createdAt=createdAt,
+            isUrgent=isUrgent,
+            petOwnerID=petOwnerID,
+            vetID=vetID,
+        )
+
     def createMessage(self, senderID: str, content: str, timestamp: str):
         from app.models.message import Message
 
@@ -43,6 +58,12 @@ class VeterinaryAdviceChat(Base, ChatSubject):
             timestamp=timestamp,
             chatID=self.chatID,
         )
+
+    async def sendMessage(self, message) -> None:
+        await self.notify("message_sent", message)
+
+    async def receiveMessage(self, message) -> None:
+        await self.notify("message_received", message)
 
     def editMessage(self, message, content: str) -> None:
         message.content = content

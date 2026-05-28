@@ -7,6 +7,7 @@ from app.api.routes.auth import getCurrentUser
 from app.core.security import validateToken
 from app.models.user import User
 from app.models.chat import VeterinaryAdviceChat
+from app.models.message import Message
 from app.models.veterinarian import Veterinarian
 from app.schemas.chat import (
     StartChatRequest,
@@ -20,7 +21,6 @@ from app.patterns.observer import WebSocketObserver
 router = APIRouter(prefix="/api/chats", tags=["Chat"])
 
 # chatID → list of active WebSocketObserver instances
-_active_observers: dict[str, list[WebSocketObserver]] = {}
 
 
 def _now() -> str:
@@ -53,7 +53,7 @@ def start_chat(
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinarian not found")
 
-    chat = VeterinaryAdviceChat(
+    chat = VeterinaryAdviceChat.startChat(
         createdAt=_now(),
         isUrgent=body.isUrgent,
         petOwnerID=current_user.userID,
@@ -124,14 +124,12 @@ async def chat_websocket(chatID: str, websocket: WebSocket, db: Session = Depend
 
     await websocket.accept()
     obs = WebSocketObserver(websocket)
-    _active_observers.setdefault(chatID, []).append(obs)
+    chat.subscribe(obs)
     try:
         while True:
             await websocket.receive_text()  # keep-alive; client sends nothing
     except WebSocketDisconnect:
-        observers = _active_observers.get(chatID, [])
-        if obs in observers:
-            observers.remove(obs)
+        chat.unsubscribe(obs)
 
 
 # POST /api/chats/{chatID}/messages — sendMessage()
@@ -155,8 +153,7 @@ async def send_message(
     db.refresh(msg)
 
     payload = MessageResponse.model_validate(msg).model_dump()
-    for obs in list(_active_observers.get(chatID, [])):
-        await obs.update("message_sent", payload)
+    await chat.sendMessage(payload)
 
     return {"status": "ok", "data": payload}
 
