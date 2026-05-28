@@ -165,14 +165,14 @@
 .navbar__dropdown-menu {
   display: none;
   position: absolute;
-  top: calc(100% + 6px);
+  top: 100%;
   left: 0;
   min-width: 180px;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   box-shadow: 0 4px 16px rgba(0,0,0,0.09);
-  padding: 4px 0;
+  padding: 10px 0 4px;
   list-style: none;
   z-index: 200;
 }
