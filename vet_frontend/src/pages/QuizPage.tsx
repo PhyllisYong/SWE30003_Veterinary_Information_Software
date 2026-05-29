@@ -178,8 +178,9 @@ export default function QuizPage() {
     }
   }
 
-  function handleNext() {
+  async function handleNext() {
     if (!quiz) return
+    await handleSubmitAnswer()
     if (currentIndex < quiz.questions.length - 1) {
       setCurrentIndex(prev => prev + 1)
     } else {

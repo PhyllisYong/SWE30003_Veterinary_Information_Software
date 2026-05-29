@@ -21,6 +21,7 @@ from app.services.video_hosting import video_hosting
 
 
 VET_AUTHOR_EMAILS = ("ann.vet@example.com", "ravi.vet@example.com")
+REVIEW_STATUSES = ("draft", "pending_verification", "verified", "rejected")
 
 
 def get_author_ids(db):
@@ -38,6 +39,28 @@ def assign_authors(items, author_ids):
         return
     for index, item in enumerate(items):
         item.authorVetID = author_ids[index % len(author_ids)]
+
+
+def reviewer_for(author_id, author_ids):
+    for candidate in author_ids:
+        if candidate != author_id:
+            return candidate
+    return None
+
+
+def assign_review_states(items, author_ids):
+    for index, item in enumerate(items):
+        status = REVIEW_STATUSES[index % len(REVIEW_STATUSES)]
+        item.publicationStatus = status
+
+        if author_ids:
+            item.authorVetID = author_ids[index % len(author_ids)]
+
+        if status in {"pending_verification", "verified", "rejected"}:
+            item.assignedVetID = reviewer_for(item.authorVetID, author_ids)
+
+        if status == "rejected":
+            item.reviewComment = "Please add clearer first-aid safety warnings before resubmitting."
 
 
 def make_guide(title, description, pet_type, emergency_category, steps):
@@ -602,11 +625,189 @@ def seed():
             ),
         ]
 
-        assign_authors(guides, author_ids)
-        db.add_all(guides + videos)
+        review_guides = [
+            make_guide(
+                "Draft Cat Burn First Aid Checklist",
+                "Draft guide for cooling minor burns and preparing for veterinary care.",
+                "cat",
+                "burns",
+                [
+                    "Step 1: Move the cat away from the heat source.",
+                    "Step 2: Cool the affected area with cool running water.",
+                    "Step 3: Do not apply creams, oils, or adhesive dressings.",
+                    "Step 4: Cover loosely with clean gauze if available.",
+                    "Step 5: Contact a vet for assessment.",
+                ],
+            ),
+            make_guide(
+                "Rabbit Eye Irritation First Aid Review",
+                "Pending verification guide for rabbit eye irritation and debris.",
+                "rabbit",
+                "eye_injury",
+                [
+                    "Step 1: Keep the rabbit calm in a quiet carrier.",
+                    "Step 2: Do not rub or press on the eye.",
+                    "Step 3: Avoid human eye drops unless prescribed by a vet.",
+                    "Step 4: Note any discharge, swelling, or squinting.",
+                    "Step 5: Arrange prompt exotic-vet care.",
+                ],
+            ),
+            make_guide(
+                "Verified Dog Paw Pad Injury Guide",
+                "Verified guide awaiting publication for dog paw pad cuts and grazes.",
+                "dog",
+                "paw_injury",
+                [
+                    "Step 1: Keep the dog still and inspect the paw gently.",
+                    "Step 2: Rinse visible dirt with clean water.",
+                    "Step 3: Apply light pressure for bleeding.",
+                    "Step 4: Prevent licking with a temporary clean wrap.",
+                    "Step 5: Visit a vet for deep cuts or embedded objects.",
+                ],
+            ),
+            make_guide(
+                "Rejected Hamster Fall Injury Draft",
+                "Rejected draft guide that needs clearer handling advice for injured hamsters.",
+                "hamster",
+                "fall_injury",
+                [
+                    "Step 1: Move the hamster to a small secure container.",
+                    "Step 2: Remove wheels and climbing toys.",
+                    "Step 3: Keep handling minimal.",
+                    "Step 4: Watch for limping, swelling, or weakness.",
+                    "Step 5: Contact an exotic-pet vet.",
+                ],
+            ),
+            make_guide(
+                "Draft Guinea Pig Dental Warning Checklist",
+                "Draft guide for recognising guinea pig dental discomfort.",
+                "guinea_pig",
+                "dental_issue",
+                [
+                    "Step 1: Watch for drooling, reduced appetite, or dropping food.",
+                    "Step 2: Keep hay and water available.",
+                    "Step 3: Do not trim teeth at home.",
+                    "Step 4: Keep the guinea pig warm and calm.",
+                    "Step 5: Arrange an exotic-pet vet appointment.",
+                ],
+            ),
+            make_guide(
+                "Dog Ear Injury First Aid Review",
+                "Pending verification guide for dog ear wounds and head shaking.",
+                "dog",
+                "ear_injury",
+                [
+                    "Step 1: Keep the dog calm and prevent scratching.",
+                    "Step 2: Apply gentle pressure if the ear is bleeding.",
+                    "Step 3: Do not push cotton buds into the ear canal.",
+                    "Step 4: Use a clean towel if blood is splattering.",
+                    "Step 5: Contact a vet for examination.",
+                ],
+            ),
+            make_guide(
+                "Verified Rabbit Appetite Loss Guide",
+                "Verified guide awaiting publication for appetite loss in rabbits.",
+                "rabbit",
+                "appetite_loss",
+                [
+                    "Step 1: Treat refusal to eat as urgent in rabbits.",
+                    "Step 2: Offer hay and water while arranging care.",
+                    "Step 3: Check for drooling, bloating, or reduced droppings.",
+                    "Step 4: Keep the rabbit warm and quiet.",
+                    "Step 5: Contact an exotic-pet vet promptly.",
+                ],
+            ),
+            make_guide(
+                "Rejected Cat Tail Injury Draft",
+                "Rejected draft guide that needs clearer neurological warning signs.",
+                "cat",
+                "tail_injury",
+                [
+                    "Step 1: Keep the cat indoors and calm.",
+                    "Step 2: Avoid pulling or bending the tail.",
+                    "Step 3: Watch for pain, dragging, or toileting problems.",
+                    "Step 4: Use a carrier for transport.",
+                    "Step 5: Seek veterinary advice.",
+                ],
+            ),
+        ]
+
+        review_videos = [
+            make_video(
+                "Draft Cat Burn First Aid Video",
+                "Draft video script for safe cooling after minor cat burns.",
+                "cat",
+                "burns",
+                "https://www.youtube.com/watch?v=uX_zdu9Z6m0",
+                80,
+            ),
+            make_video(
+                "Rabbit Eye Irritation Video Review",
+                "Pending verification video for rabbit eye irritation warning signs.",
+                "rabbit",
+                "eye_injury",
+                "https://www.youtube.com/watch?v=W104HPrDF6U",
+                175,
+            ),
+            make_video(
+                "Verified Dog Paw Pad Injury Video",
+                "Verified video awaiting publication for dog paw pad injuries.",
+                "dog",
+                "paw_injury",
+                "https://www.youtube.com/watch?v=4yTPvSaQlls",
+                66,
+            ),
+            make_video(
+                "Rejected Hamster Fall Injury Video Draft",
+                "Rejected video draft that needs clearer escalation guidance.",
+                "hamster",
+                "fall_injury",
+                "https://www.youtube.com/watch?v=7l4re01nSbc",
+                39,
+            ),
+            make_video(
+                "Draft Guinea Pig Dental Warning Video",
+                "Draft video for recognising guinea pig dental discomfort.",
+                "guinea_pig",
+                "dental_issue",
+                "https://www.youtube.com/watch?v=JTPpMfjbbtY",
+                157,
+            ),
+            make_video(
+                "Dog Ear Injury Video Review",
+                "Pending verification video for dog ear wound first aid.",
+                "dog",
+                "ear_injury",
+                "https://www.youtube.com/watch?v=4yTPvSaQlls",
+                66,
+            ),
+            make_video(
+                "Verified Rabbit Appetite Loss Video",
+                "Verified video awaiting publication for rabbit appetite warning signs.",
+                "rabbit",
+                "appetite_loss",
+                "https://www.youtube.com/watch?v=teueqOV8-iw",
+                144,
+            ),
+            make_video(
+                "Rejected Cat Tail Injury Video Draft",
+                "Rejected video draft that needs clearer warning signs.",
+                "cat",
+                "tail_injury",
+                "https://www.youtube.com/watch?v=_mJYrbmbEl0",
+                76,
+            ),
+        ]
+
+        assign_authors(guides + videos, author_ids)
+        assign_review_states(review_guides + review_videos, author_ids)
+        db.add_all(guides + videos + review_guides + review_videos)
         db.commit()
 
-        print(f"Seeded {len(guides)} guides and {len(videos)} videos.")
+        print(
+            f"Seeded {len(guides) + len(review_guides)} guides "
+            f"and {len(videos) + len(review_videos)} videos."
+        )
 
     except Exception as e:
         db.rollback()
