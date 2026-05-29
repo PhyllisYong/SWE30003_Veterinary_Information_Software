@@ -307,6 +307,9 @@
 /* ─── Responsive ──────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .cm-layout { grid-template-columns: 1fr; }
+  .cm-left-col { position: static; }
+  .cm-right-col { max-height: none; overflow: visible; }
+  .cm-right-col > .cm-list { overflow-y: visible; flex: none; }
 }
 @media (max-width: 600px) {
   .cm-header h1 { font-size: 28px; }
@@ -314,9 +317,25 @@
 }
 
 /* ─── Review section extras ───────────────────────────────────────── */
+.cm-left-col {
+  position: sticky;
+  top: 80px;
+}
+
 .cm-right-col {
   display: flex;
   flex-direction: column;
+  max-height: calc(100vh - 200px);
+  overflow: hidden;
+}
+
+.cm-right-col > .cm-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
 .cm-review-divider {

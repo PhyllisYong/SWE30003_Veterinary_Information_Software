@@ -251,7 +251,7 @@ export default function VetContentPage() {
           <div className="cm-layout">
 
             {/* ── LEFT: Submit / Edit form ── */}
-            <div>
+            <div className="cm-left-col">
               <p className="cm-section-title">
                 {editingID ? 'Edit Content' : 'Submit New Content'}
               </p>
