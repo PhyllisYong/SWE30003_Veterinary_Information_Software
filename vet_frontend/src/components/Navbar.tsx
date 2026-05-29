@@ -32,7 +32,18 @@ export default function Navbar() {
   // Close mobile menu on route change
   useEffect(() => { setMenuOpen(false) }, [])
 
-  function handleLogout() {
+  async function handleLogout() {
+    const token = localStorage.getItem('token')
+    if (token) {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      } catch {
+        // non-fatal — clear local state regardless
+      }
+    }
     localStorage.removeItem('token')
     localStorage.removeItem('userID')
     localStorage.removeItem('userName')
