@@ -137,7 +137,7 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
             detail="Invalid email or password",
         )
 
-    token = authentication.login(user.userID, user.role)
+    token = authentication.issueSession(user.userID, user.role)
     return {
         "status": "ok",
         "data": {
