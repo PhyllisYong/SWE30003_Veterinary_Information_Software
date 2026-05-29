@@ -1,14 +1,6 @@
 import uuid
 from sqlalchemy import Column, String
-from sqlalchemy.orm import relationship
 from app.core.database import Base
-
-from app.models.booking import Booking
-from app.models.chat import VeterinaryAdviceChat
-from app.models.first_aid_content import FirstAidContent
-from app.models.message import Message
-from app.models.pet import Pet
-from app.models.quiz_result import QuizResult
 
 
 class User(Base):
@@ -63,58 +55,6 @@ class User(Base):
         if role == "association_admin":
             return AssociationAdministrator(**common, workID=workID)
         raise ValueError("Unsupported user role")
-
-    def deleteUser(self, db, authentication_service=None) -> None:
-
-        user_id = self.userID
-        db.query(FirstAidContent).filter(
-            FirstAidContent.authorVetID == user_id
-        ).update({FirstAidContent.authorVetID: None}, synchronize_session=False)
-        db.query(FirstAidContent).filter(
-            FirstAidContent.assignedVetID == user_id
-        ).update({FirstAidContent.assignedVetID: None}, synchronize_session=False)
-
-        if self.role == "pet_owner":
-            chat_ids = [
-                c.chatID for c in db.query(VeterinaryAdviceChat.chatID).filter(
-                    VeterinaryAdviceChat.petOwnerID == user_id
-                ).all()
-            ]
-            if chat_ids:
-                db.query(Message).filter(Message.chatID.in_(chat_ids)).delete(
-                    synchronize_session=False
-                )
-            db.query(QuizResult).filter(QuizResult.petOwnerID == user_id).delete(
-                synchronize_session=False
-            )
-            db.query(VeterinaryAdviceChat).filter(
-                VeterinaryAdviceChat.petOwnerID == user_id
-            ).delete(synchronize_session=False)
-            db.query(Booking).filter(Booking.petOwnerID == user_id).delete(
-                synchronize_session=False
-            )
-            db.query(Pet).filter(Pet.ownerID == user_id).delete(synchronize_session=False)
-
-        if self.role == "veterinarian":
-            chat_ids = [
-                c.chatID for c in db.query(VeterinaryAdviceChat.chatID).filter(
-                    VeterinaryAdviceChat.vetID == user_id
-                ).all()
-            ]
-            if chat_ids:
-                db.query(Message).filter(Message.chatID.in_(chat_ids)).delete(
-                    synchronize_session=False
-                )
-            db.query(VeterinaryAdviceChat).filter(
-                VeterinaryAdviceChat.vetID == user_id
-            ).delete(synchronize_session=False)
-            db.query(Booking).filter(Booking.vetID == user_id).delete(
-                synchronize_session=False
-            )
-
-        if authentication_service:
-            authentication_service.invalidateSession(user_id)
-        db.delete(self)
 
     def getRole(self) -> str:
         return self.role

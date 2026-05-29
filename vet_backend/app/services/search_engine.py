@@ -20,7 +20,6 @@ def _fuzzy_score(query_tokens: list, text: str) -> float:
     return score
 
 from app.models.first_aid_content import FirstAidContent
-from sqlalchemy.orm import with_polymorphic
 from app.models.guide import Guide
 from app.models.video import Video
 
@@ -56,14 +55,9 @@ class SearchEngine:
         in-memory cache, including all concrete subclasses (Guide, Video, etc.).
         Called once at startup; call refreshCache() to reload after changes.
         """
-        # Load the polymorphic hierarchy so that each row becomes its concrete subclass
-        polymorphic = with_polymorphic(FirstAidContent, '*')
+        from app.repositories import content_repository
         self._contentRepository = [
-            item for item in (
-                self._db.query(polymorphic)
-                .filter(FirstAidContent.publicationStatus == "published")
-                .all()
-            )
+            item for item in content_repository.get_all_published_polymorphic(self._db)
             if item.content_type in ("guide", "video")
         ]
 

@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.models.first_aid_content import FirstAidContent
 from app.schemas.first_aid import ContentSearchResponse
+from app.services import content_service
 from app.services.search_engine import SearchEngine
 
 router = APIRouter(tags=["first-aid"])
@@ -43,7 +43,7 @@ def get_content(
 ):
     item = engine.getContentByID(content_id)
     if item is None:
-        item = db.query(FirstAidContent).filter(FirstAidContent.contentID == content_id).first()
+        item = content_service.get_content_by_id(db, content_id)
     if item is None:
         return {"status": "error", "message": f"Content '{content_id}' not found."}
     return {"status": "ok", "data": item.display()}
