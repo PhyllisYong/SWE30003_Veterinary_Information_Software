@@ -633,33 +633,35 @@ export default function ProfilePage() {
                              pet.petType === 'rabbit' ? '🐇' :
                              pet.petType === 'hamster' ? '🐹' : '🐾'}
                           </div>
-                          <h3 className="pet-card__name">{pet.petName}</h3>
-                          <p className="pet-card__detail">{capitalise(pet.petType)}</p>
-                          {(pet.age != null || pet.gender) && (
-                            <p className="pet-card__detail pet-card__detail--muted">
-                              {[
-                                pet.age != null ? `${pet.age} yr${pet.age !== 1 ? 's' : ''}` : null,
-                                pet.gender ? capitalise(pet.gender) : null,
-                              ]
-                                .filter(Boolean)
-                                .join(' · ')}
-                            </p>
-                          )}
-                          <div className="pet-card__actions">
-                            <button
-                              className="btn btn--outline btn--sm"
-                              onClick={() => startEditPet(pet)}
-                              disabled={!!editingPetID && editingPetID !== pet.petID}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="btn btn--ghost btn--sm pet-card__delete"
-                              onClick={() => handleDeletePet(pet.petID, pet.petName)}
-                              disabled={!!editingPetID}
-                            >
-                              Delete
-                            </button>
+                          <div className="pet-card__body">
+                            <h3 className="pet-card__name">{pet.petName}</h3>
+                            <p className="pet-card__detail">{capitalise(pet.petType)}</p>
+                            {(pet.age != null || pet.gender) && (
+                              <p className="pet-card__detail pet-card__detail--muted">
+                                {[
+                                  pet.age != null ? `${pet.age} yr${pet.age !== 1 ? 's' : ''}` : null,
+                                  pet.gender ? capitalise(pet.gender) : null,
+                                ]
+                                  .filter(Boolean)
+                                  .join(' · ')}
+                              </p>
+                            )}
+                            <div className="pet-card__actions">
+                              <button
+                                className="btn btn--outline btn--sm"
+                                onClick={() => startEditPet(pet)}
+                                disabled={!!editingPetID && editingPetID !== pet.petID}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className="btn btn--ghost btn--sm pet-card__delete"
+                                onClick={() => handleDeletePet(pet.petID, pet.petName)}
+                                disabled={!!editingPetID}
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
