@@ -65,6 +65,20 @@ function petLabel(petType?: string | null): string {
     .join(' ')
 }
 
+function formatDateTime(value: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+
+  return date.toLocaleString(undefined, {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 // ── Component ──────────────────────────────────────────────────────────────────
 
 export default function BookingPage() {
@@ -134,7 +148,7 @@ export default function BookingPage() {
       })
       const body = await res.json()
       if (res.ok) {
-        setSuccess(`Booking requested for ${selectedSlot}. Awaiting vet confirmation.`)
+        setSuccess(`Booking requested for ${formatDateTime(selectedSlot)}. Awaiting vet confirmation.`)
         setSelectedVet(null)
         setSelectedSlot('')
         setSelectedPet(pets[0]?.petID || '')
@@ -231,7 +245,7 @@ export default function BookingPage() {
                       className={`slot-btn${selectedSlot === s ? ' slot-btn--active' : ''}`}
                       onClick={() => setSelectedSlot(s)}
                     >
-                      {s}
+                      {formatDateTime(s)}
                     </button>
                   ))}
                 </div>
@@ -278,7 +292,7 @@ export default function BookingPage() {
                   <tr key={b.bookingID}>
                     <td title={b.petOwnerID}>{b.petOwnerID.slice(0, 8)}…</td>
                     <td>{b.petName ? `${b.petName} (${petLabel(b.petType)})` : 'Not specified'}</td>
-                    <td>{b.timeslot}</td>
+                    <td>{formatDateTime(b.timeslot)}</td>
                     <td><StatusBadge status={b.bookingStatus} /></td>
                     <td>
                       <button
@@ -318,9 +332,9 @@ export default function BookingPage() {
                 <tr key={b.bookingID}>
                   <td title={b.bookingID}>{b.bookingID.slice(0, 8)}…</td>
                   <td>{b.petName ? `${b.petName} (${petLabel(b.petType)})` : 'Not specified'}</td>
-                  <td>{b.timeslot}</td>
+                  <td>{formatDateTime(b.timeslot)}</td>
                   <td><StatusBadge status={b.bookingStatus} /></td>
-                  <td>{b.createdAt.slice(0, 10)}</td>
+                  <td>{formatDateTime(b.createdAt)}</td>
                   <td>
                     {b.bookingStatus !== 'cancelled' && b.bookingStatus !== 'completed' ? (
                       <button
