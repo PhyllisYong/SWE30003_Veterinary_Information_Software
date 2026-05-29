@@ -296,8 +296,8 @@ export default function BookingPage() {
         </section>
       )}
 
-      {/* ── All roles: my bookings ─────────────────────────────────────── */}
-      <section className="booking-section">
+      {/* ── Pet owner: my bookings ────────────────────────────────────── */}
+      {role === 'pet_owner' && <section className="booking-section">
         <h2>My Bookings</h2>
         {bookings.length === 0 ? (
           <p className="booking-empty">No bookings yet.</p>
@@ -338,7 +338,7 @@ export default function BookingPage() {
             </tbody>
           </table>
         )}
-      </section>
+      </section>}
     </div>
   )
 }
