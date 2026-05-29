@@ -16,7 +16,7 @@ from app.schemas.chat import (
     ChatResponse,
     MessageResponse,
 )
-from app.patterns.observer import WebSocketObserver
+from app.services.observer import WebSocketObserver
 
 router = APIRouter(prefix="/api/chats", tags=["Chat"])
 

@@ -2,7 +2,7 @@ import uuid
 from sqlalchemy import Column, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from app.core.database import Base
-from app.patterns.observer import ChatSubject
+from app.services.observer import ChatSubject
 
 
 class VeterinaryAdviceChat(Base, ChatSubject):
