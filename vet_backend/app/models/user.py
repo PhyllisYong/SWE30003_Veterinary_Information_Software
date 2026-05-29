@@ -3,6 +3,13 @@ from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
+from app.models.booking import Booking
+from app.models.chat import VeterinaryAdviceChat
+from app.models.first_aid_content import FirstAidContent
+from app.models.message import Message
+from app.models.pet import Pet
+from app.models.quiz_result import QuizResult
+
 
 class User(Base):
     __tablename__ = "users"
@@ -58,12 +65,6 @@ class User(Base):
         raise ValueError("Unsupported user role")
 
     def deleteUser(self, db, authentication_service=None) -> None:
-        from app.models.booking import Booking
-        from app.models.chat import VeterinaryAdviceChat
-        from app.models.first_aid_content import FirstAidContent
-        from app.models.message import Message
-        from app.models.pet import Pet
-        from app.models.quiz_result import QuizResult
 
         user_id = self.userID
         db.query(FirstAidContent).filter(
