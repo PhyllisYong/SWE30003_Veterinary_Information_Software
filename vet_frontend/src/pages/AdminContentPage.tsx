@@ -18,6 +18,13 @@ interface VetOption {
   name: string
 }
 
+interface ApiResponse<T> {
+  status?: string
+  data?: T
+  message?: string
+  detail?: string
+}
+
 function capitalise(s: string) {
   return s.replace(/_/g, ' ').charAt(0).toUpperCase() + s.replace(/_/g, ' ').slice(1)
 }
@@ -30,6 +37,38 @@ function petTagClass(petType: string) {
 }
 
 const STATUS_FILTERS = ['all', 'draft', 'pending_verification', 'verified', 'published', 'rejected']
+
+async function apiJson<T>(path: string, options: RequestInit, label: string): Promise<T> {
+  const response = await fetch(path, options)
+  const text = await response.text()
+  let body: unknown = null
+
+  if (text.trim()) {
+    try {
+      body = JSON.parse(text)
+    } catch {
+      throw new Error(`${label}: invalid response from server`)
+    }
+  }
+
+  if (!response.ok) {
+    const message =
+      body && typeof body === 'object'
+        ? (body as ApiResponse<unknown>).message ?? (body as ApiResponse<unknown>).detail
+        : null
+    throw new Error(message ? `${label}: ${message}` : `${label}: ${response.status} ${response.statusText}`)
+  }
+
+  if (body === null) {
+    throw new Error(`${label}: empty response from server`)
+  }
+
+  return body as T
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Request failed.'
+}
 
 export default function AdminContentPage() {
   const token = localStorage.getItem('token')
@@ -52,8 +91,8 @@ export default function AdminContentPage() {
   useEffect(() => {
     setLoading(true)
     Promise.all([
-      fetch('/api/content', { headers }).then(r => r.json()),
-      fetch('/api/users?role=veterinarian', { headers }).then(r => r.json()),
+      apiJson<ApiResponse<ContentItem[]>>('/api/content', { headers }, 'Load content'),
+      apiJson<ApiResponse<VetOption[]>>('/api/users?role=veterinarian', { headers }, 'Load veterinarians'),
     ])
       .then(async ([contentRes, vetsRes]) => {
         const allItems: ContentItem[] = contentRes.data ?? []
@@ -85,41 +124,50 @@ export default function AdminContentPage() {
   const handleSetDraft = async (contentID: string) => {
     const reviewerID = assignMap[contentID]
     if (!reviewerID) return showToast('Select a reviewer vet before setting as draft.', 'error')
-    const res = await fetch(`/api/content/${contentID}/set-draft`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ assignedVetID: reviewerID }), 
-    })
-    const data = await res.json()
-    if (data.status === 'ok') {
-      setItems(prev => prev.map(i => i.contentID === contentID
-        ? { ...i, publicationStatus: 'pending_verification', assignedVetID: reviewerID } : i)) 
-      showToast('Draft confirmed and reviewer assigned. Status → Pending Verification.', 'success')
-    } else { showToast(data.message ?? 'Failed.', 'error') }
+    try {
+      const data = await apiJson<ApiResponse<ContentItem>>(`/api/content/${contentID}/set-draft`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ assignedVetID: reviewerID }),
+      }, 'Assign reviewer')
+      if (data.status === 'ok') {
+        setItems(prev => prev.map(i => i.contentID === contentID
+          ? { ...i, publicationStatus: 'pending_verification', assignedVetID: reviewerID } : i))
+        showToast('Draft confirmed and reviewer assigned. Status → Pending Verification.', 'success')
+      } else { showToast(data.message ?? 'Failed.', 'error') }
+    } catch (e) {
+      showToast(getErrorMessage(e), 'error')
+    }
   }
 
   const handlePublish = async (contentID: string) => {
-    const res = await fetch(`/api/content/${contentID}/publish`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    })
-    const data = await res.json()
-    if (data.status === 'ok') {
-      setItems(prev => prev.map(i => i.contentID === contentID ? { ...i, publicationStatus: 'published' } : i))
-      showToast('Content published.', 'success')
-    } else { showToast(data.message ?? 'Failed.', 'error') }
+    try {
+      const data = await apiJson<ApiResponse<ContentItem>>(`/api/content/${contentID}/publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      }, 'Publish content')
+      if (data.status === 'ok') {
+        setItems(prev => prev.map(i => i.contentID === contentID ? { ...i, publicationStatus: 'published' } : i))
+        showToast('Content published.', 'success')
+      } else { showToast(data.message ?? 'Failed.', 'error') }
+    } catch (e) {
+      showToast(getErrorMessage(e), 'error')
+    }
   }
 
   const handleDelete = async (contentID: string) => {
     if (!confirm('Delete this content? This cannot be undone.')) return
-    const res = await fetch(`/api/content/${contentID}`, {
-      method: 'DELETE', headers: { Authorization: `Bearer ${token}` },
-    })
-    const data = await res.json()
-    if (data.status === 'ok') {
-      setItems(prev => prev.filter(i => i.contentID !== contentID))
-      showToast('Deleted.', 'success')
-    } else { showToast(data.message ?? 'Failed.', 'error') }
+    try {
+      const data = await apiJson<ApiResponse<unknown>>(`/api/content/${contentID}`, {
+        method: 'DELETE', headers: { Authorization: `Bearer ${token}` },
+      }, 'Delete content')
+      if (data.status === 'ok') {
+        setItems(prev => prev.filter(i => i.contentID !== contentID))
+        showToast('Deleted.', 'success')
+      } else { showToast(data.message ?? 'Failed.', 'error') }
+    } catch (e) {
+      showToast(getErrorMessage(e), 'error')
+    }
   }
 
   const filtered = items.filter(i =>

@@ -75,6 +75,12 @@ USERS = [
         "role": "association_admin",
         "workID": "ADMIN-001",
     },
+    {
+        "name": "Joshua Admin",
+        "email": "joshua.admin@example.com",
+        "role": "association_admin",
+        "workID": "ADMIN-002",
+    },
 ]
 
 
