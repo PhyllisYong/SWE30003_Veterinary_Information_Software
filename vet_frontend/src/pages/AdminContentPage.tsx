@@ -8,7 +8,7 @@ interface ContentItem {
   petType: string
   emergencyCategory: string
   publicationStatus: string
-  content_type: 'guide' | 'video' | 'quizze'
+  content_type: 'guide' | 'video' | 'quiz'
   authorVetID: string | null
   assignedVetID?: string | null 
 }
@@ -40,7 +40,7 @@ export default function AdminContentPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState('all')
-  const [typeFilter, setTypeFilter] = useState<'all' | 'guide' | 'video' | 'quizze'>('all')
+  const [typeFilter, setTypeFilter] = useState<'all' | 'guide' | 'video' | 'quiz'>('all')
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const [assignMap, setAssignMap] = useState<Record<string, string>>({})
 
@@ -152,10 +152,10 @@ export default function AdminContentPage() {
           </div>
           <div className="filter-group">
             <span className="filter-label">Type</span>
-            {(['all', 'guide', 'video', 'quizze'] as const).map(t => (
+            {(['all', 'guide', 'video', 'quiz'] as const).map(t => (
               <button key={t} className={`filter-pill${typeFilter === t ? ' active' : ''}`}
                 onClick={() => setTypeFilter(t)}>
-                {t === 'all' ? 'All' : capitalise(t) + 's'}
+                {t === 'all' ? 'All' : t === 'quiz' ? 'Quizzes' : capitalise(t) + 's'}
               </button>
             ))}
           </div>

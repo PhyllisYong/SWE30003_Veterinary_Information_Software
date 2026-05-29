@@ -15,8 +15,29 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from app.core.database import SessionLocal
 from app.models.guide import Guide
+from app.models.user import User
 from app.models.video import Video
 from app.services.video_hosting import video_hosting
+
+
+VET_AUTHOR_EMAILS = ("ann.vet@example.com", "ravi.vet@example.com")
+
+
+def get_author_ids(db):
+    vets = (
+        db.query(User)
+        .filter(User.email.in_(VET_AUTHOR_EMAILS), User.role == "veterinarian")
+        .all()
+    )
+    vet_by_email = {vet.email: vet.userID for vet in vets}
+    return [vet_by_email[email] for email in VET_AUTHOR_EMAILS if email in vet_by_email]
+
+
+def assign_authors(items, author_ids):
+    if not author_ids:
+        return
+    for index, item in enumerate(items):
+        item.authorVetID = author_ids[index % len(author_ids)]
 
 
 def make_guide(title, description, pet_type, emergency_category, steps):
@@ -49,6 +70,7 @@ def seed():
     db = SessionLocal()
 
     try:
+        author_ids = get_author_ids(db)
         guides = [
             make_guide(
                 "Cat Choking and Breathing First Aid",
@@ -580,6 +602,7 @@ def seed():
             ),
         ]
 
+        assign_authors(guides, author_ids)
         db.add_all(guides + videos)
         db.commit()
 

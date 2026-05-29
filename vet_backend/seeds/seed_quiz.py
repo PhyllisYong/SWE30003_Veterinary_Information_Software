@@ -15,7 +15,10 @@ from app.models.answer import Answer
 from app.models.question import Question
 from app.models.quiz import Quiz
 from app.models.quiz_result import QuizResult
+from app.models.user import User
 
+
+VET_AUTHOR_EMAILS = ("ann.vet@example.com", "ravi.vet@example.com")
 
 PET_LABELS = {
     "cat": "Cat",
@@ -82,9 +85,20 @@ QUESTION_BANK = {
 }
 
 
+def get_author_ids(db):
+    vets = (
+        db.query(User)
+        .filter(User.email.in_(VET_AUTHOR_EMAILS), User.role == "veterinarian")
+        .all()
+    )
+    vet_by_email = {vet.email: vet.userID for vet in vets}
+    return [vet_by_email[email] for email in VET_AUTHOR_EMAILS if email in vet_by_email]
+
+
 def seed() -> None:
     db = SessionLocal()
     try:
+        author_ids = get_author_ids(db)
         db.query(QuizResult).delete(synchronize_session=False)
         for quiz in db.query(Quiz).all():
             db.delete(quiz)
@@ -100,6 +114,7 @@ def seed() -> None:
                     petType=pet_type,
                     emergencyCategory=category,
                     publicationStatus="published",
+                    authorVetID=author_ids[quizzes_created % len(author_ids)] if author_ids else None,
                     totalScore=1,
                     durationSec=60,
                 )
