@@ -434,7 +434,7 @@ export default function VetContentPage() {
                           </div>
                         )}
                         <div className="cm-list-item__actions">
-                          {(item.publicationStatus === 'submitted' || item.publicationStatus === 'rejected') && (
+                          {(item.publicationStatus === 'draft' || item.publicationStatus === 'rejected') && (
                             <button className="cm-action-btn" onClick={() => startEdit(item)}>Edit</button>
                           )}
                         </div>

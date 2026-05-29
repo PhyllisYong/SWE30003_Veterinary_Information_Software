@@ -8,7 +8,7 @@ interface ContentItem {
   petType: string
   emergencyCategory: string
   publicationStatus: string
-  content_type: 'guide' | 'video'
+  content_type: 'guide' | 'video' | 'quizze'
   authorVetID: string | null
   assignedVetID?: string | null 
 }
@@ -40,7 +40,7 @@ export default function AdminContentPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState('all')
-  const [typeFilter, setTypeFilter] = useState<'all' | 'guide' | 'video' | 'quiz'>('all')
+  const [typeFilter, setTypeFilter] = useState<'all' | 'guide' | 'video' | 'quizze'>('all')
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const [assignMap, setAssignMap] = useState<Record<string, string>>({})
 
@@ -139,30 +139,31 @@ export default function AdminContentPage() {
         </div>
       </div>
 
+      <div className="cm-admin-filters">
+        <div className="container cm-admin-filters__inner">
+          <div className="filter-group">
+            <span className="filter-label">Status</span>
+            {STATUS_FILTERS.map(s => (
+              <button key={s} className={`filter-pill${statusFilter === s ? ' active' : ''}`}
+                onClick={() => setStatusFilter(s)}>
+                {s === 'all' ? 'All' : capitalise(s)}
+              </button>
+            ))}
+          </div>
+          <div className="filter-group">
+            <span className="filter-label">Type</span>
+            {(['all', 'guide', 'video', 'quizze'] as const).map(t => (
+              <button key={t} className={`filter-pill${typeFilter === t ? ' active' : ''}`}
+                onClick={() => setTypeFilter(t)}>
+                {t === 'all' ? 'All' : capitalise(t) + 's'}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="cm-body">
         <div className="container">
-
-          {/* Filters */}
-          <div className="cm-admin-filters">
-            <div>
-              <span className="filter-label">Status</span>
-              {STATUS_FILTERS.map(s => (
-                <button key={s} className={`filter-pill${statusFilter === s ? ' active' : ''}`}
-                  onClick={() => setStatusFilter(s)}>
-                  {s === 'all' ? 'All' : capitalise(s)}
-                </button>
-              ))}
-            </div>
-            <div style={{ marginTop: 10 }}>
-              <span className="filter-label">Type</span>
-              {(['all', 'guide', 'video', 'quiz'] as const).map(t => (
-                <button key={t} className={`filter-pill${typeFilter === t ? ' active' : ''}`}
-                  onClick={() => setTypeFilter(t)}>
-                  {t === 'all' ? 'All' : capitalise(t) + 's'}
-                </button>
-              ))}
-            </div>
-          </div>
 
           {toast && <div className={`cm-toast cm-toast--${toast.type}`} style={{ marginBottom: 20 }}>{toast.msg}</div>}
 
