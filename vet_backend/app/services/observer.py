@@ -7,18 +7,30 @@ class ChatObserver(ABC):
 
 
 class ChatSubject:
+    _observer_registry: dict[str, list[ChatObserver]] = {}
+
     def __init__(self):
         self._observers: list[ChatObserver] = []
 
+    def _observer_key(self) -> str:
+        return getattr(self, "chatID", str(id(self)))
+
+    def _observer_list(self) -> list[ChatObserver]:
+        key = self._observer_key()
+        return self._observer_registry.setdefault(key, [])
+
     def subscribe(self, observer: ChatObserver) -> None:
-        self._observers.append(observer)
+        observers = self._observer_list()
+        if observer not in observers:
+            observers.append(observer)
 
     def unsubscribe(self, observer: ChatObserver) -> None:
-        if observer in self._observers:
-            self._observers.remove(observer)
+        observers = self._observer_list()
+        if observer in observers:
+            observers.remove(observer)
 
     async def notify(self, event: str, data: dict) -> None:
-        for obs in list(self._observers):
+        for obs in list(self._observer_list()):
             await obs.update(event, data)
 
 

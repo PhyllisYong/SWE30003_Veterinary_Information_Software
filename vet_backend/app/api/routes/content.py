@@ -143,7 +143,7 @@ def create_content(
                 petType=payload.petType,
                 emergencyCategory=payload.emergencyCategory,
                 authorVetID=current_user.userID,
-                publicationStatus="submitted",
+                publicationStatus="draft",
                 steps=payload.steps or [],
                 stepCount=len(payload.steps or []),
             )
@@ -156,7 +156,7 @@ def create_content(
                 petType=payload.petType,
                 emergencyCategory=payload.emergencyCategory,
                 authorVetID=current_user.userID,
-                publicationStatus="submitted",
+                publicationStatus="draft",
                 videoURL=video_hosting.getEmbedUrl(payload.videoURL),
                 durationSec=payload.durationSec,
             )
@@ -169,7 +169,7 @@ def create_content(
                 petType=payload.petType,
                 emergencyCategory=payload.emergencyCategory,
                 authorVetID=current_user.userID,
-                publicationStatus="submitted",
+                publicationStatus="draft",
                 durationSec=payload.durationSec,
                 totalScore=len(payload.questions),
             )
@@ -234,7 +234,8 @@ def update_content(
                 db.flush()
                 for a_data in q_data["answers"]:
                     db.add(Answer(answerText=a_data["answerText"], isCorrect=a_data["isCorrect"], questionID=question.questionID))
-        content.publicationStatus = "submitted"   # resets for admin to re-review
+        content.publicationStatus = "draft"   # resets for admin to re-review
+        content.assignedVetID = None          # clear reviewer so it enters queue as a new draft
         db.commit()
         db.refresh(content)
         return {"status": "ok", "data": content.display()}
