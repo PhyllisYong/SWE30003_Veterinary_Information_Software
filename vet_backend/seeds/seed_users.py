@@ -89,7 +89,7 @@ def seed() -> None:
     try:
         created = 0
         pet_count = 0
-        password_hash = authentication.hash_password(PASSWORD)
+        password_hash = authentication.hashPassword(PASSWORD)
 
         for data in USERS:
             existing = db.query(User).filter(User.email == data["email"]).first()

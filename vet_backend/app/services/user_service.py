@@ -16,7 +16,7 @@ def register(db: Session, body) -> User:
             detail="Email already registered",
         )
 
-    hashed_pw = authentication.hash_password(body.password)
+    hashed_pw = authentication.hashPassword(body.password)
 
     if body.role == "pet_owner":
         user = User.createUser(
@@ -64,7 +64,7 @@ def register(db: Session, body) -> User:
 
 def login(db: Session, body) -> User:
     user = user_repository.get_by_email(db, body.email)
-    if user is None or not authentication.verify_password(body.password, user.password):
+    if user is None or not authentication.verifyPassword(body.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",

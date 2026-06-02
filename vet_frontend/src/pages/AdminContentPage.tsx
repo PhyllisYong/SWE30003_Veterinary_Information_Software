@@ -9,8 +9,8 @@ interface ContentItem {
   emergencyCategory: string
   publicationStatus: string
   content_type: 'guide' | 'video' | 'quiz'
-  authorVetID: string | null
-  assignedVetID?: string | null 
+  authorVeterinarianID: string | null
+  assignedVeterinarianID?: string | null 
 }
 
 interface VetOption {
@@ -128,11 +128,11 @@ export default function AdminContentPage() {
       const data = await apiJson<ApiResponse<ContentItem>>(`/api/content/${contentID}/set-draft`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ assignedVetID: reviewerID }),
+        body: JSON.stringify({ assignedVeterinarianID: reviewerID }),
       }, 'Assign reviewer')
       if (data.status === 'ok') {
         setItems(prev => prev.map(i => i.contentID === contentID
-          ? { ...i, publicationStatus: 'pending_verification', assignedVetID: reviewerID } : i))
+          ? { ...i, publicationStatus: 'pending_verification', assignedVeterinarianID: reviewerID } : i))
         showToast('Draft confirmed and reviewer assigned. Status → Pending Verification.', 'success')
       } else { showToast(data.message ?? 'Failed.', 'error') }
     } catch (e) {
@@ -249,21 +249,21 @@ export default function AdminContentPage() {
 
                       {/* Meta Details Row */}
                       <div className="cm-admin-meta">
-                        <span>Author: <strong>{vetName(item.authorVetID)}</strong></span>
-                        {item.assignedVetID && (
-                          <span>Reviewer: <strong>{vetName(item.assignedVetID)}</strong></span>
+                        <span>Author: <strong>{vetName(item.authorVeterinarianID)}</strong></span>
+                        {item.assignedVeterinarianID && (
+                          <span>Reviewer: <strong>{vetName(item.assignedVeterinarianID)}</strong></span>
                         )}
                       </div>
 
                       {item.publicationStatus === 'draft' && (
                         <div className="cm-assign-row" style={{ marginTop: 12 }}>
                           <select
-                            value={assignMap[item.contentID] ?? item.assignedVetID ?? ''}
+                            value={assignMap[item.contentID] ?? item.assignedVeterinarianID ?? ''}
                             onChange={e => setAssignMap(prev => ({ ...prev, [item.contentID]: e.target.value }))}
                           >
                             <option value="">
-                              {item.assignedVetID 
-                                ? `Reassign (current: ${vetName(item.assignedVetID)})` 
+                              {item.assignedVeterinarianID 
+                                ? `Reassign (current: ${vetName(item.assignedVeterinarianID)})` 
                                 : 'Assign reviewer…'}
                             </option>
                             {vets.map(v => (

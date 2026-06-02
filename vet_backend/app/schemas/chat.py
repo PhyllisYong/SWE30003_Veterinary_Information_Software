@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class StartChatRequest(BaseModel):
-    vetID: str
+    veterinarianID: str
     isUrgent: bool = False
 
 
@@ -29,6 +29,6 @@ class ChatResponse(BaseModel):
     createdAt: str
     isUrgent: bool
     petOwnerID: str
-    vetID: str
+    veterinarianID: str
 
     model_config = {"from_attributes": True}

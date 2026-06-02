@@ -55,11 +55,11 @@ def delete_cascade(db: Session, user: User) -> None:
     user_id = user.userID
 
     db.query(FirstAidContent).filter(
-        FirstAidContent.authorVetID == user_id
-    ).update({FirstAidContent.authorVetID: None}, synchronize_session=False)
+        FirstAidContent.authorVeterinarianID == user_id
+    ).update({FirstAidContent.authorVeterinarianID: None}, synchronize_session=False)
     db.query(FirstAidContent).filter(
-        FirstAidContent.assignedVetID == user_id
-    ).update({FirstAidContent.assignedVetID: None}, synchronize_session=False)
+        FirstAidContent.assignedVeterinarianID == user_id
+    ).update({FirstAidContent.assignedVeterinarianID: None}, synchronize_session=False)
 
     if user.role == "pet_owner":
         chat_ids = [
@@ -85,7 +85,7 @@ def delete_cascade(db: Session, user: User) -> None:
     if user.role == "veterinarian":
         chat_ids = [
             c.chatID for c in db.query(VeterinaryAdviceChat.chatID).filter(
-                VeterinaryAdviceChat.vetID == user_id
+                VeterinaryAdviceChat.veterinarianID == user_id
             ).all()
         ]
         if chat_ids:
@@ -93,9 +93,9 @@ def delete_cascade(db: Session, user: User) -> None:
                 synchronize_session=False
             )
         db.query(VeterinaryAdviceChat).filter(
-            VeterinaryAdviceChat.vetID == user_id
+            VeterinaryAdviceChat.veterinarianID == user_id
         ).delete(synchronize_session=False)
-        db.query(Booking).filter(Booking.vetID == user_id).delete(
+        db.query(Booking).filter(Booking.veterinarianID == user_id).delete(
             synchronize_session=False
         )
 

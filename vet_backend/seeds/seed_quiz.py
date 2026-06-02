@@ -205,7 +205,7 @@ def seed() -> None:
                     petType=pet_type,
                     emergencyCategory=category,
                     publicationStatus="published",
-                    authorVetID=author_ids[quizzes_created % len(author_ids)] if author_ids else None,
+                    authorVeterinarianID=author_ids[quizzes_created % len(author_ids)] if author_ids else None,
                     totalScore=1,
                     durationSec=60,
                 )
@@ -243,8 +243,8 @@ def seed() -> None:
                 petType=quiz_data["petType"],
                 emergencyCategory=quiz_data["emergencyCategory"],
                 publicationStatus=status,
-                authorVetID=author_id,
-                assignedVetID=(
+                authorVeterinarianID=author_id,
+                assignedVeterinarianID=(
                     reviewer_for(author_id, author_ids)
                     if status in {"pending_verification", "verified", "rejected"}
                     else None

@@ -21,7 +21,7 @@ interface ContentItem {
   emergencyCategory: string
   publicationStatus: string
   content_type: 'guide' | 'video' | 'quiz'
-  authorVetID: string | null
+  authorVeterinarianID: string | null
   steps?: string[]
   stepCount?: number
   videoURL?: string | null

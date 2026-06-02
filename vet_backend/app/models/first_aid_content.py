@@ -28,11 +28,11 @@ class FirstAidContent(Base):
         "publication_status", String, nullable=False, default="draft"
     )
     # "draft" | "submitted" | "pending_verification" | "verified" | "published" | "rejected"
-    authorVetID = Column(
-        "author_vet_id", String, ForeignKey("users.user_id"), nullable=True
+    authorVeterinarianID = Column(
+        "author_veterinarian_id", String, ForeignKey("users.user_id"), nullable=True
     )
-    assignedVetID = Column(
-        "assigned_vet_id", String, ForeignKey("users.user_id"), nullable=True
+    assignedVeterinarianID = Column(
+        "assigned_veterinarian_id", String, ForeignKey("users.user_id"), nullable=True
     )
     reviewComment = Column("review_comment", String, nullable=True)
     content_type = Column(
@@ -90,14 +90,14 @@ class FirstAidContent(Base):
             "petType": self.petType,
             "emergencyCategory": self.emergencyCategory,
             "publicationStatus": self.publicationStatus,
-            "authorVetID": self.authorVetID,
-            "assignedVetID": self.assignedVetID,
+            "authorVeterinarianID": self.authorVeterinarianID,
+            "assignedVeterinarianID": self.assignedVeterinarianID,
             "reviewComment": self.reviewComment,
             "content_type": self.content_type,
         }
 
     def getAuthorID(self) -> str:
-        return self.authorVetID
+        return self.authorVeterinarianID
 
     def getID(self) -> str:
         return self.contentID

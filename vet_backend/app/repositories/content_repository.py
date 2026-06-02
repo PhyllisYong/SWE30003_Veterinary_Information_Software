@@ -16,13 +16,13 @@ def get_by_id(db: Session, content_id: str) -> FirstAidContent | None:
 
 def get_by_author(db: Session, author_id: str) -> list[FirstAidContent]:
     return db.query(FirstAidContent).filter(
-        FirstAidContent.authorVetID == author_id
+        FirstAidContent.authorVeterinarianID == author_id
     ).all()
 
 
 def get_assigned_pending(db: Session, assigned_vet_id: str) -> list[FirstAidContent]:
     return db.query(FirstAidContent).filter(
-        FirstAidContent.assignedVetID == assigned_vet_id,
+        FirstAidContent.assignedVeterinarianID == assigned_vet_id,
         FirstAidContent.publicationStatus == "pending_verification",
     ).all()
 

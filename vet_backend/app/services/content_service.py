@@ -36,11 +36,11 @@ def assign_reviewer(
     db: Session, content_id: str, payload: AssignReviewerRequest
 ) -> dict:
     content = _get_or_error(db, content_id)
-    if content.authorVetID == payload.assignedVetID:
+    if content.authorVeterinarianID == payload.assignedVeterinarianID:
         raise HTTPException(
             status_code=422, detail="Cannot assign the author as the assigned vet."
         )
-    content.assignedVetID = payload.assignedVetID
+    content.assignedVeterinarianID = payload.assignedVeterinarianID
     content_repository.update(db, content)
     return content.getMetadata()
 
@@ -55,7 +55,7 @@ def create_content(
                 description=payload.description,
                 petType=payload.petType,
                 emergencyCategory=payload.emergencyCategory,
-                authorVetID=current_user.userID,
+                authorVeterinarianID=current_user.userID,
                 publicationStatus="draft",
                 steps=payload.steps or [],
                 stepCount=len(payload.steps or []),
@@ -71,7 +71,7 @@ def create_content(
                 description=payload.description,
                 petType=payload.petType,
                 emergencyCategory=payload.emergencyCategory,
-                authorVetID=current_user.userID,
+                authorVeterinarianID=current_user.userID,
                 publicationStatus="draft",
                 videoURL=video_hosting.getEmbedUrl(payload.videoURL),
                 durationSec=payload.durationSec,
@@ -87,7 +87,7 @@ def create_content(
                 description=payload.description,
                 petType=payload.petType,
                 emergencyCategory=payload.emergencyCategory,
-                authorVetID=current_user.userID,
+                authorVeterinarianID=current_user.userID,
                 publicationStatus="draft",
                 durationSec=payload.durationSec,
                 totalScore=len(payload.questions),
@@ -112,7 +112,7 @@ def update_content(
     db: Session, content_id: str, current_user: User, payload: SubmitContentRequest
 ) -> dict:
     content = _get_or_error(db, content_id)
-    if content.authorVetID != current_user.userID:
+    if content.authorVeterinarianID != current_user.userID:
         raise HTTPException(status_code=403, detail="You can only edit your own content.")
     try:
         content.title = payload.title
@@ -140,7 +140,7 @@ def update_content(
                 db, content, payload.questions
             )
         content.publicationStatus = "draft"
-        content.assignedVetID = None
+        content.assignedVeterinarianID = None
         content_repository.update(db, content)
         return content.display()
     except HTTPException:
@@ -154,12 +154,12 @@ def review_content(
     db: Session, content_id: str, current_user: User, payload: ReviewRequest
 ) -> dict:
     content = _get_or_error(db, content_id)
-    if content.assignedVetID != current_user.userID:
+    if content.assignedVeterinarianID != current_user.userID:
         raise HTTPException(
             status_code=403,
             detail="You are not the assigned reviewer for this content.",
         )
-    if content.authorVetID == current_user.userID:
+    if content.authorVeterinarianID == current_user.userID:
         raise HTTPException(status_code=403, detail="You cannot review your own content.")
     if payload.status not in ("verified", "rejected"):
         raise HTTPException(
@@ -186,12 +186,12 @@ def set_draft_and_assign(
     db: Session, content_id: str, assigned_vet_id: str
 ) -> dict:
     content = _get_or_error(db, content_id)
-    if content.authorVetID == assigned_vet_id:
+    if content.authorVeterinarianID == assigned_vet_id:
         raise HTTPException(
             status_code=422, detail="Cannot assign the author as the assigned vet."
         )
     try:
-        content.assignedVetID = assigned_vet_id
+        content.assignedVeterinarianID = assigned_vet_id
         content.updateStatus("pending_verification")
         content_repository.update(db, content)
         return content.getMetadata()

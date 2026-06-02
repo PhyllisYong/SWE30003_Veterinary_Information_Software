@@ -12,7 +12,7 @@ class VeterinaryAdviceChat(Base, ChatSubject):
     createdAt = Column("created_at", String, nullable=False)   # ISO 8601
     isUrgent = Column("is_urgent", Boolean, nullable=False, default=False)
     petOwnerID = Column("pet_owner_id", String, ForeignKey("pet_owners.user_id"), nullable=False)
-    vetID = Column("vet_id", String, ForeignKey("veterinarians.user_id"), nullable=False)
+    veterinarianID = Column("veterinarian_id", String, ForeignKey("veterinarians.user_id"), nullable=False)
 
     # Composition: messages cannot exist without chat
     messages = relationship(
@@ -40,13 +40,13 @@ class VeterinaryAdviceChat(Base, ChatSubject):
         createdAt: str,
         isUrgent: bool,
         petOwnerID: str,
-        vetID: str,
+        veterinarianID: str,
     ) -> "VeterinaryAdviceChat":
         return cls(
             createdAt=createdAt,
             isUrgent=isUrgent,
             petOwnerID=petOwnerID,
-            vetID=vetID,
+            veterinarianID=veterinarianID,
         )
 
     def createMessage(self, senderID: str, content: str, timestamp: str):

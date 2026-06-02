@@ -44,8 +44,8 @@ export default function VetAvailabilityPage() {
     apiFetch('/api/vets')
       .then(r => r.json())
       .then(body => {
-        interface VetEntry { vetID: string; availableSlots: string[] }
-        const me = (body.data as VetEntry[]).find(v => v.vetID === userID)
+        interface VetEntry { veterinarianID: string; availableSlots: string[] }
+        const me = (body.data as VetEntry[]).find(v => v.veterinarianID === userID)
         if (me) setSlots(me.availableSlots ?? [])
       })
       .catch(() => {})

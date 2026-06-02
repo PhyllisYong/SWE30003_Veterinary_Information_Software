@@ -13,7 +13,7 @@ class Booking(Base):
     bookingStatus = Column("booking_status", String, nullable=False, default="pending")
     # "pending" | "accepted" | "cancelled" | "completed"
     petOwnerID = Column("pet_owner_id", String, ForeignKey("pet_owners.user_id"), nullable=False)
-    vetID = Column("vet_id", String, ForeignKey("veterinarians.user_id"), nullable=False)
+    veterinarianID = Column("veterinarian_id", String, ForeignKey("veterinarians.user_id"), nullable=False)
     petID = Column("pet_id", String, ForeignKey("pets.pet_id"), nullable=True)
 
     pet_owner = relationship("PetOwner", back_populates="bookings")

@@ -154,14 +154,12 @@ export default function VetVideoManagePage() {
       return
     }
 
-    const authorVetID = localStorage.getItem('userID') ?? ''
     const body = {
       content_type: 'video',
       title: form.title.trim(),
       description: form.description.trim() || null,
       petType: form.petType,
       emergencyCategory: form.emergencyCategory,
-      authorVetID,
       videoURL: form.videoURL.trim(),
       durationSec: form.durationSec ? parseInt(form.durationSec, 10) : null,
     }

@@ -9,7 +9,7 @@ class ContentBase(BaseModel):
     petType: str
     emergencyCategory: str
     publicationStatus: str
-    authorVetID: Optional[str]
+    authorVeterinarianID: Optional[str]
     content_type: str
 
 

@@ -40,7 +40,7 @@ class SearchEngine:
 
     def __init__(self, db: Session) -> None:
         self._db = db
-        self._contentRepository: List[FirstAidContent] = []
+        self.contentRepository: List[FirstAidContent] = []
         self.loadRepository()
 
     # ------------------------------------------------------------------
@@ -56,7 +56,7 @@ class SearchEngine:
         Called once at startup; call refreshCache() to reload after changes.
         """
         from app.repositories import content_repository
-        self._contentRepository = [
+        self.contentRepository = [
             item for item in content_repository.get_all_published_polymorphic(self._db)
             if item.content_type in ("guide", "video")
         ]
@@ -97,7 +97,7 @@ class SearchEngine:
         Returns:
             List of matching FirstAidContent objects (Guide or Video instances).
         """
-        results = self._contentRepository
+        results = self.contentRepository
 
         if petType:
             results = [c for c in results if c.petType.lower() == petType.lower()]
@@ -145,7 +145,7 @@ class SearchEngine:
             results = [
                 c
                 for c in results
-                if c.authorVetID == author_vet_id
+                if c.authorVeterinarianID == author_vet_id
             ]
 
         return results
@@ -154,7 +154,7 @@ class SearchEngine:
         """Return all published content for the given pet type."""
         return [
             c
-            for c in self._contentRepository
+            for c in self.contentRepository
             if c.petType.lower() == petType.lower()
         ]
 
@@ -162,7 +162,7 @@ class SearchEngine:
         """Return all published content for the given emergency category."""
         return [
             c
-            for c in self._contentRepository
+            for c in self.contentRepository
             if c.emergencyCategory.lower() == category.lower()
         ]
 
@@ -173,7 +173,7 @@ class SearchEngine:
         If you need to fetch unpublished content (e.g. admin view), query the
         DB directly via DatabaseManager instead of using this method.
         """
-        for item in self._contentRepository:
+        for item in self.contentRepository:
             if item.contentID == contentID:
                 return item
         return None

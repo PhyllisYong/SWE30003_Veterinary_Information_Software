@@ -62,7 +62,7 @@ async def chat_websocket(chatID: str, websocket: WebSocket, db: Session = Depend
 
     user = chat_service.get_user_for_ws(db, payload["sub"])
     chat = chat_service.get_chat_for_ws(db, chatID)
-    if user is None or chat is None or user.userID not in (chat.petOwnerID, chat.vetID):
+    if user is None or chat is None or user.userID not in (chat.petOwnerID, chat.veterinarianID):
         await websocket.close(code=1008)
         return
 

@@ -21,10 +21,10 @@ class ReviewRequest(BaseModel):
     comment: Optional[str] = None
 
 class AssignReviewerRequest(BaseModel):
-    assignedVetID: str
+    assignedVeterinarianID: str
 
 class SetDraftRequest(BaseModel):
-    assignedVetID: str
+    assignedVeterinarianID: str
 
 class AmendRequest(BaseModel):
     feedback: str

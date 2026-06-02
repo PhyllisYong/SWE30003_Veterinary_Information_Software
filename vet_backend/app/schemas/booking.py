@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class BookingCreate(BaseModel):
-    vetID: str
+    veterinarianID: str
     timeslot: str  # ISO 8601 datetime string e.g. "2025-06-01T09:00:00Z"
     petID: str | None = None
 
@@ -13,7 +13,7 @@ class BookingResponse(BaseModel):
     timeslot: str
     bookingStatus: str
     petOwnerID: str
-    vetID: str
+    veterinarianID: str
     petID: str | None = None
     petName: str | None = None
     petType: str | None = None
@@ -22,7 +22,7 @@ class BookingResponse(BaseModel):
 
 
 class VetSlotResponse(BaseModel):
-    vetID: str
+    veterinarianID: str
     name: str
     specialisation: str | None
     availableSlots: list[str]

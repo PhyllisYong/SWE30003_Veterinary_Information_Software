@@ -8,7 +8,7 @@ class Authentication:
         from app.models.user import User
 
         user = db.query(User).filter(User.email == email).first()
-        if user is None or not self.verify_password(password, user.password):
+        if user is None or not self.verifyPassword(password, user.password):
             return None
         return {
             "token": self.issueSession(user.userID, user.role),
@@ -16,7 +16,7 @@ class Authentication:
         }
 
     def issueSession(self, user_id: str, role: str) -> str:
-        return self.generate_token(user_id, role)
+        return self.generateToken(user_id, role)
 
     def logout(self, user_id: str | None = None) -> bool:
         return True
@@ -24,16 +24,16 @@ class Authentication:
     def invalidateSession(self, user_id: str) -> bool:
         return True
 
-    def hash_password(self, password: str) -> str:
+    def hashPassword(self, password: str) -> str:
         return hashPassword(password)
 
-    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
+    def verifyPassword(self, plain_password: str, hashed_password: str) -> bool:
         return verifyPassword(plain_password, hashed_password)
 
-    def generate_token(self, user_id: str, role: str) -> str:
+    def generateToken(self, user_id: str, role: str) -> str:
         return generateToken(user_id, role)
 
-    def validate_token(self, token: str) -> dict | None:
+    def validateToken(self, token: str) -> dict | None:
         return validateToken(token)
 
 

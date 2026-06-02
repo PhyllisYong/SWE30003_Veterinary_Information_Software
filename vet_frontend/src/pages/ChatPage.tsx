@@ -6,7 +6,7 @@ import './ChatPage.css'
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 interface VetInfo {
-  vetID: string
+  veterinarianID: string
   name: string
   specialisation: string | null
 }
@@ -24,7 +24,7 @@ interface Chat {
   createdAt: string
   isUrgent: boolean
   petOwnerID: string
-  vetID: string
+  veterinarianID: string
   messages?: MessageItem[]
 }
 
@@ -143,7 +143,7 @@ export default function ChatPage() {
     try {
       const res  = await apiFetch('/api/chats', {
         method: 'POST',
-        body:   JSON.stringify({ vetID: selectedVet, isUrgent }),
+        body:   JSON.stringify({ veterinarianID: selectedVet, isUrgent }),
       })
       const body = await res.json()
       if (res.ok) {
@@ -273,7 +273,7 @@ export default function ChatPage() {
               >
                 <option value="">— choose a vet —</option>
                 {vets.map(v => (
-                  <option key={v.vetID} value={v.vetID}>
+                  <option key={v.veterinarianID} value={v.veterinarianID}>
                     {v.name}{v.specialisation ? ` – ${v.specialisation}` : ''}
                   </option>
                 ))}

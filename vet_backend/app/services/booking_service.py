@@ -21,7 +21,7 @@ def _booking_payload(booking: Booking) -> BookingResponse:
         timeslot=booking.timeslot,
         bookingStatus=booking.bookingStatus,
         petOwnerID=booking.petOwnerID,
-        vetID=booking.vetID,
+        veterinarianID=booking.veterinarianID,
         petID=booking.petID,
         petName=booking.pet.petName if booking.pet else None,
         petType=booking.pet.petType if booking.pet else None,
@@ -40,7 +40,7 @@ def list_vets(db: Session) -> list[VetSlotResponse]:
     vets = booking_repository.get_all_vets(db)
     return [
         VetSlotResponse(
-            vetID=v.userID,
+            veterinarianID=v.userID,
             name=v.name,
             specialisation=v.specialisation,
             availableSlots=v.availableSlots or [],
@@ -57,14 +57,14 @@ def set_availability(db: Session, current_user: User, slots: list[str]) -> list[
 
 
 def make_booking(db: Session, current_user: User, body: BookingCreate) -> BookingResponse:
-    vet = booking_repository.get_vet_by_id(db, body.vetID)
+    vet = booking_repository.get_vet_by_id(db, body.veterinarianID)
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinarian not found")
 
     if body.timeslot not in (vet.availableSlots or []):
         raise HTTPException(status_code=409, detail="This timeslot is no longer available")
 
-    if booking_repository.get_conflicting(db, body.vetID, body.timeslot):
+    if booking_repository.get_conflicting(db, body.veterinarianID, body.timeslot):
         raise HTTPException(status_code=409, detail="This timeslot has already been booked")
 
     pet_id = None
@@ -79,7 +79,7 @@ def make_booking(db: Session, current_user: User, body: BookingCreate) -> Bookin
         timeslot=body.timeslot,
         bookingStatus="pending",
         petOwnerID=current_user.userID,
-        vetID=body.vetID,
+        veterinarianID=body.veterinarianID,
         petID=pet_id,
     )
     vet.availableSlots = [s for s in (vet.availableSlots or []) if s != body.timeslot]
@@ -117,7 +117,7 @@ def cancel_booking(db: Session, booking_id: str, current_user: User) -> BookingR
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
 
-    if current_user.userID not in (booking.petOwnerID, booking.vetID):
+    if current_user.userID not in (booking.petOwnerID, booking.veterinarianID):
         raise HTTPException(status_code=403, detail="Not authorised to cancel this booking")
 
     if booking.bookingStatus == "completed":
@@ -127,7 +127,7 @@ def cancel_booking(db: Session, booking_id: str, current_user: User) -> BookingR
     booking.cancelBooking()
 
     if previous_status in ("pending", "accepted"):
-        vet = booking_repository.get_vet_by_id(db, booking.vetID)
+        vet = booking_repository.get_vet_by_id(db, booking.veterinarianID)
         if vet:
             _restore_slot(vet, booking.timeslot)
 

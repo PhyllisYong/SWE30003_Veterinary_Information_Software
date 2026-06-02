@@ -20,7 +20,7 @@ def getCurrentUser(
     db: Session = Depends(get_db),
 ) -> User:
     """FastAPI dependency — extract and validate the Bearer token, return User."""
-    payload = authentication.validate_token(credentials.credentials)
+    payload = authentication.validateToken(credentials.credentials)
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

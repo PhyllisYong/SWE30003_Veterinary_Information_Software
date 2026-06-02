@@ -16,7 +16,7 @@ def _now() -> str:
 
 
 def start_chat(db: Session, current_user: User, body) -> ChatResponse:
-    vet = vet_repo.get_vet_by_id(db, body.vetID)
+    vet = vet_repo.get_vet_by_id(db, body.veterinarianID)
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinarian not found")
 
@@ -24,7 +24,7 @@ def start_chat(db: Session, current_user: User, body) -> ChatResponse:
         createdAt=_now(),
         isUrgent=body.isUrgent,
         petOwnerID=current_user.userID,
-        vetID=body.vetID,
+        veterinarianID=body.veterinarianID,
     )
     chat = chat_repository.add_chat(db, chat)
     return ChatResponse.model_validate(chat)
@@ -118,5 +118,5 @@ def _get_chat_or_404(db: Session, chat_id: str) -> VeterinaryAdviceChat:
 
 
 def _assert_participant(chat: VeterinaryAdviceChat, user: User) -> None:
-    if user.userID not in (chat.petOwnerID, chat.vetID):
+    if user.userID not in (chat.petOwnerID, chat.veterinarianID):
         raise HTTPException(status_code=403, detail="Not a participant in this chat")

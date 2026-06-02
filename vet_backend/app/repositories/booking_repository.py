@@ -28,7 +28,7 @@ def get_by_id(db: Session, booking_id: str) -> Booking | None:
 def get_by_id_and_vet(db: Session, booking_id: str, vet_id: str) -> Booking | None:
     return db.query(Booking).filter(
         Booking.bookingID == booking_id,
-        Booking.vetID == vet_id,
+        Booking.veterinarianID == vet_id,
     ).first()
 
 
@@ -37,12 +37,12 @@ def get_by_pet_owner(db: Session, owner_id: str) -> list[Booking]:
 
 
 def get_by_vet(db: Session, vet_id: str) -> list[Booking]:
-    return db.query(Booking).filter(Booking.vetID == vet_id).all()
+    return db.query(Booking).filter(Booking.veterinarianID == vet_id).all()
 
 
 def get_conflicting(db: Session, vet_id: str, timeslot: str) -> Booking | None:
     return db.query(Booking).filter(
-        Booking.vetID == vet_id,
+        Booking.veterinarianID == vet_id,
         Booking.timeslot == timeslot,
         Booking.bookingStatus.in_(["pending", "accepted"]),
     ).first()

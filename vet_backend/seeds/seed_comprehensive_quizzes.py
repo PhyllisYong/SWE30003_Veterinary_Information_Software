@@ -168,7 +168,7 @@ def seed() -> None:
                 petType=quiz_data["petType"],
                 emergencyCategory=quiz_data["emergencyCategory"],
                 publicationStatus="published",
-                authorVetID=author_ids[created % len(author_ids)] if author_ids else None,
+                authorVeterinarianID=author_ids[created % len(author_ids)] if author_ids else None,
                 totalScore=quiz_data["totalScore"],
                 durationSec=quiz_data["durationSec"],
             )

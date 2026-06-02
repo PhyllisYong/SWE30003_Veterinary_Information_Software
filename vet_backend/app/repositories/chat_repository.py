@@ -18,7 +18,7 @@ def get_by_pet_owner(db: Session, owner_id: str) -> list[VeterinaryAdviceChat]:
 
 def get_by_vet(db: Session, vet_id: str) -> list[VeterinaryAdviceChat]:
     return db.query(VeterinaryAdviceChat).filter(
-        VeterinaryAdviceChat.vetID == vet_id
+        VeterinaryAdviceChat.veterinarianID == vet_id
     ).all()
 
 

@@ -152,7 +152,7 @@ def review_content(
 # ------------------------------------------------------------------
 
 class SetDraftRequest(BaseModel):
-    assignedVetID: str
+    assignedVeterinarianID: str
 
 
 @router.post("/content/{content_id}/set-draft")
@@ -164,7 +164,7 @@ def set_draft_and_assign(
 ):
     """Admin only — confirm submitted content, assign reviewer, set to pending_verification."""
     try:
-        data = content_service.set_draft_and_assign(db, content_id, payload.assignedVetID)
+        data = content_service.set_draft_and_assign(db, content_id, payload.assignedVeterinarianID)
         return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}

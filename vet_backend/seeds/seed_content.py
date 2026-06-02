@@ -38,7 +38,7 @@ def assign_authors(items, author_ids):
     if not author_ids:
         return
     for index, item in enumerate(items):
-        item.authorVetID = author_ids[index % len(author_ids)]
+        item.authorVeterinarianID = author_ids[index % len(author_ids)]
 
 
 def reviewer_for(author_id, author_ids):
@@ -54,10 +54,10 @@ def assign_review_states(items, author_ids):
         item.publicationStatus = status
 
         if author_ids:
-            item.authorVetID = author_ids[index % len(author_ids)]
+            item.authorVeterinarianID = author_ids[index % len(author_ids)]
 
         if status in {"pending_verification", "verified", "rejected"}:
-            item.assignedVetID = reviewer_for(item.authorVetID, author_ids)
+            item.assignedVeterinarianID = reviewer_for(item.authorVeterinarianID, author_ids)
 
         if status == "rejected":
             item.reviewComment = "Please add clearer first-aid safety warnings before resubmitting."
@@ -70,7 +70,7 @@ def make_guide(title, description, pet_type, emergency_category, steps):
         petType=pet_type,
         emergencyCategory=emergency_category,
         publicationStatus="published",
-        authorVetID=None,
+        authorVeterinarianID=None,
         steps=steps,
         stepCount=len(steps),
     )
@@ -83,7 +83,7 @@ def make_video(title, description, pet_type, emergency_category, video_url, dura
         petType=pet_type,
         emergencyCategory=emergency_category,
         publicationStatus="published",
-        authorVetID=None,
+        authorVeterinarianID=None,
         videoURL=video_hosting.getEmbedUrl(video_url) or video_url,
         durationSec=duration_sec,
     )

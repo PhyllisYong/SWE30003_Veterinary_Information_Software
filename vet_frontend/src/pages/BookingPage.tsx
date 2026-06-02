@@ -5,7 +5,7 @@ import './BookingPage.css'
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 interface VetInfo {
-  vetID: string
+  veterinarianID: string
   name: string
   specialisation: string | null
   availableSlots: string[]
@@ -17,7 +17,7 @@ interface BookingItem {
   timeslot: string
   bookingStatus: string
   petOwnerID: string
-  vetID: string
+  veterinarianID: string
   petID?: string | null
   petName?: string | null
   petType?: string | null
@@ -141,7 +141,7 @@ export default function BookingPage() {
       const res  = await apiFetch('/api/bookings', {
         method: 'POST',
         body:   JSON.stringify({
-          vetID: selectedVet.vetID,
+          veterinarianID: selectedVet.veterinarianID,
           timeslot: selectedSlot,
           petID: selectedPet || null,
         }),
@@ -216,8 +216,8 @@ export default function BookingPage() {
             <div className="vet-grid">
               {vets.map(v => (
                 <div
-                  key={v.vetID}
-                  className={`vet-card${selectedVet?.vetID === v.vetID ? ' vet-card--selected' : ''}`}
+                  key={v.veterinarianID}
+                  className={`vet-card${selectedVet?.veterinarianID === v.veterinarianID ? ' vet-card--selected' : ''}`}
                   onClick={() => { setSelectedVet(v); setSelectedSlot('') }}
                 >
                   <div className="vet-card__name">{v.name}</div>
