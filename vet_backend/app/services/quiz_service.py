@@ -18,7 +18,7 @@ def list_quizzes(db: Session) -> list[dict]:
             "description": q.description,
             "petType": q.petType,
             "emergencyCategory": q.emergencyCategory,
-            "questionCount": len(q.questions),
+            "questionCount": len(q.questionList),
             "duration": q.duration,
         }
         for q in quizzes
