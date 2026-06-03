@@ -12,7 +12,7 @@ interface VideoItem {
   emergencyCategory: string
   publicationStatus: string
   videoURL: string
-  durationSec: number | null
+  duration: number | null
 }
 
 interface FormState {
@@ -21,7 +21,7 @@ interface FormState {
   petType: string
   emergencyCategory: string
   videoURL: string
-  durationSec: string
+  duration: string
 }
 
 const EMPTY_FORM: FormState = {
@@ -30,7 +30,7 @@ const EMPTY_FORM: FormState = {
   petType: 'dog',
   emergencyCategory: 'bleeding',
   videoURL: '',
-  durationSec: '',
+  duration: '',
 }
 
 const PET_TYPES = ['dog', 'cat', 'rabbit', 'hamster', 'guinea pig']
@@ -128,7 +128,7 @@ export default function VetVideoManagePage() {
       petType: video.petType,
       emergencyCategory: video.emergencyCategory,
       videoURL: video.videoURL,
-      durationSec: video.durationSec != null ? String(video.durationSec) : '',
+      duration: video.duration != null ? String(video.duration) : '',
     })
     setFormError(null)
     setSaved(false)
@@ -161,7 +161,7 @@ export default function VetVideoManagePage() {
       petType: form.petType,
       emergencyCategory: form.emergencyCategory,
       videoURL: form.videoURL.trim(),
-      durationSec: form.durationSec ? parseInt(form.durationSec, 10) : null,
+      duration: form.duration ? parseInt(form.duration, 10) : null,
     }
 
     setSubmitting(true)
@@ -319,8 +319,8 @@ export default function VetVideoManagePage() {
                 type="number"
                 min={1}
                 placeholder="e.g. 240"
-                value={form.durationSec}
-                onChange={e => setField('durationSec', e.target.value)}
+                value={form.duration}
+                onChange={e => setField('duration', e.target.value)}
               />
 
               <div className="vvm-form__footer">

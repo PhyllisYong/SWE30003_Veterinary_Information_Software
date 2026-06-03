@@ -10,7 +10,7 @@ class SubmitContentRequest(BaseModel):
     emergencyCategory: str
     steps: Optional[list] = None
     videoURL: Optional[str] = None
-    durationSec: Optional[int] = None
+    duration: Optional[int] = None
     questions: Optional[list] = None  # [{questionText, answers: [{answerText, isCorrect}]}]
 
 class UpdateStatusRequest(BaseModel):

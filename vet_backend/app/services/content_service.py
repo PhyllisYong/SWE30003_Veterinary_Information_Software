@@ -62,7 +62,7 @@ def create_content(
             )
             content_repository.add(db, content)
         elif payload.content_type == "video":
-            if not payload.videoURL or not video_hosting.isValidYouTubeUrl(payload.videoURL):
+            if not payload.videoURL or not video_hosting.isValidYouTubeURL(payload.videoURL):
                 raise HTTPException(
                     status_code=422, detail="videoURL must be a valid YouTube URL."
                 )
@@ -73,8 +73,8 @@ def create_content(
                 emergencyCategory=payload.emergencyCategory,
                 authorVeterinarianID=current_user.userID,
                 publicationStatus="draft",
-                videoURL=video_hosting.getEmbedUrl(payload.videoURL),
-                durationSec=payload.durationSec,
+                videoURL=video_hosting.getEmbedURL(payload.videoURL),
+                duration=payload.duration,
             )
             content_repository.add(db, content)
         elif payload.content_type == "quiz":
@@ -89,7 +89,7 @@ def create_content(
                 emergencyCategory=payload.emergencyCategory,
                 authorVeterinarianID=current_user.userID,
                 publicationStatus="draft",
-                durationSec=payload.durationSec,
+                duration=payload.duration,
                 totalScore=len(payload.questions),
             )
             content = content_repository.add_quiz_with_questions(
@@ -123,18 +123,18 @@ def update_content(
             content.steps = payload.steps
             content.stepCount = len(payload.steps)
         if isinstance(content, Video):
-            if not payload.videoURL or not video_hosting.isValidYouTubeUrl(payload.videoURL):
+            if not payload.videoURL or not video_hosting.isValidYouTubeURL(payload.videoURL):
                 raise HTTPException(
                     status_code=422, detail="videoURL must be a valid YouTube URL."
                 )
-            content.videoURL = video_hosting.getEmbedUrl(payload.videoURL)
-            content.durationSec = payload.durationSec
+            content.videoURL = video_hosting.getEmbedURL(payload.videoURL)
+            content.duration = payload.duration
         if isinstance(content, Quiz):
             if not payload.questions:
                 raise HTTPException(
                     status_code=422, detail="Quiz must have at least one question."
                 )
-            content.durationSec = payload.durationSec
+            content.duration = payload.duration
             content.totalScore = len(payload.questions)
             content = content_repository.replace_quiz_questions(
                 db, content, payload.questions
@@ -170,7 +170,7 @@ def review_content(
             status_code=422, detail="A comment is required when rejecting content."
         )
     try:
-        content.updateStatus(payload.status)
+        content.updatePublicationStatus(payload.status)
         content.reviewComment = payload.comment or None
         content_repository.update(db, content)
         return content.getMetadata()
@@ -192,7 +192,7 @@ def set_draft_and_assign(
         )
     try:
         content.assignedVeterinarianID = assigned_vet_id
-        content.updateStatus("pending_verification")
+        content.updatePublicationStatus("pending_verification")
         content_repository.update(db, content)
         return content.getMetadata()
     except Exception as e:
@@ -205,7 +205,7 @@ def request_amend(db: Session, content_id: str, feedback: str) -> dict:
         raise HTTPException(status_code=422, detail="Feedback is required.")
     content = _get_or_error(db, content_id)
     try:
-        content.updateStatus("rejected")
+        content.updatePublicationStatus("rejected")
         content.reviewComment = feedback
         content_repository.update(db, content)
         return content.getMetadata()
@@ -217,7 +217,7 @@ def request_amend(db: Session, content_id: str, feedback: str) -> dict:
 def set_status(db: Session, content_id: str, new_status: str) -> dict:
     content = _get_or_error(db, content_id)
     try:
-        content.updateStatus(new_status)
+        content.updatePublicationStatus(new_status)
         content_repository.update(db, content)
         return content.getMetadata()
     except ValueError as e:

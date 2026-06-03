@@ -24,7 +24,7 @@ class QuizResponse(BaseModel):
     description: Optional[str]
     petType: str
     emergencyCategory: str
-    durationSec: Optional[int]
+    duration: Optional[int]
     totalScore: Optional[int]
     questions: list[QuestionResponse]
 
@@ -38,7 +38,7 @@ class QuizListItem(BaseModel):
     petType: str
     emergencyCategory: str
     questionCount: int
-    durationSec: Optional[int]
+    duration: Optional[int]
 
 
 class SubmitAnswerRequest(BaseModel):
@@ -54,7 +54,7 @@ class QuizResultResponse(BaseModel):
     resultID: str
     petOwnerID: str
     quizID: str
-    score: int
+    totalScore: int
     attemptedAt: str
     passed: bool
 

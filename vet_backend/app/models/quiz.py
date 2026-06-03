@@ -9,10 +9,10 @@ class Quiz(FirstAidContent):
 
     contentID = Column("content_id", String, ForeignKey("first_aid_contents.content_id"), primary_key=True)
     totalScore = Column("total_score", Integer, nullable=True, default=0)
-    durationSec = Column("duration_sec", Integer, nullable=True)
+    duration = Column("duration", Integer, nullable=True)
 
     # Composition: questions cannot exist without quiz
-    questions = relationship(
+    questionList = relationship(
         "Question",
         back_populates="quiz",
         cascade="all, delete-orphan",
@@ -28,8 +28,8 @@ class Quiz(FirstAidContent):
         data = self.getMetadata()
         data.update({
             "totalScore": self.totalScore,
-            "durationSec": self.durationSec,
-            "questionCount": len(self.questions) if self.questions else 0,
+            "duration": self.duration,
+            "questionCount": len(self.questionList) if self.questionList else 0,
             "questions": [
                 {
                     "questionID": q.questionID,
@@ -40,16 +40,16 @@ class Quiz(FirstAidContent):
                             "answerText": a.answerText,
                             "isCorrect": a.isCorrect,
                         }
-                        for a in q.answers
+                        for a in q.answerList
                     ],
                 }
-                for q in (self.questions or [])
+                for q in (self.questionList or [])
             ],
         })
         return data
 
     def getQuestions(self) -> list:
-        return self.questions
+        return self.questionList
 
     def startQuiz(self) -> list:
         return self.getQuestions()
@@ -59,11 +59,11 @@ class Quiz(FirstAidContent):
             return False
         return question.checkAnswer(answerID)
 
-    def calculateScore(self, submitted_answers: dict[str, str]) -> tuple[int, list[dict]]:
+    def calculateScore(self, submittedAnswers: dict[str, str]) -> tuple[int, list[dict]]:
         score = 0
         feedback = []
         for question in self.startQuiz():
-            submitted_answer_id = submitted_answers.get(question.questionID)
+            submitted_answer_id = submittedAnswers.get(question.questionID)
             correct_answer_id = next(
                 (
                     answer.answerID
@@ -83,14 +83,14 @@ class Quiz(FirstAidContent):
             })
         return score, feedback
 
-    def evaluatePassingThreshold(self, score: int) -> bool:
-        max_score = self.totalScore or len(self.questions or [])
-        return max_score > 0 and (score / max_score) >= 0.6
+    def evaluatePassingThreshold(self, totalScore: int) -> bool:
+        max_score = self.totalScore or len(self.questionList or [])
+        return max_score > 0 and (totalScore / max_score) >= 0.6
 
-    def recommendFirstAidContent(self, content_items: list) -> list[dict]:
+    def recommendFirstAidContent(self, contentItems: list) -> list[dict]:
         return [
             item.display()
-            for item in content_items
+            for item in contentItems
             if item.publicationStatus == "published"
             and item.petType == self.petType
             and item.emergencyCategory == self.emergencyCategory

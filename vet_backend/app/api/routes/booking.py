@@ -22,14 +22,16 @@ def list_vets(
 # PUT /api/vets/availability — setAvailability() [Vet only]
 @router.put("/api/vets/availability")
 def set_availability(
-    slots: list[str],
+    availableSlots: list[str],
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
     if current_user.role != "veterinarian":
         raise HTTPException(status_code=403, detail="Only veterinarians can set availability")
-    available = booking_service.set_availability(db, current_user, slots)
-    return {"status": "ok", "data": {"availableSlots": available}}
+    current_user.setAvailability(availableSlots)
+    from app.repositories import booking_repository
+    booking_repository.update_vet(db, current_user)
+    return {"status": "ok", "data": {"availableSlots": availableSlots}}
 
 
 # POST /api/bookings — makeBooking() [PetOwner]
@@ -41,7 +43,7 @@ def make_booking(
 ):
     if current_user.role != "pet_owner":
         raise HTTPException(status_code=403, detail="Only pet owners can make bookings")
-    booking = booking_service.make_booking(db, current_user, body)
+    booking = current_user.makeBooking(db, body.veterinarianID, body.timeslot, body.petID)
     return {"status": "ok", "data": booking}
 
 
@@ -63,7 +65,7 @@ def accept_booking(
 ):
     if current_user.role != "veterinarian":
         raise HTTPException(status_code=403, detail="Only veterinarians can accept bookings")
-    booking = booking_service.accept_booking(db, bookingID, current_user)
+    booking = current_user.acceptBookingSlot(db, bookingID)
     return {"status": "ok", "data": booking}
 
 

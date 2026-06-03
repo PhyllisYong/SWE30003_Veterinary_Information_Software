@@ -89,8 +89,10 @@ def assign_reviewer(
 ):
     """Admin only — assign a vet as reviewer for a content item."""
     try:
-        data = content_service.assign_reviewer(db, content_id, payload)
-        return {"status": "ok", "data": data}
+        current_user.assignVeterinarianContent(db, content_id, payload.assignedVeterinarianID)
+        from app.repositories import content_repository
+        content = content_repository.get_by_id(db, content_id)
+        return {"status": "ok", "data": content.getMetadata()}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
 
@@ -141,8 +143,10 @@ def review_content(
 ):
     """Vet only — verify or reject content assigned to them."""
     try:
-        data = content_service.review_content(db, content_id, current_user, payload)
-        return {"status": "ok", "data": data}
+        current_user.verifyFirstAidContent(db, content_id, payload.status, payload.comment)
+        from app.repositories import content_repository
+        content = content_repository.get_by_id(db, content_id)
+        return {"status": "ok", "data": content.getMetadata()}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
 
@@ -206,8 +210,10 @@ def update_status(
 ):
     """Admin only — set any valid publication status."""
     try:
-        data = content_service.set_status(db, content_id, payload.status)
-        return {"status": "ok", "data": data}
+        current_user.updateFirstAidStatus(db, content_id, payload.status)
+        from app.repositories import content_repository
+        content = content_repository.get_by_id(db, content_id)
+        return {"status": "ok", "data": content.getMetadata()}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
 
@@ -220,8 +226,10 @@ def publish_content(
 ):
     """Admin only — publish content."""
     try:
-        data = content_service.set_status(db, content_id, "published")
-        return {"status": "ok", "data": data}
+        current_user.publishFirstAidContent(db, content_id)
+        from app.repositories import content_repository
+        content = content_repository.get_by_id(db, content_id)
+        return {"status": "ok", "data": content.getMetadata()}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
 
@@ -234,7 +242,7 @@ def delete_content(
 ):
     """Admin only — permanently delete content."""
     try:
-        content_service.delete_content(db, content_id)
+        current_user.deleteFirstAidContent(db, content_id)
         return {"status": "ok", "message": f"Content '{content_id}' deleted."}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}

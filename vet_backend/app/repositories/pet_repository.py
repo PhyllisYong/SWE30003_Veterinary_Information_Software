@@ -9,11 +9,11 @@ def get_by_id(db: Session, pet_id: str) -> Pet | None:
 
 
 def get_by_id_and_owner(db: Session, pet_id: str, owner_id: str) -> Pet | None:
-    return db.query(Pet).filter(Pet.petID == pet_id, Pet.ownerID == owner_id).first()
+    return db.query(Pet).filter(Pet.petID == pet_id, Pet.petOwnerID == owner_id).first()
 
 
 def get_by_owner(db: Session, owner_id: str) -> list[Pet]:
-    return db.query(Pet).filter(Pet.ownerID == owner_id).all()
+    return db.query(Pet).filter(Pet.petOwnerID == owner_id).all()
 
 
 def add(db: Session, pet: Pet) -> Pet:

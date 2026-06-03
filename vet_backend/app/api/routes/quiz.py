@@ -31,7 +31,7 @@ def list_quizzes(db: Session = Depends(get_db)):
 def get_quiz(quiz_id: str, db: Session = Depends(get_db)):
     """Return a single quiz with randomised question order."""
     quiz = quiz_service.get_quiz(db, quiz_id)
-    questions = list(quiz.questions)
+    questions = list(quiz.questionList)
     random.shuffle(questions)
     return {
         "id": quiz.contentID,
@@ -39,7 +39,7 @@ def get_quiz(quiz_id: str, db: Session = Depends(get_db)):
         "description": quiz.description,
         "petType": quiz.petType,
         "emergencyCategory": quiz.emergencyCategory,
-        "durationSec": quiz.durationSec,
+        "duration": quiz.duration,
         "totalScore": quiz.totalScore,
         "questions": [
             {
@@ -48,7 +48,7 @@ def get_quiz(quiz_id: str, db: Session = Depends(get_db)):
                 "explanation": q.explanation,
                 "answers": [
                     {"id": a.answerID, "answerText": a.answerText}
-                    for a in random.sample(q.answers, len(q.answers))
+                    for a in random.sample(q.answerList, len(q.answerList))
                 ],
             }
             for q in questions

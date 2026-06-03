@@ -21,7 +21,7 @@ class Video(FirstAidContent):
         primary_key=True,
     )
     videoURL = Column("video_url", String, nullable=True)
-    durationSec = Column("duration_sec", Integer, nullable=True)
+    duration = Column("duration", Integer, nullable=True)
 
     __mapper_args__ = {
         "polymorphic_identity": "video",
@@ -48,7 +48,7 @@ class Video(FirstAidContent):
         data.update(
             {
                 "videoURL": self.videoURL,
-                "durationSec": self.durationSec,
+                "duration": self.duration,
             }
         )
         return data
@@ -63,7 +63,7 @@ class Video(FirstAidContent):
 
     def getDuration(self) -> int:
         """Return the video duration in seconds."""
-        return self.durationSec
+        return self.duration
 
     def requestVideoStream(self) -> str | None:
         from app.services.video_hosting import video_hosting

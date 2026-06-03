@@ -12,7 +12,7 @@ class Answer(Base):
     isCorrect = Column("is_correct", Boolean, nullable=False, default=False)
     questionID = Column("question_id", String, ForeignKey("questions.question_id"), nullable=False)
 
-    question = relationship("Question", back_populates="answers")
+    question = relationship("Question", back_populates="answerList")
 
     def getAnswerText(self) -> str:
         return self.answerText
@@ -20,8 +20,8 @@ class Answer(Base):
     def getID(self) -> str:
         return self.answerID
 
-    def setText(self, txt: str) -> None:
-        self.answerText = txt
+    def setText(self, text: str) -> None:
+        self.answerText = text
 
     def isCorrectAnswer(self) -> bool:
         return self.isCorrect

@@ -10,7 +10,7 @@ interface Quiz {
   petType: string
   emergencyCategory: string
   questionCount: number
-  durationSec: number | null
+  duration: number | null
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────
@@ -164,7 +164,7 @@ export default function QuizListPage() {
                           {quiz.questionCount === 1 ? 'question' : 'questions'}
                         </div>
                         <div className="quiz-card__meta-item">
-                          <span>{formatDuration(quiz.durationSec)}</span> duration
+                          <span>{formatDuration(quiz.duration)}</span> duration
                         </div>
                       </div>
 

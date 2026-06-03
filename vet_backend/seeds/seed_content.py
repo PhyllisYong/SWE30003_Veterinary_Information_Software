@@ -84,8 +84,8 @@ def make_video(title, description, pet_type, emergency_category, video_url, dura
         emergencyCategory=emergency_category,
         publicationStatus="published",
         authorVeterinarianID=None,
-        videoURL=video_hosting.getEmbedUrl(video_url) or video_url,
-        durationSec=duration_sec,
+        videoURL=video_hosting.getEmbedURL(video_url) or video_url,
+        duration=duration_sec,
     )
 
 

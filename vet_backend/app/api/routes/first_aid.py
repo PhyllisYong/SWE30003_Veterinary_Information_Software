@@ -17,14 +17,18 @@ def get_search_engine(db: Session = Depends(get_db)) -> SearchEngine:
 @router.get("/first-aid/search", response_model=ContentSearchResponse)
 def search_content(
     petType: Optional[str] = Query(None),
-    category: Optional[str] = Query(None),
+    emergencyCategory: Optional[str] = Query(None),
     contentType: Optional[str] = Query(None),
-    author_vet_id: Optional[str] = Query(None),
-    otherDesc: Optional[str] = Query(None),
+    authorVeterinarianID: Optional[str] = Query(None),
+    otherDescription: Optional[str] = Query(None),
     engine: SearchEngine = Depends(get_search_engine),
 ):
     results = engine.searchContent(
-        petType=petType, category=category, contentType=contentType, otherDesc=otherDesc
+        petType=petType,
+        emergencyCategory=emergencyCategory,
+        contentType=contentType,
+        authorVeterinarianID=authorVeterinarianID,
+        otherDescription=otherDescription,
     )
     if not results:
         return {

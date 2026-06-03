@@ -9,7 +9,7 @@ interface Video {
   petType: string
   emergencyCategory: string
   videoURL: string
-  durationSec: number | null
+  duration: number | null
 }
 
 // ── Constants & Helpers ───────────────────────────────────────────────
@@ -147,7 +147,7 @@ function VideoModal({ video, onClose }: VideoModalProps) {
             </div>
           )}
           <div className="modal-meta">
-            <span>⏱️ {formatDuration(video.durationSec)}</span>
+            <span>⏱️ {formatDuration(video.duration)}</span>
           </div>
         </div>
       </div>
@@ -189,7 +189,7 @@ export default function VideoPage() {
           petType: item.petType,
           emergencyCategory: item.emergencyCategory,
           videoURL: item.videoURL,
-          durationSec: item.durationSec,
+          duration: item.duration,
         }))
         setVideos(transformed)
         setLoading(false)
@@ -324,7 +324,7 @@ export default function VideoPage() {
                         </p>
                         <div className="video-card__meta">
                           <div className="video-card__meta-item">
-                            <span>{formatDuration(video.durationSec)}</span>
+                            <span>{formatDuration(video.duration)}</span>
                           </div>
                         </div>
                       </div>

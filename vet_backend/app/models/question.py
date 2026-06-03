@@ -13,22 +13,22 @@ class Question(Base):
     quizID = Column("quiz_id", String, ForeignKey("quizzes.content_id"), nullable=False)
 
     # Composition: answers cannot exist without question
-    answers = relationship(
+    answerList = relationship(
         "Answer",
         back_populates="question",
         cascade="all, delete-orphan",
         lazy="select",
     )
-    quiz = relationship("Quiz", back_populates="questions")
+    quiz = relationship("Quiz", back_populates="questionList")
 
     def getAnswers(self) -> list:
-        return self.answers
+        return self.answerList
 
     def provideAnswerOptions(self) -> list:
         return self.getAnswers()
 
     def checkAnswer(self, answerID: str) -> bool:
-        for answer in self.answers:
+        for answer in self.answerList:
             if answer.answerID == answerID:
                 return answer.isCorrectAnswer()
         return False
@@ -36,16 +36,16 @@ class Question(Base):
     def getText(self) -> str:
         return self.questionText
 
-    def setExplanation(self, txt: str) -> None:
-        self.explanation = txt
+    def setExplanation(self, text: str) -> None:
+        self.explanation = text
 
-    def updateQuestionText(self, txt: str) -> None:
-        self.questionText = txt
+    def updateQuestionText(self, text: str) -> None:
+        self.questionText = text
 
-    def updateAnswerText(self, answerID: str, txt: str) -> None:
-        for answer in self.answers:
+    def updateAnswerText(self, answerID: str, text: str) -> None:
+        for answer in self.answerList:
             if answer.answerID == answerID:
-                answer.setText(txt)
+                answer.setText(text)
                 return
         raise ValueError("Answer not found in this question")
 

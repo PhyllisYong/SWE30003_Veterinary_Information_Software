@@ -128,7 +128,7 @@ def seed() -> None:
             created += 1
 
             for pet_data in data.get("pets", []):
-                db.add(Pet(ownerID=user.userID, **pet_data))
+                db.add(Pet(petOwnerID=user.userID, **pet_data))
                 pet_count += 1
 
         db.commit()

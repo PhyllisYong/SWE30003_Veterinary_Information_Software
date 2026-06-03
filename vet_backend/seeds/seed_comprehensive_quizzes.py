@@ -29,7 +29,7 @@ QUIZZES = [
         "petType": "dog",
         "emergencyCategory": "general",
         "totalScore": 5,
-        "durationSec": 300,
+        "duration": 300,
         "questions": [
             {
                 "questionText": "Your dog is choking and pawing at its mouth but is still conscious. What is the first thing you should do?",
@@ -89,7 +89,7 @@ QUIZZES = [
         "petType": "cat",
         "emergencyCategory": "general",
         "totalScore": 5,
-        "durationSec": 300,
+        "duration": 300,
         "questions": [
             {
                 "questionText": "Your cat is having a seizure and is thrashing on the floor. What should you do?",
@@ -170,7 +170,7 @@ def seed() -> None:
                 publicationStatus="published",
                 authorVeterinarianID=author_ids[created % len(author_ids)] if author_ids else None,
                 totalScore=quiz_data["totalScore"],
-                durationSec=quiz_data["durationSec"],
+                duration=quiz_data["duration"],
             )
             db.add(quiz)
             db.flush()

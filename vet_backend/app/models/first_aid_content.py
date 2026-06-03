@@ -61,7 +61,7 @@ class FirstAidContent(Base):
     # Shared concrete methods (same for all subclasses)
     # ------------------------------------------------------------------
 
-    def updateStatus(self, status: str) -> None:
+    def updatePublicationStatus(self, status: str) -> None:
         """
         Update the publication status of this content item.
         Valid values: "draft" | "submitted" | "pending_verification"

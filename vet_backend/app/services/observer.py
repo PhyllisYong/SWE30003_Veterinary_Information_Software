@@ -36,10 +36,10 @@ class ChatSubject:
 
 class WebSocketObserver(ChatObserver):
     def __init__(self, websocket) -> None:
-        self.ws = websocket
+        self._websocket = websocket
 
     async def update(self, event: str, data: dict) -> None:
         try:
-            await self.ws.send_json({"event": event, "data": data})
+            await self._websocket.send_json({"event": event, "data": data})
         except Exception:
             pass

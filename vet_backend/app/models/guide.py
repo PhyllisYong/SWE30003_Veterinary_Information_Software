@@ -59,19 +59,19 @@ class Guide(FirstAidContent):
         self.steps = steps
         self.stepCount = len(steps)
 
-    def updateStep(self, idx: int, txt: str) -> None:
+    def updateStep(self, index: int, text: str) -> None:
         """Replace the step at the given 0-based index."""
         steps = list(self.steps or [])
-        if idx < 0 or idx >= len(steps):
-            raise IndexError(f"Step index {idx} is out of range (guide has {len(steps)} steps).")
-        steps[idx] = txt
+        if index < 0 or index >= len(steps):
+            raise IndexError(f"Step index {index} is out of range (guide has {len(steps)} steps).")
+        steps[index] = text
         self.steps = steps
 
-    def removeStep(self, idx: int) -> None:
+    def removeStep(self, index: int) -> None:
         """Remove the step at the given 0-based index."""
         steps = list(self.steps or [])
-        if idx < 0 or idx >= len(steps):
-            raise IndexError(f"Step index {idx} is out of range (guide has {len(steps)} steps).")
-        steps.pop(idx)
+        if index < 0 or index >= len(steps):
+            raise IndexError(f"Step index {index} is out of range (guide has {len(steps)} steps).")
+        steps.pop(index)
         self.steps = steps
         self.stepCount = len(steps)

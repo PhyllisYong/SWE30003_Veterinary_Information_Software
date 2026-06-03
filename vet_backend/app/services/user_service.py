@@ -127,7 +127,7 @@ def create_pet(db: Session, owner_id: str, body: PetCreate) -> Pet:
         petType=body.petType,
         age=body.age,
         gender=body.gender,
-        ownerID=owner_id,
+        petOwnerID=owner_id,
     )
     return pet_repository.add(db, pet)
 

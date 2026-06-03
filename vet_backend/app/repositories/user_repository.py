@@ -80,7 +80,7 @@ def delete_cascade(db: Session, user: User) -> None:
         db.query(Booking).filter(Booking.petOwnerID == user_id).delete(
             synchronize_session=False
         )
-        db.query(Pet).filter(Pet.ownerID == user_id).delete(synchronize_session=False)
+        db.query(Pet).filter(Pet.petOwnerID == user_id).delete(synchronize_session=False)
 
     if user.role == "veterinarian":
         chat_ids = [

@@ -26,7 +26,7 @@ def start_chat(
     from fastapi import HTTPException
     if current_user.role != "pet_owner":
         raise HTTPException(status_code=403, detail="Only pet owners can start chats")
-    chat = chat_service.start_chat(db, current_user, body)
+    chat = current_user.accessVeterinaryAdviceChat(db, body.veterinarianID, body.isUrgent)
     return {"status": "ok", "data": chat}
 
 

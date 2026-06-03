@@ -19,7 +19,7 @@ class PetResponse(BaseModel):
     petType: str
     age: Optional[int]
     gender: Optional[str]
-    ownerID: str
+    petOwnerID: str
 
     class Config:
         from_attributes = True

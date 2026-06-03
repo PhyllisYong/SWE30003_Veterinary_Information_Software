@@ -207,7 +207,7 @@ def seed() -> None:
                     publicationStatus="published",
                     authorVeterinarianID=author_ids[quizzes_created % len(author_ids)] if author_ids else None,
                     totalScore=1,
-                    durationSec=60,
+                    duration=60,
                 )
                 db.add(quiz)
                 db.flush()
@@ -255,7 +255,7 @@ def seed() -> None:
                     else None
                 ),
                 totalScore=1,
-                durationSec=60,
+                duration=60,
             )
             db.add(quiz)
             db.flush()

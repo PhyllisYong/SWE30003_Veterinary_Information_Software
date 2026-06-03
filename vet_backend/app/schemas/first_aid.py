@@ -22,7 +22,7 @@ class GuideResponse(ContentBase):
 
 class VideoResponse(ContentBase):
     videoURL: Optional[str]
-    durationSec: Optional[int]
+    duration: Optional[int]
 
     model_config = {"from_attributes": True}
 

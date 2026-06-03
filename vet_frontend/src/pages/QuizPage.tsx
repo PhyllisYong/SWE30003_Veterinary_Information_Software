@@ -28,7 +28,7 @@ interface QuizDetail {
   description: string | null
   petType: string
   emergencyCategory: string
-  durationSec: number | null
+  duration: number | null
   totalScore: number | null
   questions: Question[]
 }
@@ -226,7 +226,7 @@ export default function QuizPage() {
       if (!res.ok) throw new Error((data.detail as string) ?? 'Submission failed')
 
       setResult({
-        score: data.score,
+        score: data.totalScore,
         passed: data.passed,
         feedback: data.feedback ?? [],
         recommendedContent: data.recommendedContent ?? [],

@@ -76,7 +76,7 @@ def replace_quiz_questions(
     quiz: Quiz,
     questions_data: list[dict],
 ) -> Quiz:
-    for q in list(quiz.questions):
+    for q in list(quiz.questionList):
         db.delete(q)
     db.flush()
     for q_data in questions_data:

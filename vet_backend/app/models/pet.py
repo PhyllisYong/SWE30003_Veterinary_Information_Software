@@ -12,7 +12,7 @@ class Pet(Base):
     petType = Column("pet_type", String, nullable=False)  # "cat" | "dog" | "rabbit" | "hamster" | "guinea_pig"
     age = Column(Integer, nullable=True)
     gender = Column(String, nullable=True)  # "male" | "female"
-    ownerID = Column("owner_id", String, ForeignKey("pet_owners.user_id"), nullable=False)
+    petOwnerID = Column("pet_owner_id", String, ForeignKey("pet_owners.user_id"), nullable=False)
 
     owner = relationship("PetOwner", back_populates="pets")
 
@@ -23,11 +23,11 @@ class Pet(Base):
             "petType": self.petType,
             "age": self.age,
             "gender": self.gender,
-            "ownerID": self.ownerID,
+            "petOwnerID": self.petOwnerID,
         }
 
     def getOwnerID(self) -> str:
-        return self.ownerID
+        return self.petOwnerID
 
     def getID(self) -> str:
         return self.petID

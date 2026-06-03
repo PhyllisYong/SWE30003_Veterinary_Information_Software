@@ -68,6 +68,10 @@ class User(Base):
     def getEmail(self) -> str:
         return self.email
 
+    def deleteUser(self, userID: str, db) -> None:
+        from app.repositories import user_repository
+        user_repository.delete_cascade(db, self)
+
     def updateProfile(self, name: str | None = None, email: str | None = None) -> None:
         if name:
             self.name = name

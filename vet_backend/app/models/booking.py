@@ -23,14 +23,14 @@ class Booking(Base):
     def getStatus(self) -> str:
         return self.bookingStatus
 
-    def updateStatus(self, s: str) -> None:
+    def updateBookingStatus(self, s: str) -> None:
         self.bookingStatus = s
 
     def acceptBookingSlot(self) -> None:
-        self.updateStatus("accepted")
+        self.updateBookingStatus("accepted")
 
     def cancelBooking(self) -> None:
-        self.updateStatus("cancelled")
+        self.updateBookingStatus("cancelled")
 
     def getTimeslot(self) -> str:
         return self.timeslot

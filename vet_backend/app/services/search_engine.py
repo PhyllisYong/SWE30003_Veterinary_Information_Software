@@ -40,7 +40,7 @@ class SearchEngine:
 
     def __init__(self, db: Session) -> None:
         self._db = db
-        self.contentRepository: List[FirstAidContent] = []
+        self._contentRepository: List[FirstAidContent] = []
         self.loadRepository()
 
     # ------------------------------------------------------------------
@@ -56,7 +56,7 @@ class SearchEngine:
         Called once at startup; call refreshCache() to reload after changes.
         """
         from app.repositories import content_repository
-        self.contentRepository = [
+        self._contentRepository = [
             item for item in content_repository.get_all_published_polymorphic(self._db)
             if item.content_type in ("guide", "video")
         ]
@@ -76,34 +76,18 @@ class SearchEngine:
     def searchContent(
         self,
         petType: Optional[str] = None,
-        category: Optional[str] = None,
+        emergencyCategory: Optional[str] = None,
         contentType: Optional[str] = None,
-         author_vet_id: Optional[str] = None,
-        otherDesc: Optional[str] = None,
+        authorVeterinarianID: Optional[str] = None,
+        otherDescription: Optional[str] = None,
     ) -> List[FirstAidContent]:
-        """
-        Main search entry point — implements both alt paths from the sequence diagram:
-          - accessFirstAidContent(petType, emergency): exact category match
-          - accessFirstAidContent(petType, otherDesc): keyword search across
-            title, emergencyCategory, and description when the user is unsure
-
-        Args:
-            petType:     e.g. "cat", "dog", "rabbit", "hamster", "guinea_pig"
-            category:    exact match e.g. "bleeding", "choking", "fracture"
-            contentType: e.g. "guide", "video"
-            author_vet_id: e.g. "vet-123"
-            otherDesc:   free-text description used when category is unknown
-
-        Returns:
-            List of matching FirstAidContent objects (Guide or Video instances).
-        """
-        results = self.contentRepository
+        results = self._contentRepository
 
         if petType:
             results = [c for c in results if c.petType.lower() == petType.lower()]
 
-        if category:
-            query_tokens = [w.lower() for w in category.split() if len(w) > 2]
+        if emergencyCategory:
+            query_tokens = [w.lower() for w in emergencyCategory.split() if len(w) > 2]
             if query_tokens:
                 scored = []
                 for c in results:
@@ -118,10 +102,10 @@ class SearchEngine:
             else:
                 results = [
                     c for c in results
-                    if c.emergencyCategory.lower() == category.lower()
+                    if c.emergencyCategory.lower() == emergencyCategory.lower()
                 ]
-        elif otherDesc:
-            query_tokens = [w.lower() for w in otherDesc.split() if len(w) > 2]
+        elif otherDescription:
+            query_tokens = [w.lower() for w in otherDescription.split() if len(w) > 2]
             if query_tokens:
                 scored = []
                 for c in results:
@@ -141,11 +125,11 @@ class SearchEngine:
                 if c.content_type.lower() == contentType.lower()
             ]
 
-        if author_vet_id:
+        if authorVeterinarianID:
             results = [
                 c
                 for c in results
-                if c.authorVeterinarianID == author_vet_id
+                if c.authorVeterinarianID == authorVeterinarianID
             ]
 
         return results
@@ -154,16 +138,16 @@ class SearchEngine:
         """Return all published content for the given pet type."""
         return [
             c
-            for c in self.contentRepository
+            for c in self._contentRepository
             if c.petType.lower() == petType.lower()
         ]
 
-    def filterByCategory(self, category: str) -> List[FirstAidContent]:
+    def filterByEmergencyCategory(self, emergencyCategory: str) -> List[FirstAidContent]:
         """Return all published content for the given emergency category."""
         return [
             c
-            for c in self.contentRepository
-            if c.emergencyCategory.lower() == category.lower()
+            for c in self._contentRepository
+            if c.emergencyCategory.lower() == emergencyCategory.lower()
         ]
 
     def getContentByID(self, contentID: str) -> Optional[FirstAidContent]:
@@ -173,7 +157,7 @@ class SearchEngine:
         If you need to fetch unpublished content (e.g. admin view), query the
         DB directly via DatabaseManager instead of using this method.
         """
-        for item in self.contentRepository:
+        for item in self._contentRepository:
             if item.contentID == contentID:
                 return item
         return None

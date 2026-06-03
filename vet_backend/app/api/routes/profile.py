@@ -7,6 +7,7 @@ from app.models.user import User
 from app.schemas.pet import PetCreate, PetUpdate, PetResponse
 from app.schemas.user import UpdateProfileRequest
 from app.services import user_service
+from app.services.authentication import authentication
 
 router = APIRouter(tags=["Profile & Pets"])
 
@@ -38,7 +39,8 @@ def delete_profile(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    user_service.delete_account(db, current_user)
+    authentication.invalidateSession(current_user.userID)
+    current_user.deleteUser(current_user.userID, db)
     return {"status": "ok", "data": {"message": "Account deleted successfully"}}
 
 
@@ -63,7 +65,7 @@ def create_pet(
 ):
     if current_user.role != "pet_owner":
         raise HTTPException(status_code=403, detail="Only pet owners can create pets")
-    pet = user_service.create_pet(db, current_user.userID, body)
+    pet = current_user.createPetProfile(db, body.petName, body.petType, body.age, body.gender)
     return {"status": "ok", "data": PetResponse.model_validate(pet)}
 
 
@@ -75,7 +77,7 @@ def update_pet(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    pet = user_service.update_pet(db, petID, current_user.userID, body)
+    pet = current_user.updatePetProfile(db, petID, body.petName, body.petType, body.age, body.gender)
     return {"status": "ok", "data": PetResponse.model_validate(pet)}
 
 
@@ -86,5 +88,5 @@ def delete_pet(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    user_service.delete_pet(db, petID, current_user.userID)
+    current_user.deletePetProfile(db, petID)
     return {"status": "ok", "data": {"message": "Pet deleted successfully"}}

@@ -18,7 +18,7 @@ interface VideoResult {
   contentID: string
   title: string
   videoURL: string | null
-  durationSec: number | null
+  duration: number | null
 }
 
 interface SearchResponse {

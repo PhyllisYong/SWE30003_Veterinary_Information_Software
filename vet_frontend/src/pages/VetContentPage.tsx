@@ -25,7 +25,7 @@ interface ContentItem {
   steps?: string[]
   stepCount?: number
   videoURL?: string | null
-  durationSec?: number | null
+  duration?: number | null
   reviewComment?: string | null
   questionCount?: number
   questions?: QuizQuestion[]
@@ -75,7 +75,7 @@ const EMPTY_FORM = {
   content_type: 'guide' as 'guide' | 'video' | 'quiz',
   title: '', description: '',
   petType: 'dog', emergencyCategory: 'bleeding',
-  steps: [''], videoURL: '', durationSec: '',
+  steps: [''], videoURL: '', duration: '',
   questions: [EMPTY_QUIZ_QUESTION()] as QuizQuestion[],
 }
 
@@ -131,8 +131,8 @@ export default function VetContentPage() {
     const body = form.content_type === 'guide'
       ? { ...base, content_type: 'guide', steps: form.steps.filter(s => s.trim() !== '') }
       : form.content_type === 'video'
-      ? { ...base, content_type: 'video', videoURL: form.videoURL || null, durationSec: form.durationSec ? Number(form.durationSec) : null }
-      : { ...base, content_type: 'quiz', durationSec: form.durationSec ? Number(form.durationSec) : null,
+      ? { ...base, content_type: 'video', videoURL: form.videoURL || null, duration: form.duration ? Number(form.duration) : null }
+      : { ...base, content_type: 'quiz', duration: form.duration ? Number(form.duration) : null,
           questions: form.questions.map(q => ({ questionText: q.questionText, answers: q.answers.filter(a => a.answerText.trim()) })) }
     try {
       const isEdit = editingID !== null
@@ -169,7 +169,7 @@ export default function VetContentPage() {
       emergencyCategory: item.emergencyCategory,
       steps: item.steps?.length ? item.steps : [''],
       videoURL: item.videoURL ?? '',
-      durationSec: item.durationSec?.toString() ?? '',
+      duration: item.duration?.toString() ?? '',
       questions: item.questions?.length
         ? item.questions.map(q => ({ questionText: q.questionText, answers: q.answers.map(a => ({ answerText: a.answerText, isCorrect: a.isCorrect })) }))
         : [EMPTY_QUIZ_QUESTION()],
@@ -318,8 +318,8 @@ export default function VetContentPage() {
                     </div>
                     <div className="cm-form__group">
                       <label>Duration (seconds)</label>
-                      <input type="number" value={form.durationSec}
-                        onChange={e => setForm({ ...form, durationSec: e.target.value })} placeholder="e.g. 180" />
+                      <input type="number" value={form.duration}
+                        onChange={e => setForm({ ...form, duration: e.target.value })} placeholder="e.g. 180" />
                     </div>
                   </div>
                 )}
@@ -327,8 +327,8 @@ export default function VetContentPage() {
                   <>
                     <div className="cm-form__group">
                       <label>Duration (seconds)</label>
-                      <input type="number" value={form.durationSec}
-                        onChange={e => setForm({ ...form, durationSec: e.target.value })} placeholder="e.g. 300" />
+                      <input type="number" value={form.duration}
+                        onChange={e => setForm({ ...form, duration: e.target.value })} placeholder="e.g. 300" />
                     </div>
                     <div className="cm-form__group">
                       <label>Questions ({form.questions.length})</label>
@@ -505,7 +505,7 @@ export default function VetContentPage() {
                           {item.content_type === 'video' && item.videoURL && (
                             <div style={{ marginBottom: 14 }}>
                               <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
-                                Video{item.durationSec ? ` · ${Math.floor(item.durationSec / 60)}m ${item.durationSec % 60}s` : ''}
+                                Video{item.duration ? ` · ${Math.floor(item.duration / 60)}m ${item.duration % 60}s` : ''}
                               </p>
                               <iframe
                                 src={getEmbedUrl(item.videoURL)}

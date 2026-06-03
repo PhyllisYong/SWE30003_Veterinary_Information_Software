@@ -19,7 +19,7 @@ def list_quizzes(db: Session) -> list[dict]:
             "petType": q.petType,
             "emergencyCategory": q.emergencyCategory,
             "questionCount": len(q.questions),
-            "durationSec": q.durationSec,
+            "duration": q.duration,
         }
         for q in quizzes
     ]
@@ -34,11 +34,11 @@ def get_quiz(db: Session, quiz_id: str) -> Quiz:
 
 def check_answer(db: Session, quiz_id: str, question_id: str, answer_id: str) -> dict:
     quiz = get_quiz(db, quiz_id)
-    question = next((q for q in quiz.questions if q.questionID == question_id), None)
+    question = next((q for q in quiz.questionList if q.questionID == question_id), None)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found in this quiz")
     is_correct = question.checkAnswer(answer_id)
-    correct_answer_id = next((a.answerID for a in question.answers if a.isCorrect), None)
+    correct_answer_id = next((a.answerID for a in question.answerList if a.isCorrect), None)
     return {"isCorrect": is_correct, "correctAnswerID": correct_answer_id}
 
 
@@ -51,7 +51,7 @@ def submit_quiz(
     result = QuizResult(
         petOwnerID=current_user.userID,
         quizID=quiz.contentID,
-        score=score,
+        totalScore=score,
         attemptedAt=datetime.now(timezone.utc).isoformat(),
     )
     result = quiz_repository.add_result(db, result)
