@@ -69,7 +69,7 @@ class Veterinarian(User):
             content.reviewComment = comment
         content_repository.update(db, content)
 
-    def provideAdvice(self, db, chatID: str, content: str):
+    async def provideAdvice(self, db, chatID: str, content: str):
         from app.repositories import chat_repository
         chat = chat_repository.get_by_id(db, chatID)
         msg = chat.createMessage(
@@ -77,7 +77,15 @@ class Veterinarian(User):
             content=content,
             timestamp=_now(),
         )
-        return chat_repository.add_message(db, msg)
+        msg = chat_repository.add_message(db, msg)
+        await chat.sendMessage({
+            "messageID": msg.messageID,
+            "senderID": msg.senderID,
+            "content": msg.content,
+            "timestamp": msg.timestamp,
+            "chatID": msg.chatID,
+        })
+        return msg
 
     def provideExplanationForQuiz(self, db, quizID: str, questionID: str,
                                    explanation: str) -> None:
