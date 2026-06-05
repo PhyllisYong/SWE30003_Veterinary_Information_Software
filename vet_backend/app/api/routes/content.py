@@ -27,7 +27,7 @@ def list_users_by_role(
     db: Session = Depends(get_db),
 ):
     """Admin only — list users filtered by role."""
-    users = user_service.get_users_by_role(db, role)
+    users = user_service.getUsersByRole(db, role)
     return {
         "status": "ok",
         "data": [{"userID": u.userID, "name": u.name, "email": u.email} for u in users],
@@ -44,7 +44,7 @@ def get_my_content(
     db: Session = Depends(get_db),
 ):
     """Vet only — all content authored by this vet."""
-    return {"status": "ok", "data": content_service.get_my_content(db, current_user.userID)}
+    return {"status": "ok", "data": content_service.getMyContent(db, current_user.userID)}
 
 
 # ------------------------------------------------------------------
@@ -59,7 +59,7 @@ def get_assigned_content(
     """Vet only — content assigned to this vet for review."""
     return {
         "status": "ok",
-        "data": content_service.get_assigned_content(db, current_user.userID),
+        "data": content_service.getAssignedContent(db, current_user.userID),
     }
 
 
@@ -73,7 +73,7 @@ def get_all_content(
     db: Session = Depends(get_db),
 ):
     """Admin only — all content."""
-    return {"status": "ok", "data": content_service.get_all_content(db)}
+    return {"status": "ok", "data": content_service.getAllContent(db)}
 
 
 # ------------------------------------------------------------------
@@ -109,7 +109,7 @@ def create_content(
 ):
     """Vet only — submit new guide, video, or quiz."""
     try:
-        data = content_service.create_content(db, current_user, payload)
+        data = content_service.createContent(db, current_user, payload)
         return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
@@ -124,7 +124,7 @@ def update_content(
 ):
     """Vet only — edit own content."""
     try:
-        data = content_service.update_content(db, content_id, current_user, payload)
+        data = content_service.updateContent(db, content_id, current_user, payload)
         return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
@@ -168,7 +168,7 @@ def set_draft_and_assign(
 ):
     """Admin only — confirm submitted content, assign reviewer, set to pending_verification."""
     try:
-        data = content_service.set_draft_and_assign(db, content_id, payload.assignedVeterinarianID)
+        data = content_service.setDraftAndAssign(db, content_id, payload.assignedVeterinarianID)
         return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
@@ -191,7 +191,7 @@ def request_amend(
 ):
     """Admin only — reject content and send feedback to vet to amend."""
     try:
-        data = content_service.request_amend(db, content_id, payload.feedback)
+        data = content_service.requestAmend(db, content_id, payload.feedback)
         return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}

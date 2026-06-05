@@ -14,7 +14,7 @@ def _now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _booking_payload(booking: Booking) -> BookingResponse:
+def _bookingPayload(booking: Booking) -> BookingResponse:
     return BookingResponse(
         bookingID=booking.bookingID,
         createdAt=booking.createdAt,
@@ -28,7 +28,7 @@ def _booking_payload(booking: Booking) -> BookingResponse:
     )
 
 
-def _restore_slot(vet: Veterinarian, timeslot: str) -> None:
+def _restoreSlot(vet: Veterinarian, timeslot: str) -> None:
     slots = list(vet.availableSlots or [])
     if timeslot not in slots:
         slots.append(timeslot)
@@ -36,7 +36,7 @@ def _restore_slot(vet: Veterinarian, timeslot: str) -> None:
         vet.availableSlots = slots
 
 
-def list_vets(db: Session) -> list[VetSlotResponse]:
+def listVets(db: Session) -> list[VetSlotResponse]:
     vets = booking_repository.get_all_vets(db)
     return [
         VetSlotResponse(
@@ -49,14 +49,14 @@ def list_vets(db: Session) -> list[VetSlotResponse]:
     ]
 
 
-def set_availability(db: Session, current_user: User, slots: list[str]) -> list[str]:
+def setAvailability(db: Session, current_user: User, slots: list[str]) -> list[str]:
     vet = booking_repository.get_vet_by_user_id(db, current_user.userID)
     vet.availableSlots = slots
     booking_repository.update_vet(db, vet)
     return slots
 
 
-def make_booking(db: Session, current_user: User, body: BookingCreate) -> BookingResponse:
+def makeBooking(db: Session, current_user: User, body: BookingCreate) -> BookingResponse:
     vet = booking_repository.get_vet_by_id(db, body.veterinarianID)
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinarian not found")
@@ -84,10 +84,10 @@ def make_booking(db: Session, current_user: User, body: BookingCreate) -> Bookin
     )
     vet.availableSlots = [s for s in (vet.availableSlots or []) if s != body.timeslot]
     booking = booking_repository.add(db, booking)
-    return _booking_payload(booking)
+    return _bookingPayload(booking)
 
 
-def list_bookings(db: Session, current_user: User) -> list[BookingResponse]:
+def listBookings(db: Session, current_user: User) -> list[BookingResponse]:
     if current_user.role == "pet_owner":
         bookings = booking_repository.get_by_pet_owner(db, current_user.userID)
     elif current_user.role == "veterinarian":
@@ -96,10 +96,10 @@ def list_bookings(db: Session, current_user: User) -> list[BookingResponse]:
         raise HTTPException(
             status_code=403, detail="Only pet owners and vets can view bookings"
         )
-    return [_booking_payload(b) for b in bookings]
+    return [_bookingPayload(b) for b in bookings]
 
 
-def accept_booking(db: Session, booking_id: str, current_user: User) -> BookingResponse:
+def acceptBooking(db: Session, booking_id: str, current_user: User) -> BookingResponse:
     booking = booking_repository.get_by_id_and_vet(db, booking_id, current_user.userID)
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
@@ -109,10 +109,10 @@ def accept_booking(db: Session, booking_id: str, current_user: User) -> BookingR
         )
     booking.acceptBookingSlot()
     booking = booking_repository.update(db, booking)
-    return _booking_payload(booking)
+    return _bookingPayload(booking)
 
 
-def cancel_booking(db: Session, booking_id: str, current_user: User) -> BookingResponse:
+def cancelBooking(db: Session, booking_id: str, current_user: User) -> BookingResponse:
     booking = booking_repository.get_by_id(db, booking_id)
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
@@ -129,7 +129,7 @@ def cancel_booking(db: Session, booking_id: str, current_user: User) -> BookingR
     if previous_status in ("pending", "accepted"):
         vet = booking_repository.get_vet_by_id(db, booking.veterinarianID)
         if vet:
-            _restore_slot(vet, booking.timeslot)
+            _restoreSlot(vet, booking.timeslot)
 
     booking = booking_repository.update(db, booking)
-    return _booking_payload(booking)
+    return _bookingPayload(booking)

@@ -47,7 +47,7 @@ def get_content(
 ):
     item = engine.getContentByID(content_id)
     if item is None:
-        item = content_service.get_content_by_id(db, content_id)
+        item = content_service.getContentById(db, content_id)
     if item is None:
         return {"status": "error", "message": f"Content '{content_id}' not found."}
     return {"status": "ok", "data": item.display()}

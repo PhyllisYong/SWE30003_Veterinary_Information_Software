@@ -15,7 +15,7 @@ def _now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def start_chat(db: Session, current_user: User, body) -> ChatResponse:
+def startChat(db: Session, current_user: User, body) -> ChatResponse:
     vet = vet_repo.get_vet_by_id(db, body.veterinarianID)
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinarian not found")
@@ -30,7 +30,7 @@ def start_chat(db: Session, current_user: User, body) -> ChatResponse:
     return ChatResponse.model_validate(chat)
 
 
-def list_chats(db: Session, current_user: User) -> list[ChatResponse]:
+def listChats(db: Session, current_user: User) -> list[ChatResponse]:
     if current_user.role == "pet_owner":
         chats = chat_repository.get_by_pet_owner(db, current_user.userID)
     elif current_user.role == "veterinarian":
@@ -42,9 +42,9 @@ def list_chats(db: Session, current_user: User) -> list[ChatResponse]:
     return [ChatResponse.model_validate(c) for c in chats]
 
 
-def get_chat(db: Session, chat_id: str, current_user: User) -> dict:
-    chat = _get_chat_or_404(db, chat_id)
-    _assert_participant(chat, current_user)
+def getChat(db: Session, chat_id: str, current_user: User) -> dict:
+    chat = _getChatOr404(db, chat_id)
+    _assertParticipant(chat, current_user)
     messages = [MessageResponse.model_validate(m) for m in chat.viewChatHistory()]
     return {
         **ChatResponse.model_validate(chat).model_dump(),
@@ -52,19 +52,19 @@ def get_chat(db: Session, chat_id: str, current_user: User) -> dict:
     }
 
 
-def get_chat_for_ws(db: Session, chat_id: str) -> VeterinaryAdviceChat | None:
+def getChatForWs(db: Session, chat_id: str) -> VeterinaryAdviceChat | None:
     return chat_repository.get_by_id(db, chat_id)
 
 
-def get_user_for_ws(db: Session, user_id: str) -> User | None:
+def getUserForWs(db: Session, user_id: str) -> User | None:
     return user_repository.get_by_id(db, user_id)
 
 
-async def send_message(
+async def sendMessage(
     db: Session, chat_id: str, current_user: User, body
 ) -> MessageResponse:
-    chat = _get_chat_or_404(db, chat_id)
-    _assert_participant(chat, current_user)
+    chat = _getChatOr404(db, chat_id)
+    _assertParticipant(chat, current_user)
 
     msg = chat.createMessage(
         senderID=current_user.userID,
@@ -77,11 +77,11 @@ async def send_message(
     return payload
 
 
-def edit_message(
+def editMessage(
     db: Session, chat_id: str, message_id: str, current_user: User, body
 ) -> MessageResponse:
-    chat = _get_chat_or_404(db, chat_id)
-    _assert_participant(chat, current_user)
+    chat = _getChatOr404(db, chat_id)
+    _assertParticipant(chat, current_user)
 
     msg = chat_repository.get_message_by_id(db, message_id, chat_id)
     if not msg:
@@ -94,11 +94,11 @@ def edit_message(
     return MessageResponse.model_validate(msg)
 
 
-def delete_message(
+def deleteMessage(
     db: Session, chat_id: str, message_id: str, current_user: User
 ) -> None:
-    chat = _get_chat_or_404(db, chat_id)
-    _assert_participant(chat, current_user)
+    chat = _getChatOr404(db, chat_id)
+    _assertParticipant(chat, current_user)
 
     msg = chat_repository.get_message_by_id(db, message_id, chat_id)
     if not msg:
@@ -110,13 +110,13 @@ def delete_message(
     chat_repository.delete_message(db, msg)
 
 
-def _get_chat_or_404(db: Session, chat_id: str) -> VeterinaryAdviceChat:
+def _getChatOr404(db: Session, chat_id: str) -> VeterinaryAdviceChat:
     chat = chat_repository.get_by_id(db, chat_id)
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
     return chat
 
 
-def _assert_participant(chat: VeterinaryAdviceChat, user: User) -> None:
+def _assertParticipant(chat: VeterinaryAdviceChat, user: User) -> None:
     if user.userID not in (chat.petOwnerID, chat.veterinarianID):
         raise HTTPException(status_code=403, detail="Not a participant in this chat")

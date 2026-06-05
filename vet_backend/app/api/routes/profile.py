@@ -18,7 +18,7 @@ def get_profile(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    data = user_service.get_profile(db, current_user)
+    data = user_service.getProfile(db, current_user)
     return {"status": "ok", "data": data}
 
 
@@ -29,7 +29,7 @@ def update_profile(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    user_service.update_profile(db, current_user, body)
+    user_service.updateProfile(db, current_user, body)
     return {"status": "ok", "data": {"message": "Profile updated successfully"}}
 
 
@@ -52,7 +52,7 @@ def get_pets(
 ):
     if current_user.role != "pet_owner":
         raise HTTPException(status_code=403, detail="Only pet owners can access pets")
-    pets = user_service.get_pets(db, current_user.userID)
+    pets = user_service.getPets(db, current_user.userID)
     return {"status": "ok", "data": [PetResponse.model_validate(p) for p in pets]}
 
 
