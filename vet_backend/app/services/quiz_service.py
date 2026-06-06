@@ -70,7 +70,7 @@ def submitQuiz(
     return {
         "status": "success",
         "quizID": quiz.contentID,
-        "score": score,
+        "totalScore": score,
         "passed": passed,
         "resultID": result.resultID,
         "feedback": feedback,

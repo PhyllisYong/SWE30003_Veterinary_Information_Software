@@ -299,7 +299,7 @@ export default function QuizPage() {
             <div className={`quiz-results-summary ${result.passed ? 'quiz-results-summary--passed' : 'quiz-results-summary--failed'}`}>
               <div className="quiz-results-summary__score">
                 {result.score}
-                <span className="quiz-results-summary__total">/{quiz.totalScore ?? totalQuestions}</span>
+                <span className="quiz-results-summary__total">/{totalQuestions}</span>
               </div>
               <span className={`quiz-results-badge ${result.passed ? 'passed' : 'failed'}`}>
                 {result.passed ? 'Passed' : 'Not passed'}
