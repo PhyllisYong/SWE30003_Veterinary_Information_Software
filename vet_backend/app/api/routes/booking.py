@@ -16,7 +16,7 @@ def list_vets(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    return {"status": "ok", "data": booking_service.list_vets(db)}
+    return {"status": "ok", "data": booking_service.listVets(db)}
 
 
 # PUT /api/vets/availability — setAvailability() [Vet only]
@@ -53,7 +53,7 @@ def list_bookings(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    return {"status": "ok", "data": booking_service.list_bookings(db, current_user)}
+    return {"status": "ok", "data": booking_service.listBookings(db, current_user)}
 
 
 # PUT /api/bookings/{bookingID}/accept — acceptBooking() [Vet]
@@ -76,5 +76,5 @@ def cancel_booking(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    booking = booking_service.cancel_booking(db, bookingID, current_user)
+    booking = booking_service.cancelBooking(db, bookingID, current_user)
     return {"status": "ok", "data": booking}

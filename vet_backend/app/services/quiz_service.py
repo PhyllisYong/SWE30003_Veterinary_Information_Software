@@ -9,7 +9,7 @@ from app.models.user import User
 from app.repositories import quiz_repository
 
 
-def list_quizzes(db: Session) -> list[dict]:
+def listQuizzes(db: Session) -> list[dict]:
     quizzes = quiz_repository.get_all_published(db)
     return [
         {
@@ -25,15 +25,15 @@ def list_quizzes(db: Session) -> list[dict]:
     ]
 
 
-def get_quiz(db: Session, quiz_id: str) -> Quiz:
+def getQuiz(db: Session, quiz_id: str) -> Quiz:
     quiz = quiz_repository.get_by_id(db, quiz_id)
     if quiz is None:
         raise HTTPException(status_code=404, detail="Quiz not found")
     return quiz
 
 
-def check_answer(db: Session, quiz_id: str, question_id: str, answer_id: str) -> dict:
-    quiz = get_quiz(db, quiz_id)
+def checkAnswer(db: Session, quiz_id: str, question_id: str, answer_id: str) -> dict:
+    quiz = getQuiz(db, quiz_id)
     question = next((q for q in quiz.questionList if q.questionID == question_id), None)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found in this quiz")
@@ -42,10 +42,10 @@ def check_answer(db: Session, quiz_id: str, question_id: str, answer_id: str) ->
     return {"isCorrect": is_correct, "correctAnswerID": correct_answer_id}
 
 
-def submit_quiz(
+def submitQuiz(
     db: Session, quiz_id: str, current_user: User, answers: dict[str, str]
 ) -> dict:
-    quiz = get_quiz(db, quiz_id)
+    quiz = getQuiz(db, quiz_id)
     score, feedback = quiz.calculateScore(answers)
 
     result = QuizResult(
@@ -70,7 +70,7 @@ def submit_quiz(
     return {
         "status": "success",
         "quizID": quiz.contentID,
-        "score": score,
+        "totalScore": score,
         "passed": passed,
         "resultID": result.resultID,
         "feedback": feedback,
@@ -78,11 +78,11 @@ def submit_quiz(
     }
 
 
-def get_my_results(db: Session, current_user: User) -> list[QuizResult]:
+def getMyResults(db: Session, current_user: User) -> list[QuizResult]:
     return quiz_repository.get_results_by_user(db, current_user.userID)
 
 
-def get_result(db: Session, result_id: str, current_user: User) -> QuizResult:
+def getResult(db: Session, result_id: str, current_user: User) -> QuizResult:
     result = quiz_repository.get_result_by_id(db, result_id)
     if result is None:
         raise HTTPException(status_code=404, detail="Quiz result not found")
@@ -91,10 +91,10 @@ def get_result(db: Session, result_id: str, current_user: User) -> QuizResult:
     return result
 
 
-def set_explanation(
+def setExplanation(
     db: Session, quiz_id: str, question_id: str, explanation: str
 ) -> dict:
-    quiz = get_quiz(db, quiz_id)
+    quiz = getQuiz(db, quiz_id)
     question = quiz_repository.get_question(db, question_id, quiz.contentID)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found in this quiz")
@@ -103,10 +103,10 @@ def set_explanation(
     return {"questionID": question.questionID, "explanation": question.getExplanation()}
 
 
-def update_question_text(
+def updateQuestionText(
     db: Session, quiz_id: str, question_id: str, question_text: str
 ) -> dict:
-    quiz = get_quiz(db, quiz_id)
+    quiz = getQuiz(db, quiz_id)
     question = quiz_repository.get_question(db, question_id, quiz.contentID)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found in this quiz")
@@ -117,10 +117,10 @@ def update_question_text(
     return {"questionID": question.questionID, "questionText": question.questionText}
 
 
-def update_answer_text(
+def updateAnswerText(
     db: Session, quiz_id: str, question_id: str, answer_id: str, answer_text: str
 ) -> dict:
-    quiz = get_quiz(db, quiz_id)
+    quiz = getQuiz(db, quiz_id)
     question = quiz_repository.get_question(db, question_id, quiz.contentID)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found in this quiz")

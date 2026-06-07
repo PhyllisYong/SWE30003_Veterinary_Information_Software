@@ -72,7 +72,7 @@ def login(db: Session, body) -> User:
     return user
 
 
-def get_profile(db: Session, current_user: User) -> dict:
+def getProfile(db: Session, current_user: User) -> dict:
     result = {
         "userID": current_user.userID,
         "name": current_user.name,
@@ -92,7 +92,7 @@ def get_profile(db: Session, current_user: User) -> dict:
     return result
 
 
-def update_profile(db: Session, current_user: User, body: UpdateProfileRequest) -> None:
+def updateProfile(db: Session, current_user: User, body: UpdateProfileRequest) -> None:
     current_user.updateProfile(name=body.name, email=body.email)
 
     if body.contactNumber and current_user.role == "pet_owner":
@@ -108,20 +108,20 @@ def update_profile(db: Session, current_user: User, body: UpdateProfileRequest) 
     user_repository.update(db, current_user)
 
 
-def delete_account(db: Session, current_user: User) -> None:
+def deleteAccount(db: Session, current_user: User) -> None:
     authentication.invalidateSession(current_user.userID)
     user_repository.delete_cascade(db, current_user)
 
 
-def get_users_by_role(db: Session, role: str) -> list[User]:
+def getUsersByRole(db: Session, role: str) -> list[User]:
     return user_repository.get_all_by_role(db, role)
 
 
-def get_pets(db: Session, owner_id: str) -> list[Pet]:
+def getPets(db: Session, owner_id: str) -> list[Pet]:
     return pet_repository.get_by_owner(db, owner_id)
 
 
-def create_pet(db: Session, owner_id: str, body: PetCreate) -> Pet:
+def createPet(db: Session, owner_id: str, body: PetCreate) -> Pet:
     pet = Pet(
         petName=body.petName,
         petType=body.petType,
@@ -132,15 +132,15 @@ def create_pet(db: Session, owner_id: str, body: PetCreate) -> Pet:
     return pet_repository.add(db, pet)
 
 
-def get_pet_by_id_and_owner(db: Session, pet_id: str, owner_id: str) -> Pet:
+def getPetByIdAndOwner(db: Session, pet_id: str, owner_id: str) -> Pet:
     pet = pet_repository.get_by_id_and_owner(db, pet_id, owner_id)
     if not pet:
         raise HTTPException(status_code=404, detail="Pet not found")
     return pet
 
 
-def update_pet(db: Session, pet_id: str, owner_id: str, body: PetUpdate) -> Pet:
-    pet = get_pet_by_id_and_owner(db, pet_id, owner_id)
+def updatePet(db: Session, pet_id: str, owner_id: str, body: PetUpdate) -> Pet:
+    pet = getPetByIdAndOwner(db, pet_id, owner_id)
     pet.updatePetDetails(
         petName=body.petName,
         petType=body.petType,
@@ -150,6 +150,6 @@ def update_pet(db: Session, pet_id: str, owner_id: str, body: PetUpdate) -> Pet:
     return pet_repository.update(db, pet)
 
 
-def delete_pet(db: Session, pet_id: str, owner_id: str) -> None:
-    pet = get_pet_by_id_and_owner(db, pet_id, owner_id)
+def deletePet(db: Session, pet_id: str, owner_id: str) -> None:
+    pet = getPetByIdAndOwner(db, pet_id, owner_id)
     pet_repository.delete(db, pet)

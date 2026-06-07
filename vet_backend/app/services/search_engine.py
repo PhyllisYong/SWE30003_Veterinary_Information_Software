@@ -3,7 +3,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 
-def _fuzzy_score(query_tokens: list, text: str) -> float:
+def _fuzzyScore(query_tokens: list, text: str) -> float:
     """Score text against query tokens. Each token that fuzzy-matches a word in
     text (ratio >= 0.72) contributes its ratio to the total score."""
     text_words = [w.lower() for w in text.split() if len(w) > 2]
@@ -92,8 +92,8 @@ class SearchEngine:
                 scored = []
                 for c in results:
                     score = max(
-                        _fuzzy_score(query_tokens, c.emergencyCategory or ""),
-                        _fuzzy_score(query_tokens, c.title or ""),
+                        _fuzzyScore(query_tokens, c.emergencyCategory or ""),
+                        _fuzzyScore(query_tokens, c.title or ""),
                     )
                     if score > 0:
                         scored.append((score, c))
@@ -110,9 +110,9 @@ class SearchEngine:
                 scored = []
                 for c in results:
                     score = max(
-                        _fuzzy_score(query_tokens, c.title or ""),
-                        _fuzzy_score(query_tokens, c.emergencyCategory or ""),
-                        _fuzzy_score(query_tokens, c.description or ""),
+                        _fuzzyScore(query_tokens, c.title or ""),
+                        _fuzzyScore(query_tokens, c.emergencyCategory or ""),
+                        _fuzzyScore(query_tokens, c.description or ""),
                     )
                     if score > 0:
                         scored.append((score, c))

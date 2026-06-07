@@ -17,25 +17,25 @@ from app.schemas.content import (
 from app.services.video_hosting import video_hosting
 
 
-def get_my_content(db: Session, author_id: str) -> list[dict]:
+def getMyContent(db: Session, author_id: str) -> list[dict]:
     items = content_repository.get_by_author(db, author_id)
     return [item.display() for item in items]
 
 
-def get_assigned_content(db: Session, assigned_vet_id: str) -> list[dict]:
+def getAssignedContent(db: Session, assigned_vet_id: str) -> list[dict]:
     items = content_repository.get_assigned_pending(db, assigned_vet_id)
     return [item.display() for item in items]
 
 
-def get_all_content(db: Session) -> list[dict]:
+def getAllContent(db: Session) -> list[dict]:
     items = content_repository.get_all(db)
     return [item.display() for item in items]
 
 
-def assign_reviewer(
+def assignReviewer(
     db: Session, content_id: str, payload: AssignReviewerRequest
 ) -> dict:
-    content = _get_or_error(db, content_id)
+    content = _getOrError(db, content_id)
     if content.authorVeterinarianID == payload.assignedVeterinarianID:
         raise HTTPException(
             status_code=422, detail="Cannot assign the author as the assigned vet."
@@ -45,7 +45,7 @@ def assign_reviewer(
     return content.getMetadata()
 
 
-def create_content(
+def createContent(
     db: Session, current_user: User, payload: SubmitContentRequest
 ) -> dict:
     try:
@@ -108,10 +108,10 @@ def create_content(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def update_content(
+def updateContent(
     db: Session, content_id: str, current_user: User, payload: SubmitContentRequest
 ) -> dict:
-    content = _get_or_error(db, content_id)
+    content = _getOrError(db, content_id)
     if content.authorVeterinarianID != current_user.userID:
         raise HTTPException(status_code=403, detail="You can only edit your own content.")
     try:
@@ -150,10 +150,10 @@ def update_content(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def review_content(
+def reviewContent(
     db: Session, content_id: str, current_user: User, payload: ReviewRequest
 ) -> dict:
-    content = _get_or_error(db, content_id)
+    content = _getOrError(db, content_id)
     if content.assignedVeterinarianID != current_user.userID:
         raise HTTPException(
             status_code=403,
@@ -182,10 +182,10 @@ def review_content(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def set_draft_and_assign(
+def setDraftAndAssign(
     db: Session, content_id: str, assigned_vet_id: str
 ) -> dict:
-    content = _get_or_error(db, content_id)
+    content = _getOrError(db, content_id)
     if content.authorVeterinarianID == assigned_vet_id:
         raise HTTPException(
             status_code=422, detail="Cannot assign the author as the assigned vet."
@@ -200,10 +200,10 @@ def set_draft_and_assign(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def request_amend(db: Session, content_id: str, feedback: str) -> dict:
+def requestAmend(db: Session, content_id: str, feedback: str) -> dict:
     if not feedback.strip():
         raise HTTPException(status_code=422, detail="Feedback is required.")
-    content = _get_or_error(db, content_id)
+    content = _getOrError(db, content_id)
     try:
         content.updatePublicationStatus("rejected")
         content.reviewComment = feedback
@@ -214,8 +214,8 @@ def request_amend(db: Session, content_id: str, feedback: str) -> dict:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def set_status(db: Session, content_id: str, new_status: str) -> dict:
-    content = _get_or_error(db, content_id)
+def setStatus(db: Session, content_id: str, new_status: str) -> dict:
+    content = _getOrError(db, content_id)
     try:
         content.updatePublicationStatus(new_status)
         content_repository.update(db, content)
@@ -228,8 +228,8 @@ def set_status(db: Session, content_id: str, new_status: str) -> dict:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def delete_content(db: Session, content_id: str) -> None:
-    content = _get_or_error(db, content_id)
+def deleteContent(db: Session, content_id: str) -> None:
+    content = _getOrError(db, content_id)
     try:
         content_repository.delete(db, content)
     except Exception as e:
@@ -237,11 +237,11 @@ def delete_content(db: Session, content_id: str) -> None:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def get_content_by_id(db: Session, content_id: str) -> FirstAidContent | None:
+def getContentById(db: Session, content_id: str) -> FirstAidContent | None:
     return content_repository.get_by_id(db, content_id)
 
 
-def _get_or_error(db: Session, content_id: str) -> FirstAidContent:
+def _getOrError(db: Session, content_id: str) -> FirstAidContent:
     content = content_repository.get_by_id(db, content_id)
     if not content:
         raise HTTPException(status_code=404, detail="Content not found.")

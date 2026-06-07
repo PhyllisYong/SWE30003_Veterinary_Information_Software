@@ -106,7 +106,7 @@ export default function ChatPage() {
 
     ws.onmessage = (e) => {
       const { event, data } = JSON.parse(e.data) as { event: string; data: MessageItem }
-      if (event === 'message_sent') {
+      if (event === 'message_sent' && data.senderID !== userID) {
         setActiveChat(prev =>
           prev ? { ...prev, messages: [...(prev.messages ?? []), data] } : prev
         )

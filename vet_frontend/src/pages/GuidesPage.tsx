@@ -293,7 +293,7 @@ export default function GuidesPage() {
     }
     setSearchLoading(true)
     const timer = setTimeout(() => {
-      const params = new URLSearchParams({ contentType: 'guide', otherDesc: query })
+      const params = new URLSearchParams({ contentType: 'guide', otherDescription: query })
       if (petFilter) params.set('petType', petFilter)
       fetch(`/api/first-aid/search?${params}`)
         .then(r => r.json())
@@ -317,7 +317,7 @@ export default function GuidesPage() {
     const params = new URLSearchParams({ contentType: 'guide' })
     if (pet)  params.set('petType', pet)
     if (cat)  params.set('category', cat)
-    if (desc) params.set('otherDesc', desc)
+    if (desc) params.set('otherDescription', desc)
 
     try {
       const res = await fetch(`/api/first-aid/search?${params}`)

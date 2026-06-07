@@ -36,7 +36,7 @@ def list_chats(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    chats = chat_service.list_chats(db, current_user)
+    chats = chat_service.listChats(db, current_user)
     return {"status": "ok", "data": chats}
 
 
@@ -47,7 +47,7 @@ def get_chat(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    data = chat_service.get_chat(db, chatID, current_user)
+    data = chat_service.getChat(db, chatID, current_user)
     return {"status": "ok", "data": data}
 
 
@@ -60,8 +60,8 @@ async def chat_websocket(chatID: str, websocket: WebSocket, db: Session = Depend
         await websocket.close(code=1008)
         return
 
-    user = chat_service.get_user_for_ws(db, payload["sub"])
-    chat = chat_service.get_chat_for_ws(db, chatID)
+    user = chat_service.getUserForWs(db, payload["sub"])
+    chat = chat_service.getChatForWs(db, chatID)
     if user is None or chat is None or user.userID not in (chat.petOwnerID, chat.veterinarianID):
         await websocket.close(code=1008)
         return
@@ -84,7 +84,7 @@ async def send_message(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    payload = await chat_service.send_message(db, chatID, current_user, body)
+    payload = await chat_service.sendMessage(db, chatID, current_user, body)
     return {"status": "ok", "data": payload}
 
 
@@ -97,7 +97,7 @@ def edit_message(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    msg = chat_service.edit_message(db, chatID, messageID, current_user, body)
+    msg = chat_service.editMessage(db, chatID, messageID, current_user, body)
     return {"status": "ok", "data": msg}
 
 
@@ -109,5 +109,5 @@ def delete_message(
     current_user: User = Depends(getCurrentUser),
     db: Session = Depends(get_db),
 ):
-    chat_service.delete_message(db, chatID, messageID, current_user)
+    chat_service.deleteMessage(db, chatID, messageID, current_user)
     return {"status": "ok", "data": {"message": "Message deleted"}}
