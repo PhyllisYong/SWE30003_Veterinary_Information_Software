@@ -40,7 +40,7 @@ TABLES = [
 ]
 
 
-def clear_all() -> None:
+def clearAll() -> None:
     table_list = ", ".join(TABLES)
     with engine.begin() as conn:
         conn.execute(text(f"TRUNCATE TABLE {table_list} RESTART IDENTITY CASCADE"))
@@ -48,7 +48,7 @@ def clear_all() -> None:
 
 
 def reset() -> None:
-    clear_all()
+    clearAll()
     seed_users()
     seed_content()
     seed_quiz()

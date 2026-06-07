@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
+from app.core.database import getDb
 from app.api.routes.auth import getCurrentUser, requireRole
 from app.models.user import User
 from app.schemas.quiz import SubmitAnswerRequest, CheckAnswerRequest, ExplanationRequest
@@ -22,15 +22,15 @@ class AnswerTextRequest(BaseModel):
 
 
 @router.get("")
-def list_quizzes(db: Session = Depends(get_db)):
+def listQuizzes(db: Session = Depends(getDb)):
     """Return all published quizzes. No auth required."""
     return quiz_service.listQuizzes(db)
 
 
-@router.get("/{quiz_id}")
-def get_quiz(quiz_id: str, db: Session = Depends(get_db)):
+@router.get("/{quizId}")
+def getQuiz(quizId: str, db: Session = Depends(getDb)):
     """Return a single quiz with randomised question order."""
-    quiz = quiz_service.getQuiz(db, quiz_id)
+    quiz = quiz_service.getQuiz(db, quizId)
     questions = list(quiz.questionList)
     random.shuffle(questions)
     return {
@@ -56,73 +56,73 @@ def get_quiz(quiz_id: str, db: Session = Depends(get_db)):
     }
 
 
-@router.post("/{quiz_id}/check")
-def check_answer(quiz_id: str, request: CheckAnswerRequest, db: Session = Depends(get_db)):
+@router.post("/{quizId}/check")
+def checkAnswer(quizId: str, request: CheckAnswerRequest, db: Session = Depends(getDb)):
     """Check a single answer without persisting a result."""
-    return quiz_service.checkAnswer(db, quiz_id, request.questionID, request.answerID)
+    return quiz_service.checkAnswer(db, quizId, request.questionID, request.answerID)
 
 
-@router.post("/{quiz_id}/submit")
-def submit_quiz(
-    quiz_id: str,
+@router.post("/{quizId}/submit")
+def submitQuiz(
+    quizId: str,
     request: SubmitAnswerRequest,
     currentUser: User = Depends(requireRole("pet_owner")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(getDb),
 ):
-    return quiz_service.submitQuiz(db, quiz_id, currentUser, request.answers)
+    return quiz_service.submitQuiz(db, quizId, currentUser, request.answers)
 
 
 @router.get("/results/all")
-def get_my_results(
+def getMyResults(
     currentUser: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+    db: Session = Depends(getDb),
 ):
     return quiz_service.getMyResults(db, currentUser)
 
 
-@router.get("/results/{result_id}")
-def get_result(
-    result_id: str,
+@router.get("/results/{resultId}")
+def getResult(
+    resultId: str,
     currentUser: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+    db: Session = Depends(getDb),
 ):
-    return quiz_service.getResult(db, result_id, currentUser)
+    return quiz_service.getResult(db, resultId, currentUser)
 
 
-@router.put("/{quiz_id}/questions/{question_id}/explanation")
-def set_explanation(
-    quiz_id: str,
-    question_id: str,
+@router.put("/{quizId}/questions/{questionId}/explanation")
+def setExplanation(
+    quizId: str,
+    questionId: str,
     body: ExplanationRequest,
-    current_user: User = Depends(requireRole("veterinarian")),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(getDb),
 ):
-    data = quiz_service.setExplanation(db, quiz_id, question_id, body.explanation)
+    data = quiz_service.setExplanation(db, quizId, questionId, body.explanation)
     return {"status": "ok", "data": data}
 
 
-@router.put("/{quiz_id}/questions/{question_id}/text")
-def update_question_text(
-    quiz_id: str,
-    question_id: str,
+@router.put("/{quizId}/questions/{questionId}/text")
+def updateQuestionText(
+    quizId: str,
+    questionId: str,
     body: QuestionTextRequest,
-    current_user: User = Depends(requireRole("veterinarian")),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(getDb),
 ):
-    data = quiz_service.updateQuestionText(db, quiz_id, question_id, body.questionText)
+    data = quiz_service.updateQuestionText(db, quizId, questionId, body.questionText)
     return {"status": "ok", "data": data}
 
 
-@router.put("/{quiz_id}/questions/{question_id}/answers/{answer_id}/text")
-def update_answer_text(
-    quiz_id: str,
-    question_id: str,
-    answer_id: str,
+@router.put("/{quizId}/questions/{questionId}/answers/{answerId}/text")
+def updateAnswerText(
+    quizId: str,
+    questionId: str,
+    answerId: str,
     body: AnswerTextRequest,
-    current_user: User = Depends(requireRole("veterinarian")),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(getDb),
 ):
     data = quiz_service.updateAnswerText(
-        db, quiz_id, question_id, answer_id, body.answerText
+        db, quizId, questionId, answerId, body.answerText
     )
     return {"status": "ok", "data": data}

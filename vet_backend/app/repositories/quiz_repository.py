@@ -7,53 +7,53 @@ from app.models.quiz_result import QuizResult
 from app.models.video import Video
 
 
-def get_all_published(db: Session) -> list[Quiz]:
+def getAllPublished(db: Session) -> list[Quiz]:
     return db.query(Quiz).filter(Quiz.publicationStatus == "published").all()
 
 
-def get_by_id(db: Session, quiz_id: str) -> Quiz | None:
-    return db.query(Quiz).filter(Quiz.contentID == quiz_id).first()
+def getById(db: Session, quizId: str) -> Quiz | None:
+    return db.query(Quiz).filter(Quiz.contentID == quizId).first()
 
 
-def get_results_by_user(db: Session, user_id: str) -> list[QuizResult]:
-    return db.query(QuizResult).filter(QuizResult.petOwnerID == user_id).all()
+def getResultsByUser(db: Session, userId: str) -> list[QuizResult]:
+    return db.query(QuizResult).filter(QuizResult.petOwnerID == userId).all()
 
 
-def get_result_by_id(db: Session, result_id: str) -> QuizResult | None:
-    return db.query(QuizResult).filter(QuizResult.resultID == result_id).first()
+def getResultById(db: Session, resultId: str) -> QuizResult | None:
+    return db.query(QuizResult).filter(QuizResult.resultID == resultId).first()
 
 
-def add_result(db: Session, result: QuizResult) -> QuizResult:
+def addResult(db: Session, result: QuizResult) -> QuizResult:
     db.add(result)
     db.commit()
     db.refresh(result)
     return result
 
 
-def get_question(db: Session, question_id: str, quiz_id: str) -> Question | None:
+def getQuestion(db: Session, questionId: str, quizId: str) -> Question | None:
     return db.query(Question).filter(
-        Question.questionID == question_id,
-        Question.quizID == quiz_id,
+        Question.questionID == questionId,
+        Question.quizID == quizId,
     ).first()
 
 
-def update_question(db: Session, question: Question) -> Question:
+def updateQuestion(db: Session, question: Question) -> Question:
     db.commit()
     db.refresh(question)
     return question
 
 
-def get_recommended_guides(db: Session, pet_type: str, category: str) -> list[Guide]:
+def getRecommendedGuides(db: Session, petType: str, category: str) -> list[Guide]:
     return db.query(Guide).filter(
         Guide.publicationStatus == "published",
-        Guide.petType == pet_type,
+        Guide.petType == petType,
         Guide.emergencyCategory == category,
     ).limit(2).all()
 
 
-def get_recommended_videos(db: Session, pet_type: str, category: str) -> list[Video]:
+def getRecommendedVideos(db: Session, petType: str, category: str) -> list[Video]:
     return db.query(Video).filter(
         Video.publicationStatus == "published",
-        Video.petType == pet_type,
+        Video.petType == petType,
         Video.emergencyCategory == category,
     ).limit(2).all()

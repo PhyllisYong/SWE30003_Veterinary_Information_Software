@@ -49,7 +49,7 @@ class Veterinarian(User):
                                emergencyCategory: str | None = None,
                                contentType: str | None = None):
         from app.repositories import content_repository
-        content = content_repository.get_by_id(db, contentID)
+        content = content_repository.getById(db, contentID)
         if title:
             content.title = title
         if description:
@@ -63,7 +63,7 @@ class Veterinarian(User):
     def verifyFirstAidContent(self, db, contentID: str, publicationStatus: str,
                                comment: str | None = None) -> None:
         from app.repositories import content_repository
-        content = content_repository.get_by_id(db, contentID)
+        content = content_repository.getById(db, contentID)
         content.updatePublicationStatus(publicationStatus)
         if comment:
             content.reviewComment = comment
@@ -71,13 +71,13 @@ class Veterinarian(User):
 
     async def provideAdvice(self, db, chatID: str, content: str):
         from app.repositories import chat_repository
-        chat = chat_repository.get_by_id(db, chatID)
+        chat = chat_repository.getById(db, chatID)
         msg = chat.createMessage(
             senderID=self.userID,
             content=content,
             timestamp=_now(),
         )
-        msg = chat_repository.add_message(db, msg)
+        msg = chat_repository.addMessage(db, msg)
         await chat.sendMessage({
             "messageID": msg.messageID,
             "senderID": msg.senderID,
@@ -90,13 +90,13 @@ class Veterinarian(User):
     def provideExplanationForQuiz(self, db, quizID: str, questionID: str,
                                    explanation: str) -> None:
         from app.repositories import quiz_repository
-        question = quiz_repository.get_question(db, questionID, quizID)
+        question = quiz_repository.getQuestion(db, questionID, quizID)
         question.setExplanation(explanation)
-        quiz_repository.update_question(db, question)
+        quiz_repository.updateQuestion(db, question)
 
     def acceptBookingSlot(self, db, bookingID: str):
         from app.repositories import booking_repository
-        booking = booking_repository.get_by_id_and_vet(db, bookingID, self.userID)
+        booking = booking_repository.getByIdAndVet(db, bookingID, self.userID)
         booking.acceptBookingSlot()
         return booking_repository.update(db, booking)
 

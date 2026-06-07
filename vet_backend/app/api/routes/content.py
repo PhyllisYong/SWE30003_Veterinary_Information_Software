@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
+from app.core.database import getDb
 from app.api.routes.auth import requireRole
 from app.models.user import User
 from app.schemas.content import (
@@ -21,10 +21,10 @@ router = APIRouter(tags=["content"])
 # ------------------------------------------------------------------
 
 @router.get("/users")
-def list_users_by_role(
+def listUsersByRole(
     role: str = "veterinarian",
-    current_user: User = Depends(requireRole("association_admin")),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(requireRole("association_admin")),
+    db: Session = Depends(getDb),
 ):
     """Admin only — list users filtered by role."""
     users = user_service.getUsersByRole(db, role)
@@ -39,12 +39,12 @@ def list_users_by_role(
 # ------------------------------------------------------------------
 
 @router.get("/content/mine")
-def get_my_content(
-    current_user: User = Depends(requireRole("veterinarian")),
-    db: Session = Depends(get_db),
+def getMyContent(
+    currentUser: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(getDb),
 ):
     """Vet only — all content authored by this vet."""
-    return {"status": "ok", "data": content_service.getMyContent(db, current_user.userID)}
+    return {"status": "ok", "data": content_service.getMyContent(db, currentUser.userID)}
 
 
 # ------------------------------------------------------------------
@@ -52,14 +52,14 @@ def get_my_content(
 # ------------------------------------------------------------------
 
 @router.get("/content/assigned")
-def get_assigned_content(
-    current_user: User = Depends(requireRole("veterinarian")),
-    db: Session = Depends(get_db),
+def getAssignedContent(
+    currentUser: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(getDb),
 ):
     """Vet only — content assigned to this vet for review."""
     return {
         "status": "ok",
-        "data": content_service.getAssignedContent(db, current_user.userID),
+        "data": content_service.getAssignedContent(db, currentUser.userID),
     }
 
 
@@ -68,9 +68,9 @@ def get_assigned_content(
 # ------------------------------------------------------------------
 
 @router.get("/content")
-def get_all_content(
-    current_user: User = Depends(requireRole("association_admin")),
-    db: Session = Depends(get_db),
+def getAllContent(
+    currentUser: User = Depends(requireRole("association_admin")),
+    db: Session = Depends(getDb),
 ):
     """Admin only — all content."""
     return {"status": "ok", "data": content_service.getAllContent(db)}
@@ -80,19 +80,17 @@ def get_all_content(
 # Admin — assign reviewer
 # ------------------------------------------------------------------
 
-@router.post("/content/{content_id}/assign")
-def assign_reviewer(
-    content_id: str,
+@router.post("/content/{contentId}/assign")
+def assignReviewer(
+    contentId: str,
     payload: AssignReviewerRequest,
-    current_user: User = Depends(requireRole("association_admin")),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(requireRole("association_admin")),
+    db: Session = Depends(getDb),
 ):
     """Admin only — assign a vet as reviewer for a content item."""
     try:
-        current_user.assignVeterinarianContent(db, content_id, payload.assignedVeterinarianID)
-        from app.repositories import content_repository
-        content = content_repository.get_by_id(db, content_id)
-        return {"status": "ok", "data": content.getMetadata()}
+        data = content_service.assignReviewer(db, contentId, payload)
+        return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
 
@@ -102,29 +100,29 @@ def assign_reviewer(
 # ------------------------------------------------------------------
 
 @router.post("/content")
-def create_content(
+def createContent(
     payload: SubmitContentRequest,
-    current_user: User = Depends(requireRole("veterinarian")),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(getDb),
 ):
     """Vet only — submit new guide, video, or quiz."""
     try:
-        data = content_service.createContent(db, current_user, payload)
+        data = content_service.createContent(db, currentUser, payload)
         return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
 
 
-@router.put("/content/{content_id}")
-def update_content(
-    content_id: str,
+@router.put("/content/{contentId}")
+def updateContent(
+    contentId: str,
     payload: SubmitContentRequest,
-    current_user: User = Depends(requireRole("veterinarian")),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(getDb),
 ):
     """Vet only — edit own content."""
     try:
-        data = content_service.updateContent(db, content_id, current_user, payload)
+        data = content_service.updateContent(db, contentId, currentUser, payload)
         return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
@@ -134,19 +132,17 @@ def update_content(
 # Vet — review assigned content
 # ------------------------------------------------------------------
 
-@router.post("/content/{content_id}/review")
-def review_content(
-    content_id: str,
+@router.post("/content/{contentId}/review")
+def reviewContent(
+    contentId: str,
     payload: ReviewRequest,
-    current_user: User = Depends(requireRole("veterinarian")),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(requireRole("veterinarian")),
+    db: Session = Depends(getDb),
 ):
     """Vet only — verify or reject content assigned to them."""
     try:
-        current_user.verifyFirstAidContent(db, content_id, payload.status, payload.comment)
-        from app.repositories import content_repository
-        content = content_repository.get_by_id(db, content_id)
-        return {"status": "ok", "data": content.getMetadata()}
+        data = content_service.reviewContent(db, contentId, currentUser, payload)
+        return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
 
@@ -159,16 +155,16 @@ class SetDraftRequest(BaseModel):
     assignedVeterinarianID: str
 
 
-@router.post("/content/{content_id}/set-draft")
-def set_draft_and_assign(
-    content_id: str,
+@router.post("/content/{contentId}/set-draft")
+def setDraftAndAssign(
+    contentId: str,
     payload: SetDraftRequest,
-    current_user: User = Depends(requireRole("association_admin")),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(requireRole("association_admin")),
+    db: Session = Depends(getDb),
 ):
     """Admin only — confirm submitted content, assign reviewer, set to pending_verification."""
     try:
-        data = content_service.setDraftAndAssign(db, content_id, payload.assignedVeterinarianID)
+        data = content_service.setDraftAndAssign(db, contentId, payload.assignedVeterinarianID)
         return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
@@ -182,16 +178,16 @@ class AmendRequest(BaseModel):
     feedback: str
 
 
-@router.post("/content/{content_id}/request-amend")
-def request_amend(
-    content_id: str,
+@router.post("/content/{contentId}/request-amend")
+def requestAmend(
+    contentId: str,
     payload: AmendRequest,
-    current_user: User = Depends(requireRole("association_admin")),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(requireRole("association_admin")),
+    db: Session = Depends(getDb),
 ):
     """Admin only — reject content and send feedback to vet to amend."""
     try:
-        data = content_service.requestAmend(db, content_id, payload.feedback)
+        data = content_service.requestAmend(db, contentId, payload.feedback)
         return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
@@ -201,48 +197,44 @@ def request_amend(
 # Admin — status management
 # ------------------------------------------------------------------
 
-@router.put("/content/{content_id}/status")
-def update_status(
-    content_id: str,
+@router.put("/content/{contentId}/status")
+def updateStatus(
+    contentId: str,
     payload: UpdateStatusRequest,
-    current_user: User = Depends(requireRole("association_admin")),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(requireRole("association_admin")),
+    db: Session = Depends(getDb),
 ):
     """Admin only — set any valid publication status."""
     try:
-        current_user.updateFirstAidStatus(db, content_id, payload.status)
-        from app.repositories import content_repository
-        content = content_repository.get_by_id(db, content_id)
-        return {"status": "ok", "data": content.getMetadata()}
+        data = content_service.setStatus(db, contentId, payload.status)
+        return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
 
 
-@router.post("/content/{content_id}/publish")
-def publish_content(
-    content_id: str,
-    current_user: User = Depends(requireRole("association_admin")),
-    db: Session = Depends(get_db),
+@router.post("/content/{contentId}/publish")
+def publishContent(
+    contentId: str,
+    currentUser: User = Depends(requireRole("association_admin")),
+    db: Session = Depends(getDb),
 ):
     """Admin only — publish content."""
     try:
-        current_user.publishFirstAidContent(db, content_id)
-        from app.repositories import content_repository
-        content = content_repository.get_by_id(db, content_id)
-        return {"status": "ok", "data": content.getMetadata()}
+        data = content_service.setStatus(db, contentId, "published")
+        return {"status": "ok", "data": data}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}
 
 
-@router.delete("/content/{content_id}")
-def delete_content(
-    content_id: str,
-    current_user: User = Depends(requireRole("association_admin")),
-    db: Session = Depends(get_db),
+@router.delete("/content/{contentId}")
+def deleteContent(
+    contentId: str,
+    currentUser: User = Depends(requireRole("association_admin")),
+    db: Session = Depends(getDb),
 ):
     """Admin only — permanently delete content."""
     try:
-        current_user.deleteFirstAidContent(db, content_id)
-        return {"status": "ok", "message": f"Content '{content_id}' deleted."}
+        content_service.deleteContent(db, contentId)
+        return {"status": "ok", "message": f"Content '{contentId}' deleted."}
     except HTTPException as e:
         return {"status": "error", "message": e.detail}

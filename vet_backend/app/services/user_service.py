@@ -10,19 +10,19 @@ from app.services.authentication import authentication
 
 
 def register(db: Session, body) -> User:
-    if user_repository.get_by_email(db, body.email):
+    if user_repository.getByEmail(db, body.email):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Email already registered",
         )
 
-    hashed_pw = authentication.hashPassword(body.password)
+    hashedPw = authentication.hashPassword(body.password)
 
     if body.role == "pet_owner":
         user = User.createUser(
             name=body.name,
             email=body.email,
-            password=hashed_pw,
+            password=hashedPw,
             role="pet_owner",
             contactNumber=body.contactNumber,
         )
@@ -35,7 +35,7 @@ def register(db: Session, body) -> User:
         user = User.createUser(
             name=body.name,
             email=body.email,
-            password=hashed_pw,
+            password=hashedPw,
             role="veterinarian",
             licenseNumber=body.licenseNumber,
             specialisation=body.specialisation,
@@ -49,7 +49,7 @@ def register(db: Session, body) -> User:
         user = User.createUser(
             name=body.name,
             email=body.email,
-            password=hashed_pw,
+            password=hashedPw,
             role="association_admin",
             workID=body.workID,
         )
@@ -63,7 +63,7 @@ def register(db: Session, body) -> User:
 
 
 def login(db: Session, body) -> User:
-    user = user_repository.get_by_email(db, body.email)
+    user = user_repository.getByEmail(db, body.email)
     if user is None or not authentication.verifyPassword(body.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -72,75 +72,75 @@ def login(db: Session, body) -> User:
     return user
 
 
-def getProfile(db: Session, current_user: User) -> dict:
+def getProfile(db: Session, currentUser: User) -> dict:
     result = {
-        "userID": current_user.userID,
-        "name": current_user.name,
-        "email": current_user.email,
-        "role": current_user.role,
+        "userID": currentUser.userID,
+        "name": currentUser.name,
+        "email": currentUser.email,
+        "role": currentUser.role,
     }
-    if current_user.role == "pet_owner":
-        owner = user_repository.get_pet_owner(db, current_user.userID)
+    if currentUser.role == "pet_owner":
+        owner = user_repository.getPetOwner(db, currentUser.userID)
         result["contactNumber"] = owner.contactNumber if owner else None
-    elif current_user.role == "veterinarian":
-        vet = user_repository.get_veterinarian(db, current_user.userID)
+    elif currentUser.role == "veterinarian":
+        vet = user_repository.getVeterinarian(db, currentUser.userID)
         result["licenseNumber"] = vet.licenseNumber if vet else None
         result["specialisation"] = vet.specialisation if vet else None
-    elif current_user.role == "association_admin":
-        admin = user_repository.get_association_admin(db, current_user.userID)
+    elif currentUser.role == "association_admin":
+        admin = user_repository.getAssociationAdmin(db, currentUser.userID)
         result["workID"] = admin.workID if admin else None
     return result
 
 
-def updateProfile(db: Session, current_user: User, body: UpdateProfileRequest) -> None:
-    current_user.updateProfile(name=body.name, email=body.email)
+def updateProfile(db: Session, currentUser: User, body: UpdateProfileRequest) -> None:
+    currentUser.updateProfile(name=body.name, email=body.email)
 
-    if body.contactNumber and current_user.role == "pet_owner":
-        owner = user_repository.get_pet_owner(db, current_user.userID)
+    if body.contactNumber and currentUser.role == "pet_owner":
+        owner = user_repository.getPetOwner(db, currentUser.userID)
         if owner:
             owner.contactNumber = body.contactNumber
 
-    if body.specialisation is not None and current_user.role == "veterinarian":
-        vet = user_repository.get_veterinarian(db, current_user.userID)
+    if body.specialisation is not None and currentUser.role == "veterinarian":
+        vet = user_repository.getVeterinarian(db, currentUser.userID)
         if vet:
             vet.specialisation = body.specialisation
 
-    user_repository.update(db, current_user)
+    user_repository.update(db, currentUser)
 
 
-def deleteAccount(db: Session, current_user: User) -> None:
-    authentication.invalidateSession(current_user.userID)
-    user_repository.delete_cascade(db, current_user)
+def deleteAccount(db: Session, currentUser: User) -> None:
+    authentication.invalidateSession(currentUser.userID)
+    user_repository.deleteCascade(db, currentUser)
 
 
 def getUsersByRole(db: Session, role: str) -> list[User]:
-    return user_repository.get_all_by_role(db, role)
+    return user_repository.getAllByRole(db, role)
 
 
-def getPets(db: Session, owner_id: str) -> list[Pet]:
-    return pet_repository.get_by_owner(db, owner_id)
+def getPets(db: Session, ownerId: str) -> list[Pet]:
+    return pet_repository.getByOwner(db, ownerId)
 
 
-def createPet(db: Session, owner_id: str, body: PetCreate) -> Pet:
+def createPet(db: Session, ownerId: str, body: PetCreate) -> Pet:
     pet = Pet(
         petName=body.petName,
         petType=body.petType,
         age=body.age,
         gender=body.gender,
-        petOwnerID=owner_id,
+        petOwnerID=ownerId,
     )
     return pet_repository.add(db, pet)
 
 
-def getPetByIdAndOwner(db: Session, pet_id: str, owner_id: str) -> Pet:
-    pet = pet_repository.get_by_id_and_owner(db, pet_id, owner_id)
+def getPetByIdAndOwner(db: Session, petId: str, ownerId: str) -> Pet:
+    pet = pet_repository.getByIdAndOwner(db, petId, ownerId)
     if not pet:
         raise HTTPException(status_code=404, detail="Pet not found")
     return pet
 
 
-def updatePet(db: Session, pet_id: str, owner_id: str, body: PetUpdate) -> Pet:
-    pet = getPetByIdAndOwner(db, pet_id, owner_id)
+def updatePet(db: Session, petId: str, ownerId: str, body: PetUpdate) -> Pet:
+    pet = getPetByIdAndOwner(db, petId, ownerId)
     pet.updatePetDetails(
         petName=body.petName,
         petType=body.petType,
@@ -150,6 +150,6 @@ def updatePet(db: Session, pet_id: str, owner_id: str, body: PetUpdate) -> Pet:
     return pet_repository.update(db, pet)
 
 
-def deletePet(db: Session, pet_id: str, owner_id: str) -> None:
-    pet = getPetByIdAndOwner(db, pet_id, owner_id)
+def deletePet(db: Session, petId: str, ownerId: str) -> None:
+    pet = getPetByIdAndOwner(db, petId, ownerId)
     pet_repository.delete(db, pet)

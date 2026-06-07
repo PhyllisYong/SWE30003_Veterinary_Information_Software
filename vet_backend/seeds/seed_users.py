@@ -12,8 +12,8 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from app.core.database import SessionLocal
-from app.models.association_admin import AssociationAdministrator
+from app.core.database import sessionLocal
+from vet_backend.app.models.association_admin import AssociationAdministrator
 from app.models.pet import Pet
 from app.models.pet_owner import PetOwner
 from app.models.user import User
@@ -85,7 +85,7 @@ USERS = [
 
 
 def seed() -> None:
-    db = SessionLocal()
+    db = sessionLocal()
     try:
         created = 0
         pet_count = 0

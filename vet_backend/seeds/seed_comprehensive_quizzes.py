@@ -12,7 +12,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from app.core.database import SessionLocal
+from app.core.database import sessionLocal
 from app.models.answer import Answer
 from app.models.question import Question
 from app.models.quiz import Quiz
@@ -157,7 +157,7 @@ def get_author_ids(db):
 
 
 def seed() -> None:
-    db = SessionLocal()
+    db = sessionLocal()
     try:
         author_ids = get_author_ids(db)
         created = 0

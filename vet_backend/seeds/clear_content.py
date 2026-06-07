@@ -10,13 +10,13 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from app.core.database import SessionLocal
+from app.core.database import sessionLocal
 from app.models.guide import Guide
 from app.models.video import Video
 
 
 def clear() -> None:
-    db = SessionLocal()
+    db = sessionLocal()
     try:
         items = db.query(Guide).all() + db.query(Video).all()
         if not items:

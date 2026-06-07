@@ -31,7 +31,7 @@ class PetOwner(User):
 
     def attemptQuiz(self, db, quizID: str):
         from app.repositories import quiz_repository
-        return quiz_repository.get_by_id(db, quizID)
+        return quiz_repository.getById(db, quizID)
 
     def createPetProfile(self, db, petName: str, petType: str,
                          age: int | None = None, gender: str | None = None):
@@ -45,13 +45,13 @@ class PetOwner(User):
                          petType: str | None = None, age: int | None = None,
                          gender: str | None = None):
         from app.repositories import pet_repository
-        pet = pet_repository.get_by_id_and_owner(db, petID, self.userID)
+        pet = pet_repository.getByIdAndOwner(db, petID, self.userID)
         pet.updatePetDetails(petName=petName, petType=petType, age=age, gender=gender)
         return pet_repository.update(db, pet)
 
     def deletePetProfile(self, db, petID: str) -> None:
         from app.repositories import pet_repository
-        pet = pet_repository.get_by_id_and_owner(db, petID, self.userID)
+        pet = pet_repository.getByIdAndOwner(db, petID, self.userID)
         pet_repository.delete(db, pet)
 
     def accessVeterinaryAdviceChat(self, db, veterinarianID: str, isUrgent: bool = False):
@@ -63,13 +63,13 @@ class PetOwner(User):
             petOwnerID=self.userID,
             veterinarianID=veterinarianID,
         )
-        return chat_repository.add_chat(db, chat)
+        return chat_repository.addChat(db, chat)
 
     def makeBooking(self, db, veterinarianID: str, timeslot: str,
                     petID: str | None = None):
         from app.models.booking import Booking
         from app.repositories import booking_repository
-        vet = booking_repository.get_vet_by_id(db, veterinarianID)
+        vet = booking_repository.getVetById(db, veterinarianID)
         vet.availableSlots = [s for s in (vet.availableSlots or []) if s != timeslot]
         booking = Booking(
             createdAt=_now(),

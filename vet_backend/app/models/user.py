@@ -70,7 +70,7 @@ class User(Base):
 
     def deleteUser(self, userID: str, db) -> None:
         from app.repositories import user_repository
-        user_repository.delete_cascade(db, self)
+        user_repository.deleteCascade(db, self)
 
     def updateProfile(self, name: str | None = None, email: str | None = None) -> None:
         if name:

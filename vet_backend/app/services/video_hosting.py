@@ -29,10 +29,10 @@ class VideoHostingFacade:
 
     def getEmbedURL(self, videoURL: str) -> Optional[str]:
         """Convert any YouTube URL to its embed form, or None if not a YouTube URL."""
-        video_id = self.extractVideoID(videoURL)
-        if not video_id:
+        videoId = self.extractVideoID(videoURL)
+        if not videoId:
             return None
-        return f"https://www.youtube.com/embed/{video_id}"
+        return f"https://www.youtube.com/embed/{videoId}"
 
     def displayVideo(self, videoURL: str) -> Optional[str]:
         """Resolve a playable video stream URL."""
@@ -43,10 +43,10 @@ class VideoHostingFacade:
         Return a YouTube thumbnail URL without an API call.
         quality options: default, mqdefault, hqdefault, sddefault, maxresdefault
         """
-        video_id = self.extractVideoID(videoURL)
-        if not video_id:
+        videoId = self.extractVideoID(videoURL)
+        if not videoId:
             return None
-        return f"https://img.youtube.com/vi/{video_id}/{quality}.jpg"
+        return f"https://img.youtube.com/vi/{videoId}/{quality}.jpg"
 
 
 # Module-level singleton — import and use directly.

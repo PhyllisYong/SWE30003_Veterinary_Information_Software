@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
+from app.core.database import getDb
 from app.api.routes.auth import getCurrentUser
 from app.models.user import User
 from app.schemas.pet import PetCreate, PetUpdate, PetResponse
@@ -14,79 +14,78 @@ router = APIRouter(tags=["Profile & Pets"])
 
 # GET /api/profile
 @router.get("/profile")
-def get_profile(
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+def getProfile(
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
-    data = user_service.getProfile(db, current_user)
+    data = user_service.getProfile(db, currentUser)
     return {"status": "ok", "data": data}
 
 
 # PUT /api/profile
 @router.put("/profile")
-def update_profile(
+def updateProfile(
     body: UpdateProfileRequest,
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
-    user_service.updateProfile(db, current_user, body)
+    user_service.updateProfile(db, currentUser, body)
     return {"status": "ok", "data": {"message": "Profile updated successfully"}}
 
 
 # DELETE /api/profile
 @router.delete("/profile")
-def delete_profile(
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+def deleteProfile(
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
-    authentication.invalidateSession(current_user.userID)
-    current_user.deleteUser(current_user.userID, db)
+    user_service.deleteAccount(db, currentUser)
     return {"status": "ok", "data": {"message": "Account deleted successfully"}}
 
 
 # GET /api/pets
 @router.get("/pets")
-def get_pets(
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+def getPets(
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
-    if current_user.role != "pet_owner":
+    if currentUser.role != "pet_owner":
         raise HTTPException(status_code=403, detail="Only pet owners can access pets")
-    pets = user_service.getPets(db, current_user.userID)
+    pets = user_service.getPets(db, currentUser.userID)
     return {"status": "ok", "data": [PetResponse.model_validate(p) for p in pets]}
 
 
 # POST /api/pets
 @router.post("/pets")
-def create_pet(
+def createPet(
     body: PetCreate,
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
-    if current_user.role != "pet_owner":
+    if currentUser.role != "pet_owner":
         raise HTTPException(status_code=403, detail="Only pet owners can create pets")
-    pet = current_user.createPetProfile(db, body.petName, body.petType, body.age, body.gender)
+    pet = user_service.createPet(db, currentUser.userID, body)
     return {"status": "ok", "data": PetResponse.model_validate(pet)}
 
 
 # PUT /api/pets/{petID}
 @router.put("/pets/{petID}")
-def update_pet(
+def updatePet(
     petID: str,
     body: PetUpdate,
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
-    pet = current_user.updatePetProfile(db, petID, body.petName, body.petType, body.age, body.gender)
+    pet = user_service.updatePet(db, petID, currentUser.userID, body)
     return {"status": "ok", "data": PetResponse.model_validate(pet)}
 
 
 # DELETE /api/pets/{petID}
 @router.delete("/pets/{petID}")
-def delete_pet(
+def deletePet(
     petID: str,
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
-    current_user.deletePetProfile(db, petID)
+    user_service.deletePet(db, petID, currentUser.userID)
     return {"status": "ok", "data": {"message": "Pet deleted successfully"}}

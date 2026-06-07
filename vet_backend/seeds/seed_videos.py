@@ -10,7 +10,7 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from app.core.database import SessionLocal
+from app.core.database import sessionLocal
 from app.models.video import Video
 
 
@@ -35,7 +35,7 @@ VIDEOS = [
 
 
 def seed() -> None:
-    db = SessionLocal()
+    db = sessionLocal()
     try:
         for v in VIDEOS:
             video = Video(
@@ -45,16 +45,16 @@ def seed() -> None:
                 emergencyCategory=v["emergencyCategory"],
                 publicationStatus="published",
                 videoURL=v["videoURL"],
-                durationSec=v["durationSec"],
+                duration=v["durationSec"],
             )
             db.add(video)
             db.flush()
-            print(f"✓ Video seeded  '{v['title']}'  (id={video.contentID})")
+            print(f"[OK] Video seeded  '{v['title']}'  (id={video.contentID})")
 
         db.commit()
     except Exception as e:
         db.rollback()
-        print(f"✗ Seed failed: {e}")
+        print(f"[ERROR] Seed failed: {e}")
         raise
     finally:
         db.close()

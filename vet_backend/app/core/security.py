@@ -32,9 +32,9 @@ def hashPassword(password: str) -> str:
     return _bcrypt.hashpw(_prehash(password), _bcrypt.gensalt()).decode("utf-8")
 
 
-def verifyPassword(plain_password: str, hashed_password: str) -> bool:
+def verifyPassword(plainPassword: str, hashedPassword: str) -> bool:
     """Verify a plain-text password against its SHA-256 + bcrypt hash."""
-    return _bcrypt.checkpw(_prehash(plain_password), hashed_password.encode("utf-8"))
+    return _bcrypt.checkpw(_prehash(plainPassword), hashedPassword.encode("utf-8"))
 
 
 # ── JWT tokens ─────────────────────────────────────────────────────────────────

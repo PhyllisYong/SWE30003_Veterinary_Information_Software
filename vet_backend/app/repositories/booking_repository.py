@@ -4,45 +4,45 @@ from app.models.booking import Booking
 from app.models.veterinarian import Veterinarian
 
 
-def get_all_vets(db: Session) -> list[Veterinarian]:
+def getAllVets(db: Session) -> list[Veterinarian]:
     return db.query(Veterinarian).all()
 
 
-def get_vet_by_id(db: Session, vet_id: str) -> Veterinarian | None:
-    return db.query(Veterinarian).filter(Veterinarian.userID == vet_id).first()
+def getVetById(db: Session, vetId: str) -> Veterinarian | None:
+    return db.query(Veterinarian).filter(Veterinarian.userID == vetId).first()
 
 
-def get_vet_by_user_id(db: Session, user_id: str) -> Veterinarian | None:
-    return db.query(Veterinarian).filter(Veterinarian.userID == user_id).first()
+def getVetByUserId(db: Session, userId: str) -> Veterinarian | None:
+    return db.query(Veterinarian).filter(Veterinarian.userID == userId).first()
 
 
-def update_vet(db: Session, vet: Veterinarian) -> Veterinarian:
+def updateVet(db: Session, vet: Veterinarian) -> Veterinarian:
     db.commit()
     return vet
 
 
-def get_by_id(db: Session, booking_id: str) -> Booking | None:
-    return db.query(Booking).filter(Booking.bookingID == booking_id).first()
+def getById(db: Session, bookingId: str) -> Booking | None:
+    return db.query(Booking).filter(Booking.bookingID == bookingId).first()
 
 
-def get_by_id_and_vet(db: Session, booking_id: str, vet_id: str) -> Booking | None:
+def getByIdAndVet(db: Session, bookingId: str, vetId: str) -> Booking | None:
     return db.query(Booking).filter(
-        Booking.bookingID == booking_id,
-        Booking.veterinarianID == vet_id,
+        Booking.bookingID == bookingId,
+        Booking.veterinarianID == vetId,
     ).first()
 
 
-def get_by_pet_owner(db: Session, owner_id: str) -> list[Booking]:
-    return db.query(Booking).filter(Booking.petOwnerID == owner_id).all()
+def getByPetOwner(db: Session, ownerId: str) -> list[Booking]:
+    return db.query(Booking).filter(Booking.petOwnerID == ownerId).all()
 
 
-def get_by_vet(db: Session, vet_id: str) -> list[Booking]:
-    return db.query(Booking).filter(Booking.veterinarianID == vet_id).all()
+def getByVet(db: Session, vetId: str) -> list[Booking]:
+    return db.query(Booking).filter(Booking.veterinarianID == vetId).all()
 
 
-def get_conflicting(db: Session, vet_id: str, timeslot: str) -> Booking | None:
+def getConflicting(db: Session, vetId: str, timeslot: str) -> Booking | None:
     return db.query(Booking).filter(
-        Booking.veterinarianID == vet_id,
+        Booking.veterinarianID == vetId,
         Booking.timeslot == timeslot,
         Booking.bookingStatus.in_(["pending", "accepted"]),
     ).first()

@@ -15,23 +15,23 @@ class Authentication:
             "user": user,
         }
 
-    def issueSession(self, user_id: str, role: str) -> str:
-        return self.generateToken(user_id, role)
+    def issueSession(self, userId: str, role: str) -> str:
+        return self.generateToken(userId, role)
 
-    def logout(self, user_id: str | None = None) -> bool:
+    def logout(self, userId: str | None = None) -> bool:
         return True
 
-    def invalidateSession(self, user_id: str) -> bool:
+    def invalidateSession(self, userId: str) -> bool:
         return True
 
     def hashPassword(self, password: str) -> str:
         return hashPassword(password)
 
-    def verifyPassword(self, plain_password: str, hashed_password: str) -> bool:
-        return verifyPassword(plain_password, hashed_password)
+    def verifyPassword(self, plainPassword: str, hashedPassword: str) -> bool:
+        return verifyPassword(plainPassword, hashedPassword)
 
-    def generateToken(self, user_id: str, role: str) -> str:
-        return generateToken(user_id, role)
+    def generateToken(self, userId: str, role: str) -> str:
+        return generateToken(userId, role)
 
     def validateToken(self, token: str) -> dict | None:
         return validateToken(token)

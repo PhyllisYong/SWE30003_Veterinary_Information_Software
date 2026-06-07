@@ -4,16 +4,16 @@ from app.models.booking import Booking
 from app.models.pet import Pet
 
 
-def get_by_id(db: Session, pet_id: str) -> Pet | None:
-    return db.query(Pet).filter(Pet.petID == pet_id).first()
+def getById(db: Session, petId: str) -> Pet | None:
+    return db.query(Pet).filter(Pet.petID == petId).first()
 
 
-def get_by_id_and_owner(db: Session, pet_id: str, owner_id: str) -> Pet | None:
-    return db.query(Pet).filter(Pet.petID == pet_id, Pet.petOwnerID == owner_id).first()
+def getByIdAndOwner(db: Session, petId: str, ownerId: str) -> Pet | None:
+    return db.query(Pet).filter(Pet.petID == petId, Pet.petOwnerID == ownerId).first()
 
 
-def get_by_owner(db: Session, owner_id: str) -> list[Pet]:
-    return db.query(Pet).filter(Pet.petOwnerID == owner_id).all()
+def getByOwner(db: Session, ownerId: str) -> list[Pet]:
+    return db.query(Pet).filter(Pet.petOwnerID == ownerId).all()
 
 
 def add(db: Session, pet: Pet) -> Pet:

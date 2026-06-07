@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
+from app.core.database import getDb
 from app.schemas.first_aid import ContentSearchResponse
 from app.services import content_service
 from app.services.search_engine import SearchEngine
@@ -10,18 +10,18 @@ from app.services.search_engine import SearchEngine
 router = APIRouter(tags=["first-aid"])
 
 
-def get_search_engine(db: Session = Depends(get_db)) -> SearchEngine:
+def getSearchEngine(db: Session = Depends(getDb)) -> SearchEngine:
     return SearchEngine(db)
 
 
 @router.get("/first-aid/search", response_model=ContentSearchResponse)
-def search_content(
+def searchContent(
     petType: Optional[str] = Query(None),
     emergencyCategory: Optional[str] = Query(None),
     contentType: Optional[str] = Query(None),
     authorVeterinarianID: Optional[str] = Query(None),
     otherDescription: Optional[str] = Query(None),
-    engine: SearchEngine = Depends(get_search_engine),
+    engine: SearchEngine = Depends(getSearchEngine),
 ):
     results = engine.searchContent(
         petType=petType,
@@ -39,15 +39,15 @@ def search_content(
     return {"status": "ok", "data": [item.display() for item in results]}
 
 
-@router.get("/first-aid/{content_id}")
-def get_content(
-    content_id: str,
-    engine: SearchEngine = Depends(get_search_engine),
-    db: Session = Depends(get_db),
+@router.get("/first-aid/{contentId}")
+def getContent(
+    contentId: str,
+    engine: SearchEngine = Depends(getSearchEngine),
+    db: Session = Depends(getDb),
 ):
-    item = engine.getContentByID(content_id)
+    item = engine.getContentByID(contentId)
     if item is None:
-        item = content_service.getContentById(db, content_id)
+        item = content_service.getContentById(db, contentId)
     if item is None:
-        return {"status": "error", "message": f"Content '{content_id}' not found."}
+        return {"status": "error", "message": f"Content '{contentId}' not found."}
     return {"status": "ok", "data": item.display()}

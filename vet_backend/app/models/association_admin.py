@@ -15,12 +15,12 @@ class AssociationAdministrator(User):
 
     def deleteFirstAidContent(self, db, contentID: str) -> None:
         from app.repositories import content_repository
-        content = content_repository.get_by_id(db, contentID)
+        content = content_repository.getById(db, contentID)
         content_repository.delete(db, content)
 
     def updateFirstAidStatus(self, db, contentID: str, publicationStatus: str) -> None:
         from app.repositories import content_repository
-        content = content_repository.get_by_id(db, contentID)
+        content = content_repository.getById(db, contentID)
         content.updatePublicationStatus(publicationStatus)
         content_repository.update(db, content)
 
@@ -29,6 +29,6 @@ class AssociationAdministrator(User):
 
     def assignVeterinarianContent(self, db, contentID: str, veterinarianID: str) -> None:
         from app.repositories import content_repository
-        content = content_repository.get_by_id(db, contentID)
+        content = content_repository.getById(db, contentID)
         content.assignedVeterinarianID = veterinarianID
         content_repository.update(db, content)

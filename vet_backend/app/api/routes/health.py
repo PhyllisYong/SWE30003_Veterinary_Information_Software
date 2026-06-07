@@ -1,13 +1,13 @@
 from fastapi import APIRouter
-from app.core.database import check_db_connection
+from app.core.database import checkDbConnection
 
 router = APIRouter()
 
 
 @router.get("/health")
-def health_check():
-    db_ok = check_db_connection()
+def healthCheck():
+    dbOk = checkDbConnection()
     return {
-        "status": "ok" if db_ok else "degraded",
-        "database": "connected" if db_ok else "unreachable",
+        "status": "ok" if dbOk else "degraded",
+        "database": "connected" if dbOk else "unreachable",
     }

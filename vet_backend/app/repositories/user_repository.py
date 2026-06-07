@@ -12,29 +12,29 @@ from app.models.user import User
 from app.models.veterinarian import Veterinarian
 
 
-def get_by_id(db: Session, user_id: str) -> User | None:
-    return db.query(User).filter(User.userID == user_id).first()
+def getById(db: Session, userId: str) -> User | None:
+    return db.query(User).filter(User.userID == userId).first()
 
 
-def get_by_email(db: Session, email: str) -> User | None:
+def getByEmail(db: Session, email: str) -> User | None:
     return db.query(User).filter(User.email == email).first()
 
 
-def get_all_by_role(db: Session, role: str) -> list[User]:
+def getAllByRole(db: Session, role: str) -> list[User]:
     return db.query(User).filter(User.role == role).all()
 
 
-def get_pet_owner(db: Session, user_id: str) -> PetOwner | None:
-    return db.query(PetOwner).filter(PetOwner.userID == user_id).first()
+def getPetOwner(db: Session, userId: str) -> PetOwner | None:
+    return db.query(PetOwner).filter(PetOwner.userID == userId).first()
 
 
-def get_veterinarian(db: Session, user_id: str) -> Veterinarian | None:
-    return db.query(Veterinarian).filter(Veterinarian.userID == user_id).first()
+def getVeterinarian(db: Session, userId: str) -> Veterinarian | None:
+    return db.query(Veterinarian).filter(Veterinarian.userID == userId).first()
 
 
-def get_association_admin(db: Session, user_id: str) -> AssociationAdministrator | None:
+def getAssociationAdmin(db: Session, userId: str) -> AssociationAdministrator | None:
     return db.query(AssociationAdministrator).filter(
-        AssociationAdministrator.userID == user_id
+        AssociationAdministrator.userID == userId
     ).first()
 
 
@@ -51,51 +51,51 @@ def update(db: Session, user: User) -> User:
     return user
 
 
-def delete_cascade(db: Session, user: User) -> None:
-    user_id = user.userID
+def deleteCascade(db: Session, user: User) -> None:
+    userId = user.userID
 
     db.query(FirstAidContent).filter(
-        FirstAidContent.authorVeterinarianID == user_id
+        FirstAidContent.authorVeterinarianID == userId
     ).update({FirstAidContent.authorVeterinarianID: None}, synchronize_session=False)
     db.query(FirstAidContent).filter(
-        FirstAidContent.assignedVeterinarianID == user_id
+        FirstAidContent.assignedVeterinarianID == userId
     ).update({FirstAidContent.assignedVeterinarianID: None}, synchronize_session=False)
 
     if user.role == "pet_owner":
-        chat_ids = [
+        chatIds = [
             c.chatID for c in db.query(VeterinaryAdviceChat.chatID).filter(
-                VeterinaryAdviceChat.petOwnerID == user_id
+                VeterinaryAdviceChat.petOwnerID == userId
             ).all()
         ]
-        if chat_ids:
-            db.query(Message).filter(Message.chatID.in_(chat_ids)).delete(
+        if chatIds:
+            db.query(Message).filter(Message.chatID.in_(chatIds)).delete(
                 synchronize_session=False
             )
-        db.query(QuizResult).filter(QuizResult.petOwnerID == user_id).delete(
+        db.query(QuizResult).filter(QuizResult.petOwnerID == userId).delete(
             synchronize_session=False
         )
         db.query(VeterinaryAdviceChat).filter(
-            VeterinaryAdviceChat.petOwnerID == user_id
+            VeterinaryAdviceChat.petOwnerID == userId
         ).delete(synchronize_session=False)
-        db.query(Booking).filter(Booking.petOwnerID == user_id).delete(
+        db.query(Booking).filter(Booking.petOwnerID == userId).delete(
             synchronize_session=False
         )
-        db.query(Pet).filter(Pet.petOwnerID == user_id).delete(synchronize_session=False)
+        db.query(Pet).filter(Pet.petOwnerID == userId).delete(synchronize_session=False)
 
     if user.role == "veterinarian":
-        chat_ids = [
+        chatIds = [
             c.chatID for c in db.query(VeterinaryAdviceChat.chatID).filter(
-                VeterinaryAdviceChat.veterinarianID == user_id
+                VeterinaryAdviceChat.veterinarianID == userId
             ).all()
         ]
-        if chat_ids:
-            db.query(Message).filter(Message.chatID.in_(chat_ids)).delete(
+        if chatIds:
+            db.query(Message).filter(Message.chatID.in_(chatIds)).delete(
                 synchronize_session=False
             )
         db.query(VeterinaryAdviceChat).filter(
-            VeterinaryAdviceChat.veterinarianID == user_id
+            VeterinaryAdviceChat.veterinarianID == userId
         ).delete(synchronize_session=False)
-        db.query(Booking).filter(Booking.veterinarianID == user_id).delete(
+        db.query(Booking).filter(Booking.veterinarianID == userId).delete(
             synchronize_session=False
         )
 

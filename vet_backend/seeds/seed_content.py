@@ -13,7 +13,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from app.core.database import SessionLocal
+from app.core.database import sessionLocal
 from app.models.guide import Guide
 from app.models.user import User
 from app.models.video import Video
@@ -90,7 +90,7 @@ def make_video(title, description, pet_type, emergency_category, video_url, dura
 
 
 def seed():
-    db = SessionLocal()
+    db = sessionLocal()
 
     try:
         author_ids = get_author_ids(db)

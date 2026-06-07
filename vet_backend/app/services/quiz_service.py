@@ -10,7 +10,7 @@ from app.repositories import quiz_repository
 
 
 def listQuizzes(db: Session) -> list[dict]:
-    quizzes = quiz_repository.get_all_published(db)
+    quizzes = quiz_repository.getAllPublished(db)
     return [
         {
             "id": q.contentID,
@@ -25,44 +25,44 @@ def listQuizzes(db: Session) -> list[dict]:
     ]
 
 
-def getQuiz(db: Session, quiz_id: str) -> Quiz:
-    quiz = quiz_repository.get_by_id(db, quiz_id)
+def getQuiz(db: Session, quizId: str) -> Quiz:
+    quiz = quiz_repository.getById(db, quizId)
     if quiz is None:
         raise HTTPException(status_code=404, detail="Quiz not found")
     return quiz
 
 
-def checkAnswer(db: Session, quiz_id: str, question_id: str, answer_id: str) -> dict:
-    quiz = getQuiz(db, quiz_id)
-    question = next((q for q in quiz.questionList if q.questionID == question_id), None)
+def checkAnswer(db: Session, quizId: str, questionId: str, answerId: str) -> dict:
+    quiz = getQuiz(db, quizId)
+    question = next((q for q in quiz.questionList if q.questionID == questionId), None)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found in this quiz")
-    is_correct = question.checkAnswer(answer_id)
-    correct_answer_id = next((a.answerID for a in question.answerList if a.isCorrect), None)
-    return {"isCorrect": is_correct, "correctAnswerID": correct_answer_id}
+    isCorrect = question.checkAnswer(answerId)
+    correctAnswerId = next((a.answerID for a in question.answerList if a.isCorrect), None)
+    return {"isCorrect": isCorrect, "correctAnswerID": correctAnswerId}
 
 
 def submitQuiz(
-    db: Session, quiz_id: str, current_user: User, answers: dict[str, str]
+    db: Session, quizId: str, currentUser: User, answers: dict[str, str]
 ) -> dict:
-    quiz = getQuiz(db, quiz_id)
+    quiz = getQuiz(db, quizId)
     score, feedback = quiz.calculateScore(answers)
 
     result = QuizResult(
-        petOwnerID=current_user.userID,
+        petOwnerID=currentUser.userID,
         quizID=quiz.contentID,
         totalScore=score,
         attemptedAt=datetime.now(timezone.utc).isoformat(),
     )
-    result = quiz_repository.add_result(db, result)
+    result = quiz_repository.addResult(db, result)
     passed = quiz.evaluatePassingThreshold(score)
 
     recommended = []
     if not passed:
-        guides = quiz_repository.get_recommended_guides(
+        guides = quiz_repository.getRecommendedGuides(
             db, quiz.petType, quiz.emergencyCategory
         )
-        videos = quiz_repository.get_recommended_videos(
+        videos = quiz_repository.getRecommendedVideos(
             db, quiz.petType, quiz.emergencyCategory
         )
         recommended = quiz.recommendFirstAidContent([*guides, *videos])
@@ -78,57 +78,57 @@ def submitQuiz(
     }
 
 
-def getMyResults(db: Session, current_user: User) -> list[QuizResult]:
-    return quiz_repository.get_results_by_user(db, current_user.userID)
+def getMyResults(db: Session, currentUser: User) -> list[QuizResult]:
+    return quiz_repository.getResultsByUser(db, currentUser.userID)
 
 
-def getResult(db: Session, result_id: str, current_user: User) -> QuizResult:
-    result = quiz_repository.get_result_by_id(db, result_id)
+def getResult(db: Session, resultId: str, currentUser: User) -> QuizResult:
+    result = quiz_repository.getResultById(db, resultId)
     if result is None:
         raise HTTPException(status_code=404, detail="Quiz result not found")
-    if result.petOwnerID != current_user.userID:
+    if result.petOwnerID != currentUser.userID:
         raise HTTPException(status_code=403, detail="Not authorized")
     return result
 
 
 def setExplanation(
-    db: Session, quiz_id: str, question_id: str, explanation: str
+    db: Session, quizId: str, questionId: str, explanation: str
 ) -> dict:
-    quiz = getQuiz(db, quiz_id)
-    question = quiz_repository.get_question(db, question_id, quiz.contentID)
+    quiz = getQuiz(db, quizId)
+    question = quiz_repository.getQuestion(db, questionId, quiz.contentID)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found in this quiz")
     question.setExplanation(explanation)
-    question = quiz_repository.update_question(db, question)
+    question = quiz_repository.updateQuestion(db, question)
     return {"questionID": question.questionID, "explanation": question.getExplanation()}
 
 
 def updateQuestionText(
-    db: Session, quiz_id: str, question_id: str, question_text: str
+    db: Session, quizId: str, questionId: str, questionText: str
 ) -> dict:
-    quiz = getQuiz(db, quiz_id)
-    question = quiz_repository.get_question(db, question_id, quiz.contentID)
+    quiz = getQuiz(db, quizId)
+    question = quiz_repository.getQuestion(db, questionId, quiz.contentID)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found in this quiz")
-    if not question_text.strip():
+    if not questionText.strip():
         raise HTTPException(status_code=422, detail="Question text cannot be empty")
-    question.updateQuestionText(question_text.strip())
-    question = quiz_repository.update_question(db, question)
+    question.updateQuestionText(questionText.strip())
+    question = quiz_repository.updateQuestion(db, question)
     return {"questionID": question.questionID, "questionText": question.questionText}
 
 
 def updateAnswerText(
-    db: Session, quiz_id: str, question_id: str, answer_id: str, answer_text: str
+    db: Session, quizId: str, questionId: str, answerId: str, answerText: str
 ) -> dict:
-    quiz = getQuiz(db, quiz_id)
-    question = quiz_repository.get_question(db, question_id, quiz.contentID)
+    quiz = getQuiz(db, quizId)
+    question = quiz_repository.getQuestion(db, questionId, quiz.contentID)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found in this quiz")
-    if not answer_text.strip():
+    if not answerText.strip():
         raise HTTPException(status_code=422, detail="Answer text cannot be empty")
     try:
-        question.updateAnswerText(answer_id, answer_text.strip())
+        question.updateAnswerText(answerId, answerText.strip())
     except ValueError:
         raise HTTPException(status_code=404, detail="Answer not found in this question")
-    quiz_repository.update_question(db, question)
-    return {"answerID": answer_id, "answerText": answer_text.strip()}
+    quiz_repository.updateQuestion(db, question)
+    return {"answerID": answerId, "answerText": answerText.strip()}

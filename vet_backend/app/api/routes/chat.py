@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
+from app.core.database import getDb
 from app.api.routes.auth import getCurrentUser
 from app.core.security import validateToken
 from app.models.user import User
@@ -18,42 +18,42 @@ router = APIRouter(prefix="/api/chats", tags=["Chat"])
 
 # POST /api/chats — startChat() [PetOwner only]
 @router.post("")
-def start_chat(
+def startChat(
     body: StartChatRequest,
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
     from fastapi import HTTPException
-    if current_user.role != "pet_owner":
+    if currentUser.role != "pet_owner":
         raise HTTPException(status_code=403, detail="Only pet owners can start chats")
-    chat = current_user.accessVeterinaryAdviceChat(db, body.veterinarianID, body.isUrgent)
+    chat = chat_service.startChat(db, currentUser, body)
     return {"status": "ok", "data": chat}
 
 
 # GET /api/chats — list chats for current user
 @router.get("")
-def list_chats(
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+def listChats(
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
-    chats = chat_service.listChats(db, current_user)
+    chats = chat_service.listChats(db, currentUser)
     return {"status": "ok", "data": chats}
 
 
 # GET /api/chats/{chatID} — viewChatHistory()
 @router.get("/{chatID}")
-def get_chat(
+def getChat(
     chatID: str,
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
-    data = chat_service.getChat(db, chatID, current_user)
+    data = chat_service.getChat(db, chatID, currentUser)
     return {"status": "ok", "data": data}
 
 
 # WS /api/chats/{chatID}/ws — subscribe as observer
 @router.websocket("/{chatID}/ws")
-async def chat_websocket(chatID: str, websocket: WebSocket, db: Session = Depends(get_db)):
+async def chatWebsocket(chatID: str, websocket: WebSocket, db: Session = Depends(getDb)):
     token = websocket.query_params.get("token")
     payload = validateToken(token) if token else None
     if payload is None:
@@ -78,36 +78,36 @@ async def chat_websocket(chatID: str, websocket: WebSocket, db: Session = Depend
 
 # POST /api/chats/{chatID}/messages — sendMessage()
 @router.post("/{chatID}/messages")
-async def send_message(
+async def sendMessage(
     chatID: str,
     body: SendMessageRequest,
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
-    payload = await chat_service.sendMessage(db, chatID, current_user, body)
+    payload = await chat_service.sendMessage(db, chatID, currentUser, body)
     return {"status": "ok", "data": payload}
 
 
 # PUT /api/chats/{chatID}/messages/{messageID} — editMessage()
 @router.put("/{chatID}/messages/{messageID}")
-def edit_message(
+def editMessage(
     chatID: str,
     messageID: str,
     body: EditMessageRequest,
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
-    msg = chat_service.editMessage(db, chatID, messageID, current_user, body)
+    msg = chat_service.editMessage(db, chatID, messageID, currentUser, body)
     return {"status": "ok", "data": msg}
 
 
 # DELETE /api/chats/{chatID}/messages/{messageID} — deleteMessage()
 @router.delete("/{chatID}/messages/{messageID}")
-def delete_message(
+def deleteMessage(
     chatID: str,
     messageID: str,
-    current_user: User = Depends(getCurrentUser),
-    db: Session = Depends(get_db),
+    currentUser: User = Depends(getCurrentUser),
+    db: Session = Depends(getDb),
 ):
-    chat_service.deleteMessage(db, chatID, messageID, current_user)
+    chat_service.deleteMessage(db, chatID, messageID, currentUser)
     return {"status": "ok", "data": {"message": "Message deleted"}}

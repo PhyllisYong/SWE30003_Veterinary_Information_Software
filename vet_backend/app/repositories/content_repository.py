@@ -8,30 +8,30 @@ from app.models.quiz import Quiz
 from app.models.video import Video
 
 
-def get_by_id(db: Session, content_id: str) -> FirstAidContent | None:
+def getById(db: Session, contentId: str) -> FirstAidContent | None:
     return db.query(FirstAidContent).filter(
-        FirstAidContent.contentID == content_id
+        FirstAidContent.contentID == contentId
     ).first()
 
 
-def get_by_author(db: Session, author_id: str) -> list[FirstAidContent]:
+def getByAuthor(db: Session, authorId: str) -> list[FirstAidContent]:
     return db.query(FirstAidContent).filter(
-        FirstAidContent.authorVeterinarianID == author_id
+        FirstAidContent.authorVeterinarianID == authorId
     ).all()
 
 
-def get_assigned_pending(db: Session, assigned_vet_id: str) -> list[FirstAidContent]:
+def getAssignedPending(db: Session, assignedVetId: str) -> list[FirstAidContent]:
     return db.query(FirstAidContent).filter(
-        FirstAidContent.assignedVeterinarianID == assigned_vet_id,
+        FirstAidContent.assignedVeterinarianID == assignedVetId,
         FirstAidContent.publicationStatus == "pending_verification",
     ).all()
 
 
-def get_all(db: Session) -> list[FirstAidContent]:
+def getAll(db: Session) -> list[FirstAidContent]:
     return db.query(FirstAidContent).all()
 
 
-def get_all_published_polymorphic(db: Session) -> list[FirstAidContent]:
+def getAllPublishedPolymorphic(db: Session) -> list[FirstAidContent]:
     polymorphic = with_polymorphic(FirstAidContent, "*")
     return (
         db.query(polymorphic)
@@ -47,22 +47,22 @@ def add(db: Session, content: FirstAidContent) -> FirstAidContent:
     return content
 
 
-def add_quiz_with_questions(
+def addQuizWithQuestions(
     db: Session,
     quiz: Quiz,
-    questions_data: list[dict],
+    questionsData: list[dict],
 ) -> Quiz:
     db.add(quiz)
     db.flush()
-    for q_data in questions_data:
-        question = Question(questionText=q_data["questionText"], quizID=quiz.contentID)
+    for qData in questionsData:
+        question = Question(questionText=qData["questionText"], quizID=quiz.contentID)
         db.add(question)
         db.flush()
-        for a_data in q_data["answers"]:
+        for aData in qData["answers"]:
             db.add(
                 Answer(
-                    answerText=a_data["answerText"],
-                    isCorrect=a_data["isCorrect"],
+                    answerText=aData["answerText"],
+                    isCorrect=aData["isCorrect"],
                     questionID=question.questionID,
                 )
             )
@@ -71,23 +71,23 @@ def add_quiz_with_questions(
     return quiz
 
 
-def replace_quiz_questions(
+def replaceQuizQuestions(
     db: Session,
     quiz: Quiz,
-    questions_data: list[dict],
+    questionsData: list[dict],
 ) -> Quiz:
     for q in list(quiz.questionList):
         db.delete(q)
     db.flush()
-    for q_data in questions_data:
-        question = Question(questionText=q_data["questionText"], quizID=quiz.contentID)
+    for qData in questionsData:
+        question = Question(questionText=qData["questionText"], quizID=quiz.contentID)
         db.add(question)
         db.flush()
-        for a_data in q_data["answers"]:
+        for aData in qData["answers"]:
             db.add(
                 Answer(
-                    answerText=a_data["answerText"],
-                    isCorrect=a_data["isCorrect"],
+                    answerText=aData["answerText"],
+                    isCorrect=aData["isCorrect"],
                     questionID=question.questionID,
                 )
             )
